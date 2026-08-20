@@ -143,10 +143,17 @@
 <!-- TAB 3: INTERNSHIP LETTERS                  -->
 <!-- ========================================== -->
 <div id="student-letters" class="tab-content">
+    <?php $isLetterApproved = (int)($semesterDetail['letter_approved'] ?? 0) === 1; ?>
     <div class="table-header-bar">
-        <button class="btn-primary-action" onclick="openModal('letterModal')">
-            <i class="fa-solid fa-envelope-open-text"></i> Internship Letter
-        </button>
+        <?php if ($isLetterApproved): ?>
+            <button class="btn-primary-action" onclick="openModal('letterModal')">
+                <i class="fa-solid fa-envelope-open-text"></i> Internship Letter
+            </button>
+        <?php else: ?>
+            <button class="btn-primary-action" disabled style="background-color: #94a3b8; cursor: not-allowed; opacity: 0.7;">
+                <i class="fa-solid fa-lock"></i> Internship Letter (Locked)
+            </button>
+        <?php endif; ?>
     </div>
 
     <div class="card">
@@ -171,11 +178,23 @@
                         <td><?php echo htmlspecialchars($rollno); ?></td>
                         <td><?php echo htmlspecialchars($semesterDetail['session'] ?: 'N/A'); ?></td>
                         <td>Official Internship Request Letter</td>
-                        <td><span class="badge-status badge-approved">Draft Ready</span></td>
                         <td>
-                            <button class="btn-table-action" onclick="openModal('letterModal')">
-                                <i class="fa-solid fa-eye"></i> View Draft
-                            </button>
+                            <?php if ($isLetterApproved): ?>
+                                <span class="badge-status badge-approved">Approved</span>
+                            <?php else: ?>
+                                <span class="badge-status badge-pending">Pending Approval</span>
+                            <?php endif; ?>
+                        </td>
+                        <td>
+                            <?php if ($isLetterApproved): ?>
+                                <button class="btn-table-action" onclick="openModal('letterModal')">
+                                    <i class="fa-solid fa-eye"></i> View Draft
+                                </button>
+                            <?php else: ?>
+                                <button class="btn-table-action" disabled style="background-color: #94a3b8; cursor: not-allowed; opacity: 0.7;">
+                                    <i class="fa-solid fa-lock"></i> Locked
+                                </button>
+                            <?php endif; ?>
                         </td>
                     </tr>
                 </tbody>

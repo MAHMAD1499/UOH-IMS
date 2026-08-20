@@ -81,7 +81,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <!-- Login Card Container -->
         <div class="login-card">
             <div class="login-card-header">
-                <img src="assets/img/Gemini_Generated_Image_4o5eys4o5eys4o5e.svg?v=2" alt="UOH Logo" class="login-logo">
+                <img src="assets/img/uoh logo.svg" alt="UOH Logo" class="login-logo">
             </div>
             <div class="login-card-body">
                 <form action="" method="POST" onsubmit="return validateLoginForm();">

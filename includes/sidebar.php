@@ -1,6 +1,6 @@
 <div class="sidebar">
     <div class="sidebar-header">
-        <img src="assets/img/Gemini_Generated_Image_4o5eys4o5eys4o5e.svg?v=2" alt="UOH Logo" class="sidebar-logo">
+        <img src="assets/img/uoh logo.svg" alt="UOH Logo" class="sidebar-logo">
     </div>
     <div class="user-profile-mini">
         <i class="fa-solid fa-user-circle fa-2x"></i>
@@ -24,7 +24,10 @@
 
         <?php if (isset($_SESSION['user_type']) && $_SESSION['user_type'] === 'FP'): ?>
             <li class="nav-item active" onclick="switchTab('focal-dashboard', this)">
-                <i class="fa-solid fa-user-tie"></i> Focal Person
+                <i class="fa-solid fa-gauge"></i> Registered Students list
+            </li>
+            <li class="nav-item" onclick="switchTab('focal-letters', this)">
+                <i class="fa-solid fa-file-contract"></i> Internship Letter
             </li>
         <?php endif; ?>
 

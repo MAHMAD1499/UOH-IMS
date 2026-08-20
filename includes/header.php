@@ -23,9 +23,16 @@ if (session_status() === PHP_SESSION_NONE) {
     <div class="main-wrapper">
         <div class="top-navbar">
             <div class="welcome-text">
-                <i class="fa-solid fa-bars" id="sidebarToggle" style="cursor: pointer;"></i> Welcome
+                <i class="fa-solid fa-bars" id="sidebarToggle" style="cursor: pointer;"></i> 
+                <?php if (isset($_SESSION['user_type']) && $_SESSION['user_type'] === 'FP'): ?>
+                    Focal Person Portal
+                <?php else: ?>
+                    Welcome
+                <?php endif; ?>
             </div>
-            <a href="logout.php" class="logout-btn">Logout</a>
+            <div style="display: flex; align-items: center; gap: 15px;">
+                <a href="logout.php" class="logout-btn">Logout</a>
+            </div>
         </div>
 
         <!-- Content Area start (footer.php closes this) -->
