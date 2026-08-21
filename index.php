@@ -233,5 +233,3 @@ if ($role === 'STD') {
 ?>
 
 <?php include 'includes/footer.php'; ?>
-
-// handle your work bitch
