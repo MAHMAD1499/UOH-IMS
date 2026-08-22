@@ -26,6 +26,8 @@ if (session_status() === PHP_SESSION_NONE) {
                 <i class="fa-solid fa-bars" id="sidebarToggle" style="cursor: pointer;"></i> 
                 <?php if (isset($_SESSION['user_type']) && $_SESSION['user_type'] === 'FP'): ?>
                     Focal Person Portal
+                <?php elseif (isset($_SESSION['user_type']) && $_SESSION['user_type'] === 'FSP'): ?>
+                    Faculty Supervisor Portal
                 <?php else: ?>
                     Welcome
                 <?php endif; ?>

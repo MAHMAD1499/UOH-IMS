@@ -33,7 +33,16 @@
 
         <?php if (isset($_SESSION['user_type']) && $_SESSION['user_type'] === 'FSP'): ?>
             <li class="nav-item active" onclick="switchTab('faculty-dashboard', this)">
-                <i class="fa-solid fa-chalkboard-user"></i> Faculty Supervisor
+                <i class="fa-solid fa-users-rectangle"></i> Assigned Students
+            </li>
+            <li class="nav-item" onclick="switchTab('faculty-reports', this)">
+                <i class="fa-solid fa-file-signature"></i> Weekly Reports Review
+            </li>
+            <li class="nav-item" onclick="switchTab('faculty-marks', this)">
+                <i class="fa-solid fa-award"></i> Marks Evaluation
+            </li>
+            <li class="nav-item" onclick="switchTab('faculty-orgs', this)">
+                <i class="fa-solid fa-building"></i> Organizations & Supervisors
             </li>
         <?php endif; ?>
     </ul>
