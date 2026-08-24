@@ -2,7 +2,7 @@
     <div class="sidebar-header">
         <img src="assets/img/uoh logo.svg" alt="UOH Logo" class="sidebar-logo">
     </div>
-    <div class="user-profile-mini">
+    <div class="user-profile-mini" style="cursor: pointer;" onclick="switchToProfileTab()">
         <i class="fa-solid fa-user-circle fa-2x"></i>
         <span><?php echo htmlspecialchars($_SESSION['username'] ?? 'User'); ?></span>
     </div>
@@ -11,38 +11,38 @@
         <li class="nav-section-title">Internship Management System</li>
 
         <?php if (!isset($_SESSION['user_type']) || $_SESSION['user_type'] === 'STD'): ?>
-            <li class="nav-item active" onclick="switchTab('student-dashboard', this)">
-                <i class="fa-solid fa-user"></i> Personal
+            <li class="nav-item active" onclick="switchTab('student-welcome-dashboard', this)">
+                <i class="fa-solid fa-gauge"></i> <span>Dashboard</span>
             </li>
             <li class="nav-item" onclick="switchTab('student-reports', this)">
-                <i class="fa-solid fa-file-lines"></i> Internship Reports
+                <i class="fa-solid fa-file-lines"></i> <span>Internship Reports</span>
             </li>
             <li class="nav-item" onclick="switchTab('student-letters', this)">
-                <i class="fa-solid fa-envelope-open-text"></i> Internship Letters
+                <i class="fa-solid fa-envelope-open-text"></i> <span>Internship Letters</span>
+            </li>
+            <li class="nav-item" onclick="switchTab('student-site-supervisor', this)">
+                <i class="fa-solid fa-user-tie"></i> <span>Site Supervisor</span>
             </li>
         <?php endif; ?>
 
         <?php if (isset($_SESSION['user_type']) && $_SESSION['user_type'] === 'FP'): ?>
             <li class="nav-item active" onclick="switchTab('focal-dashboard', this)">
-                <i class="fa-solid fa-gauge"></i> Registered Students list
+                <i class="fa-solid fa-gauge"></i> <span>Registered Students list</span>
             </li>
             <li class="nav-item" onclick="switchTab('focal-letters', this)">
-                <i class="fa-solid fa-file-contract"></i> Internship Letter
+                <i class="fa-solid fa-file-contract"></i> <span>Internship Letter</span>
             </li>
         <?php endif; ?>
 
         <?php if (isset($_SESSION['user_type']) && $_SESSION['user_type'] === 'FSP'): ?>
             <li class="nav-item active" onclick="switchTab('faculty-dashboard', this)">
-                <i class="fa-solid fa-users-rectangle"></i> Assigned Students
+                <i class="fa-solid fa-users-rectangle"></i> <span>Assigned Students</span>
             </li>
             <li class="nav-item" onclick="switchTab('faculty-reports', this)">
-                <i class="fa-solid fa-file-signature"></i> Weekly Reports Review
+                <i class="fa-solid fa-file-signature"></i> <span>Weekly Reports Review</span>
             </li>
             <li class="nav-item" onclick="switchTab('faculty-marks', this)">
-                <i class="fa-solid fa-award"></i> Marks Evaluation
-            </li>
-            <li class="nav-item" onclick="switchTab('faculty-orgs', this)">
-                <i class="fa-solid fa-building"></i> Organizations & Supervisors
+                <i class="fa-solid fa-award"></i> <span>Marks Evaluation</span>
             </li>
         <?php endif; ?>
     </ul>

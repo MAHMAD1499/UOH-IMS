@@ -36,7 +36,29 @@ body {
 }
 
 .sidebar.collapsed {
-    width: 0;
+    width: 60px;
+}
+
+.sidebar.collapsed .sidebar-logo,
+.sidebar.collapsed .user-profile-mini span,
+.sidebar.collapsed .nav-section-title,
+.sidebar.collapsed .nav-item span {
+    display: none;
+}
+
+.sidebar.collapsed .nav-item {
+    justify-content: center;
+    padding: 12px 0;
+}
+
+.sidebar.collapsed .nav-item i {
+    font-size: 18px;
+    margin: 0;
+}
+
+.sidebar.collapsed .user-profile-mini {
+    justify-content: center;
+    padding: 15px 0;
 }
 
 .sidebar-header {

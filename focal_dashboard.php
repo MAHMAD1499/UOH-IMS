@@ -150,7 +150,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-// Fetch all active students details
 $studentsQuery = "
     SELECT 
         u.u_id,
@@ -165,13 +164,28 @@ $studentsQuery = "
         sd.letter_approved AS letter_approved,
         sup.u_id AS supervisor_id,
         sup_p.name AS supervisor_name,
-        sup.u_name AS supervisor_username
+        sup.u_name AS supervisor_username,
+        ssd.org_name,
+        ssd.org_address,
+        ssd.org_category,
+        ssd.org_type,
+        ssd.org_contact_person AS contact_person_name,
+        ssd.org_contact_cell AS contact_person_phone,
+        ssd.org_contact_email AS contact_person_email,
+        ssd.org_contact_designation AS contact_person_designation,
+        ssd.site_supervisor_name,
+        ssd.site_supervisor_cell AS site_supervisor_phone,
+        ssd.site_supervisor_email,
+        ssd.site_supervisor_designation,
+        ssd.internship_title,
+        ssd.internship_duration AS duration_weeks
     FROM user u
     LEFT JOIN user_profile p ON u.u_id = p.u_id
     LEFT JOIN user_semester_detail sd ON u.u_name = sd.rollno
     LEFT JOIN assign_faculty_supervisor afs ON u.u_name = afs.rollno AND afs.status = 1
     LEFT JOIN user sup ON afs.u_id = sup.u_id
     LEFT JOIN user_profile sup_p ON sup.u_id = sup_p.u_id
+    LEFT JOIN site_supervisor_details ssd ON u.u_name = ssd.rollno
     WHERE u.u_type = 'STD' AND u.status = 1
     ORDER BY sd.session DESC, u.u_name ASC
 ";
@@ -224,27 +238,35 @@ sort($sessions);
 <!-- ========================================== -->
 <div id="focal-dashboard" class="tab-content active">
 
+    <!-- Add Student Button top-right (unattached from Registered Students List tab/card) -->
+    <div style="display: flex; justify-content: flex-end; margin-bottom: 15px;">
+        <button class="btn-primary-action" onclick="openModal('addStudentModal');"
+            style="padding: 8px 16px; font-size: 13px; margin: 0; background: linear-gradient(135deg, #10b981 0%, #059669 100%);">
+            <i class="fa-solid fa-user-plus"></i> Add Student
+        </button>
+    </div>
+
     <!-- Section 2 — Session-wise Student Table & Assignment -->
     <div class="card">
         <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
             <span><i class="fa-solid fa-users"></i> Registered Students List</span>
             <div style="display: flex; align-items: center; gap: 12px;">
-                <!-- Add Student Button -->
-                <button class="btn-primary-action" onclick="openModal('addStudentModal');"
-                    style="padding: 6px 12px; font-size: 13px; margin: 0; background: linear-gradient(135deg, #10b981 0%, #059669 100%);">
-                    <i class="fa-solid fa-user-plus"></i> Add Student
-                </button>
                 <!-- Session Filter -->
                 <div style="display: flex; align-items: center; gap: 8px;">
                     <label for="session-filter-dropdown" style="font-size: 13px; font-weight: bold; color: #fff;">Filter
                         Session:</label>
                     <select id="session-filter-dropdown" onchange="filterSession(this.value);"
-                        style="padding: 4px 8px; font-size: 13px; border-radius: 4px; border: 1px solid #cbd5e1; outline: none; color: #333;">
+                        style="padding: 4px 8px; font-size: 13px; border-radius: 4px; border: 1px solid #cbd5e1; outline: none; color: #333; transition: all 0.25s ease;"
+                        onmouseover="this.style.borderColor='#10b981'; this.style.backgroundColor='#f8fafc';"
+                        onmouseout="this.style.borderColor='#cbd5e1'; this.style.backgroundColor='#fff';"
+                        onfocus="this.style.borderColor='#10b981'; this.style.boxShadow='0 0 0 3px rgba(16, 185, 129, 0.25)';"
+                        onblur="this.style.borderColor='#cbd5e1'; this.style.boxShadow='none';">
                         <option value="">All Sessions</option>
                         <?php
                         $endYear = (int) date('Y') + 4;
                         for ($y = $endYear; $y >= 2021; $y--) {
-                            echo '<option value="Fall ' . $y . '">Fall ' . $y . '</option>';
+                            $fallSelected = ($y == 2026) ? 'selected' : '';
+                            echo '<option value="Fall ' . $y . '" ' . $fallSelected . '>Fall ' . $y . '</option>';
                             echo '<option value="Spring ' . $y . '">Spring ' . $y . '</option>';
                         }
                         ?>
@@ -263,6 +285,7 @@ sort($sessions);
                         <th>Program</th>
                         <th>Semester</th>
                         <th>Session</th>
+                        <th>Organization and Site Supervisor</th>
                         <th>Assigned Supervisor</th>
                         <th>Action</th>
                     </tr>
@@ -270,7 +293,7 @@ sort($sessions);
                 <tbody id="student-table-body">
                     <?php if (empty($students)): ?>
                         <tr>
-                            <td colspan="9" style="text-align: center; color: #64748b; padding: 20px;">No student records
+                            <td colspan="10" style="text-align: center; color: #64748b; padding: 20px;">No student records
                                 found.</td>
                         </tr>
                     <?php else: ?>
@@ -283,6 +306,44 @@ sort($sessions);
                                 <td><?php echo htmlspecialchars($student['student_program'] ?? 'N/A'); ?></td>
                                 <td><?php echo htmlspecialchars($student['student_semester'] ?? 'N/A'); ?></td>
                                 <td><?php echo htmlspecialchars($student['student_session'] ?? 'N/A'); ?></td>
+                                <td>
+                                    <?php if (!empty($student['org_name'])): ?>
+                                        <div style="font-weight: 600; color: #1e293b; font-size: 13px;">
+                                            <?php echo htmlspecialchars($student['org_name']); ?>
+                                            <?php if (!empty($student['duration_weeks'])): ?>
+                                                (<?php echo (int)$student['duration_weeks']; ?> W)
+                                            <?php endif; ?>
+                                        </div>
+                                        <?php if (!empty($student['site_supervisor_name'])): ?>
+                                            <div style="font-size: 11px; color: #64748b; margin-top: 2px;">
+                                                <i class="fa-solid fa-user-tie"></i> SS: <?php echo htmlspecialchars($student['site_supervisor_name']); ?>
+                                            </div>
+                                        <?php endif; ?>
+                                        <button type="button" class="btn-table-action" style="margin-top: 5px; padding: 4px 8px; font-size: 11px; background: #1d2243; color: #ffffff; border: none; border-radius: 4px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 4px;"
+                                            onclick="openSupervisorModal(
+                                                '<?php echo htmlspecialchars(addslashes($student['student_name'] ?? 'Student')); ?>',
+                                                '<?php echo htmlspecialchars(addslashes($student['student_rollno'])); ?>',
+                                                '<?php echo htmlspecialchars(addslashes($student['org_name'])); ?>',
+                                                '<?php echo htmlspecialchars(addslashes($student['org_address'] ?? 'N/A')); ?>',
+                                                '<?php echo htmlspecialchars(addslashes($student['org_category'] ?? 'General')); ?>',
+                                                '<?php echo htmlspecialchars(addslashes($student['org_type'] ?? 'IT')); ?>',
+                                                '<?php echo htmlspecialchars(addslashes($student['contact_person_name'] ?? 'N/A')); ?>',
+                                                '<?php echo htmlspecialchars(addslashes($student['contact_person_phone'] ?? 'N/A')); ?>',
+                                                '<?php echo htmlspecialchars(addslashes($student['contact_person_email'] ?? 'N/A')); ?>',
+                                                '<?php echo htmlspecialchars(addslashes($student['contact_person_designation'] ?? 'N/A')); ?>',
+                                                '<?php echo htmlspecialchars(addslashes($student['site_supervisor_name'] ?? 'Not Assigned')); ?>',
+                                                '<?php echo htmlspecialchars(addslashes($student['site_supervisor_phone'] ?? 'N/A')); ?>',
+                                                '<?php echo htmlspecialchars(addslashes($student['site_supervisor_email'] ?? 'N/A')); ?>',
+                                                '<?php echo htmlspecialchars(addslashes($student['site_supervisor_designation'] ?? 'N/A')); ?>',
+                                                '<?php echo htmlspecialchars(addslashes($student['internship_title'] ?? 'N/A')); ?>',
+                                                '<?php echo (int) $student['duration_weeks']; ?>'
+                                            )">
+                                            <i class="fa-solid fa-user-tie"></i> View Details
+                                        </button>
+                                    <?php else: ?>
+                                        <span style="color: #94a3b8; font-style: italic; font-size: 12px;">Not Placed</span>
+                                    <?php endif; ?>
+                                </td>
                                 <td>
                                     <?php if (!empty($student['supervisor_id'])): ?>
                                         <span class="badge-status badge-approved">
@@ -567,6 +628,76 @@ sort($sessions);
     </div>
 </div>
 
+<!-- ========================================== -->
+<!-- MODAL: SITE SUPERVISOR DETAILS POPUP       -->
+<!-- ========================================== -->
+<div id="supervisorDetailsModal" class="modal-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); z-index: 1000; align-items: center; justify-content: center;">
+    <div class="modal-container" style="background: #fff; width: 90%; max-width: 700px; border-radius: 6px; box-shadow: 0 5px 15px rgba(0,0,0,0.3); overflow: hidden; position: relative;">
+        <div class="modal-header" style="background: #1e293b; color: #fff; padding: 14px 18px; display: flex; justify-content: space-between; align-items: center;">
+            <h3 style="margin: 0; font-size: 16px;"><i class="fa-solid fa-user-tie"></i> Placement & Site Supervisor Details</h3>
+            <span class="modal-close" onclick="closeSupervisorModal()" style="cursor: pointer; font-size: 22px; font-weight: bold;">&times;</span>
+        </div>
+        <div class="modal-body" style="padding: 18px; max-height: calc(100vh - 200px); overflow-y: auto;">
+            
+            <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 4px; padding: 12px 15px; margin-bottom: 18px;">
+                <div style="font-weight: 700; color: #1e293b; font-size: 15px;" id="sv_student_name"></div>
+                <div style="font-size: 12px; color: #64748b; margin-top: 2px;">
+                    Roll No: <span id="sv_student_roll" style="font-weight: 600; color: #334155;"></span>
+                </div>
+            </div>
+
+            <!-- Organization Card -->
+            <div class="org-info-card" style="border: 1px solid #e2e8f0; border-radius: 6px; padding: 15px; background: #ffffff; margin-bottom: 15px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #f1f5f9; padding-bottom: 8px; margin-bottom: 10px;">
+                    <h4 style="font-size: 15px; font-weight: 700; color: #1e293b; margin: 0;">
+                        <i class="fa-solid fa-building text-success" style="margin-right: 5px;"></i> <span id="sv_org_name"></span>
+                    </h4>
+                    <span id="sv_org_type_badge" class="status-pill" style="font-size: 10px; background-color: #3b82f6; color: white; padding: 2px 6px; border-radius: 10px;"></span>
+                </div>
+                <p style="margin-bottom: 5px; font-size: 13px;"><strong>Category:</strong> <span id="sv_org_category"></span></p>
+                <p style="margin-bottom: 5px; font-size: 13px;"><strong>Address:</strong> <span id="sv_org_address"></span></p>
+            </div>
+
+            <div class="org-details-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 14px; font-size: 13px;">
+                <!-- Organization Contact Person Block -->
+                <div class="org-detail-block" style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 4px; padding: 12px;">
+                    <h5 style="font-size: 11px; text-transform: uppercase; color: #64748b; margin-bottom: 8px; font-weight: 700; letter-spacing: 0.5px; border-bottom: 1px solid #e2e8f0; padding-bottom: 4px;">
+                        <i class="fa-solid fa-address-book"></i> Organization Contact Person
+                    </h5>
+                    <p style="margin-bottom: 4px;"><strong>Name:</strong> <span id="sv_cp_name"></span></p>
+                    <p style="margin-bottom: 4px;"><strong>Designation:</strong> <span id="sv_cp_designation"></span></p>
+                    <p style="margin-bottom: 4px;"><strong>Cell No:</strong> <span id="sv_cp_phone"></span></p>
+                    <p style="margin-bottom: 4px;"><strong>Email:</strong> <span id="sv_cp_email"></span></p>
+                </div>
+
+                <!-- Site Supervisor Block -->
+                <div class="org-detail-block" style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 4px; padding: 12px;">
+                    <h5 style="font-size: 11px; text-transform: uppercase; color: #64748b; margin-bottom: 8px; font-weight: 700; letter-spacing: 0.5px; border-bottom: 1px solid #e2e8f0; padding-bottom: 4px;">
+                        <i class="fa-solid fa-user-tie"></i> Assigned Site Supervisor
+                    </h5>
+                    <p style="margin-bottom: 4px;"><strong>Name:</strong> <span id="sv_ss_name"></span></p>
+                    <p style="margin-bottom: 4px;"><strong>Designation:</strong> <span id="sv_ss_designation"></span></p>
+                    <p style="margin-bottom: 4px;"><strong>Cell No:</strong> <span id="sv_ss_phone"></span></p>
+                    <p style="margin-bottom: 4px;"><strong>Email:</strong> <span id="sv_ss_email"></span></p>
+                </div>
+            </div>
+
+            <!-- Project Placement Block -->
+            <div class="org-detail-block" style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 4px; padding: 12px; margin-top: 15px;">
+                <h5 style="font-size: 11px; text-transform: uppercase; color: #64748b; margin-bottom: 8px; font-weight: 700; letter-spacing: 0.5px; border-bottom: 1px solid #e2e8f0; padding-bottom: 4px;">
+                    <i class="fa-solid fa-briefcase"></i> Placed Student & Project
+                </h5>
+                <p style="margin-bottom: 4px;"><strong>Project Title:</strong> <span id="sv_project_title"></span></p>
+                <p style="margin-bottom: 4px;"><strong>Duration:</strong> <span id="sv_project_duration"></span> Weeks</p>
+            </div>
+
+            <div style="margin-top: 18px; text-align: right;">
+                <button type="button" class="btn-cancel" onclick="closeSupervisorModal()" style="padding: 6px 14px; margin-top: 0;">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script>
     // Open Modal
     function openModal(modalId) {
@@ -619,10 +750,16 @@ sort($sessions);
             // Handle empty row
             if (!session) return;
 
-            if (sessionValue === '' || session === sessionValue) {
+            if (sessionValue === '') {
                 row.style.display = '';
             } else {
-                row.style.display = 'none';
+                const normSession = session.replace(/\s+/g, '-').toLowerCase();
+                const normVal = sessionValue.replace(/\s+/g, '-').toLowerCase();
+                if (normSession === normVal) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
             }
         });
     }
@@ -645,4 +782,40 @@ sort($sessions);
             event.target.style.display = 'none';
         }
     };
+
+    function openSupervisorModal(stdName, rollNo, orgName, orgAddress, orgCategory, orgType, cpName, cpPhone, cpEmail, cpDesignation, ssName, ssPhone, ssEmail, ssDesignation, projTitle, duration) {
+        document.getElementById('sv_student_name').textContent = stdName;
+        document.getElementById('sv_student_roll').textContent = rollNo;
+        document.getElementById('sv_org_name').textContent = orgName;
+        document.getElementById('sv_org_address').textContent = orgAddress;
+        document.getElementById('sv_org_category').textContent = orgCategory;
+        document.getElementById('sv_org_type_badge').textContent = orgType;
+        
+        document.getElementById('sv_cp_name').textContent = cpName;
+        document.getElementById('sv_cp_designation').textContent = cpDesignation;
+        document.getElementById('sv_cp_phone').textContent = cpPhone;
+        document.getElementById('sv_cp_email').textContent = cpEmail;
+
+        document.getElementById('sv_ss_name').textContent = ssName;
+        document.getElementById('sv_ss_designation').textContent = ssDesignation;
+        document.getElementById('sv_ss_phone').textContent = ssPhone;
+        document.getElementById('sv_ss_email').textContent = ssEmail;
+
+        document.getElementById('sv_project_title').textContent = projTitle;
+        document.getElementById('sv_project_duration').textContent = duration;
+
+        document.getElementById('supervisorDetailsModal').style.display = 'flex';
+    }
+
+    function closeSupervisorModal() {
+        document.getElementById('supervisorDetailsModal').style.display = 'none';
+    }
+
+    document.addEventListener("DOMContentLoaded", function() {
+        const sessionFilter = document.getElementById('session-filter-dropdown');
+        if (sessionFilter) {
+            // Filter by selected value (which defaults to 'Fall 2026')
+            filterSession(sessionFilter.value);
+        }
+    });
 </script>

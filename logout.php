@@ -9,6 +9,18 @@ if (ini_get('session.use_cookies')) {
 }
 
 session_destroy();
-
-header('Location: login.php');
+?>
+<!DOCTYPE html>
+<html>
+<head>
+    <script>
+        localStorage.removeItem('activeTab');
+        localStorage.removeItem('activeNavIndex');
+        window.location.href = 'login.php';
+    </script>
+</head>
+<body>
+</body>
+</html>
+<?php
 exit;

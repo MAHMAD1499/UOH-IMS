@@ -22,9 +22,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($userType === 'STD' && !preg_match('/^[sS]\d{2}-\d{4}$/', $username)) {
             $isValid = false;
             $loginError = 'Invalid username format for Student. Expected format: S23-1234';
-        } elseif ($userType === 'FP' && !preg_match('/^[fF]\d{2}-\d{4}$/', $username)) {
+        } elseif ($userType === 'FP' && !preg_match('/^[fF][pP]-\d{4}$/', $username)) {
             $isValid = false;
-            $loginError = 'Invalid username format for Focal Person. Expected format: F26-2345';
+            $loginError = 'Invalid username format for Focal Person. Expected format: FP-0001';
         } elseif ($userType === 'FSP' && !preg_match('/^[fF][sS][pP]-\d{4}$/', $username)) {
             $isValid = false;
             $loginError = 'Invalid username format for Faculty Supervisor. Expected format: FSP-0001';
@@ -121,7 +121,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 value="<?php echo htmlspecialchars($_POST['username'] ?? ''); ?>"
                                 placeholder="Username / ID" required>
                         </div>
-                        <span class="input-hint">Format: S23-1234 / F26-2345 / FSP-0001</span>
+                        <span class="input-hint">Format: S23-1234 / FP-0001 / FSP-0001</span>
                     </div>
 
                     <!-- Password Input -->
@@ -162,10 +162,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 errorMessage = 'Student Username must match the format: S23-1234';
             }
         } else if (userType === 'FP') {
-            const fpRegex = /^[fF]\d{2}-\d{4}$/;
+            const fpRegex = /^[fF][pP]-\d{4}$/;
             if (!fpRegex.test(username)) {
                 isValid = false;
-                errorMessage = 'Focal Person Username must match the format: F26-2345';
+                errorMessage = 'Focal Person Username must match the format: FP-0001';
             }
         } else if (userType === 'FSP') {
             const fspRegex = /^[fF][sS][pP]-\d{4}$/;
