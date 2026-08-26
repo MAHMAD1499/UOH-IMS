@@ -2,12 +2,34 @@
     </div> <!-- End of main-wrapper -->
 
     <script>
+        function toggleSidebarDropdown(dropdownId) {
+            const dropdown = document.getElementById(dropdownId);
+            if (!dropdown) return;
+            dropdown.classList.toggle('open');
+            const toggleBtn = dropdown.previousElementSibling;
+            if (toggleBtn) {
+                const icon = toggleBtn.querySelector('.dropdown-chevron');
+                if (icon) {
+                    if (dropdown.classList.contains('open')) {
+                        icon.classList.remove('fa-chevron-down');
+                        icon.classList.add('fa-chevron-up');
+                    } else {
+                        icon.classList.remove('fa-chevron-up');
+                        icon.classList.add('fa-chevron-down');
+                    }
+                }
+            }
+        }
+
         function switchTab(tabId, element) {
             const tabs = document.querySelectorAll('.tab-content');
             tabs.forEach(tab => tab.classList.remove('active'));
 
             const navItems = document.querySelectorAll('.nav-item');
             navItems.forEach(item => item.classList.remove('active'));
+
+            const navSubitems = document.querySelectorAll('.nav-subitem');
+            navSubitems.forEach(item => item.classList.remove('active'));
 
             const targetTab = document.getElementById(tabId);
             if (targetTab) {
@@ -16,8 +38,27 @@
             }
             if (element) {
                 element.classList.add('active');
-                // Save the index or identifier of the clicked element
-                const navIndex = Array.from(navItems).indexOf(element);
+
+                // If it is a subitem, ensure the parent dropdown is open and style it
+                if (element.classList.contains('nav-subitem')) {
+                    const dropdown = element.closest('.nav-dropdown');
+                    if (dropdown) {
+                        dropdown.classList.add('open');
+                        const toggleBtn = dropdown.previousElementSibling;
+                        if (toggleBtn) {
+                            toggleBtn.classList.add('active');
+                            const icon = toggleBtn.querySelector('.dropdown-chevron');
+                            if (icon) {
+                                icon.classList.remove('fa-chevron-down');
+                                icon.classList.add('fa-chevron-up');
+                            }
+                        }
+                    }
+                }
+
+                // Save index of the element
+                const allClickables = [...navItems, ...navSubitems];
+                const navIndex = allClickables.indexOf(element);
                 localStorage.setItem('activeNavIndex', navIndex);
             }
         }
@@ -29,11 +70,36 @@
             const navItems = document.querySelectorAll('.nav-item');
             navItems.forEach(item => item.classList.remove('active'));
 
+            const navSubitems = document.querySelectorAll('.nav-subitem');
+            navSubitems.forEach(item => item.classList.remove('active'));
+
             const studentDashboard = document.getElementById('student-dashboard');
             if (studentDashboard) {
                 studentDashboard.classList.add('active');
                 localStorage.setItem('activeTab', 'student-dashboard');
-                localStorage.setItem('activeNavIndex', -1);
+
+                const viewProfileSubitem = document.getElementById('nav-subitem-view-profile');
+                if (viewProfileSubitem) {
+                    viewProfileSubitem.classList.add('active');
+                    const allClickables = [...navItems, ...navSubitems];
+                    localStorage.setItem('activeNavIndex', allClickables.indexOf(viewProfileSubitem));
+                } else {
+                    localStorage.setItem('activeNavIndex', -1);
+                }
+
+                const profileDropdown = document.getElementById('profile-dropdown');
+                if (profileDropdown) {
+                    profileDropdown.classList.add('open');
+                    const toggleBtn = profileDropdown.previousElementSibling;
+                    if (toggleBtn) {
+                        toggleBtn.classList.add('active');
+                        const icon = toggleBtn.querySelector('.dropdown-chevron');
+                        if (icon) {
+                            icon.classList.remove('fa-chevron-down');
+                            icon.classList.add('fa-chevron-up');
+                        }
+                    }
+                }
             }
         }
 
@@ -53,11 +119,33 @@
             
             if (savedNavIndex !== null) {
                 const navItems = document.querySelectorAll('.nav-item');
-                if (navItems.length > 0) {
+                const navSubitems = document.querySelectorAll('.nav-subitem');
+                const allClickables = [...navItems, ...navSubitems];
+                
+                if (allClickables.length > 0) {
                     navItems.forEach(item => item.classList.remove('active'));
+                    navSubitems.forEach(item => item.classList.remove('active'));
                     const index = parseInt(savedNavIndex);
-                    if (index >= 0 && navItems[index]) {
-                        navItems[index].classList.add('active');
+                    if (index >= 0 && allClickables[index]) {
+                        const element = allClickables[index];
+                        element.classList.add('active');
+
+                        // If it's a subitem, expand parent dropdown and set it active
+                        if (element.classList.contains('nav-subitem')) {
+                            const dropdown = element.closest('.nav-dropdown');
+                            if (dropdown) {
+                                dropdown.classList.add('open');
+                                const toggleBtn = dropdown.previousElementSibling;
+                                if (toggleBtn) {
+                                    toggleBtn.classList.add('active');
+                                    const icon = toggleBtn.querySelector('.dropdown-chevron');
+                                    if (icon) {
+                                        icon.classList.remove('fa-chevron-down');
+                                        icon.classList.add('fa-chevron-up');
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
             }

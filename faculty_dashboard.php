@@ -417,16 +417,16 @@ mysqli_stmt_close($stmtOrg);
 
     .fsp-select:hover,
     .fsp-input:hover {
-        border-color: #2b5e4a;
+        border-color: #2e6652;
         background-color: #f8fafc;
         box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
     }
 
     .fsp-select:focus,
     .fsp-input:focus {
-        border-color: #2b5e4a;
+        border-color: #2e6652;
         background-color: #fff;
-        box-shadow: 0 0 0 3px rgba(43, 94, 74, 0.2);
+        box-shadow: 0 0 0 3px rgba(46, 102, 82, 0.2);
     }
 
     .status-pill {
@@ -492,21 +492,21 @@ mysqli_stmt_close($stmtOrg);
     }
 
     .btn-fsp-primary {
-        background: #2b5e4a;
+        background: #2e6652;
         color: #fff;
     }
 
     .btn-fsp-primary:hover {
-        background: #234c3c;
+        background: #234d3e;
     }
 
     .btn-fsp-secondary {
-        background: #1d2243;
+        background: #26294d;
         color: #fff;
     }
 
     .btn-fsp-secondary:hover {
-        background: #151933;
+        background: #1b1d36;
     }
 
     .btn-fsp-outline {
@@ -521,7 +521,7 @@ mysqli_stmt_close($stmtOrg);
 
     .report-callout {
         background: #f8fafc;
-        border-left: 4px solid #2b5e4a;
+        border-left: 4px solid #2e6652;
         padding: 12px 14px;
         border-radius: 0 4px 4px 0;
         margin-bottom: 14px;
@@ -1308,7 +1308,7 @@ mysqli_stmt_close($stmtOrg);
 <!-- ========================================== -->
 <div id="supervisorDetailsModal" class="modal-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); z-index: 1000; align-items: center; justify-content: center;">
     <div class="modal-container" style="background: #fff; width: 90%; max-width: 700px; border-radius: 6px; box-shadow: 0 5px 15px rgba(0,0,0,0.3); overflow: hidden; position: relative;">
-        <div class="modal-header" style="background: #2b5e4a; color: #fff; padding: 14px 18px; display: flex; justify-content: space-between; align-items: center;">
+        <div class="modal-header" style="background: #2e6652; color: #fff; padding: 14px 18px; display: flex; justify-content: space-between; align-items: center;">
             <h3 style="margin: 0; font-size: 16px;"><i class="fa-solid fa-user-tie"></i> Placement & Site Supervisor Details</h3>
             <span class="modal-close" onclick="closeSupervisorModal()" style="cursor: pointer; font-size: 22px; font-weight: bold;">&times;</span>
         </div>

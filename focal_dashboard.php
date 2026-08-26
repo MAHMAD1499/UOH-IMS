@@ -319,7 +319,7 @@ sort($sessions);
                                                 <i class="fa-solid fa-user-tie"></i> SS: <?php echo htmlspecialchars($student['site_supervisor_name']); ?>
                                             </div>
                                         <?php endif; ?>
-                                        <button type="button" class="btn-table-action" style="margin-top: 5px; padding: 4px 8px; font-size: 11px; background: #1d2243; color: #ffffff; border: none; border-radius: 4px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 4px;"
+                                        <button type="button" class="btn-table-action" style="margin-top: 5px; padding: 4px 8px; font-size: 11px; background: #26294d; color: #ffffff; border: none; border-radius: 4px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 4px;"
                                             onclick="openSupervisorModal(
                                                 '<?php echo htmlspecialchars(addslashes($student['student_name'] ?? 'Student')); ?>',
                                                 '<?php echo htmlspecialchars(addslashes($student['student_rollno'])); ?>',
@@ -580,8 +580,8 @@ sort($sessions);
         <div class="modal-body">
             <div class="letter-paper">
                 <div
-                    style="text-align: center; border-bottom: 2px solid #1d2243; padding-bottom: 10px; margin-bottom: 15px;">
-                    <h2 style="font-size: 18px; color: #1d2243; text-transform: uppercase; margin: 0;">University of
+                    style="text-align: center; border-bottom: 2px solid #26294d; padding-bottom: 10px; margin-bottom: 15px;">
+                    <h2 style="font-size: 18px; color: #26294d; text-transform: uppercase; margin: 0;">University of
                         Haripur</h2>
                     <p style="font-size: 12px; color: #666; margin-top: 2px;">Department of <span
                             id="let_student_dept"></span></p>

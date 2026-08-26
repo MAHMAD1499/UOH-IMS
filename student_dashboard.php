@@ -14,7 +14,7 @@
     <!-- Style for welcome dashboard -->
     <style>
         .welcome-banner {
-            background: linear-gradient(135deg, #1f5f46 0%, #1e2445 100%);
+            background: linear-gradient(135deg, #2e6652 0%, #26294d 100%);
             color: #ffffff;
             padding: 24px;
             border-radius: 6px;
@@ -65,14 +65,14 @@
         .action-box:hover {
             transform: translateY(-4px);
             box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
-            border-color: #3b82f6;
+            border-color: #2e6652;
         }
         .action-icon-wrapper {
             width: 60px;
             height: 60px;
             margin: 0 auto 15px auto;
-            background: rgba(59, 130, 246, 0.1);
-            color: #3b82f6;
+            background: rgba(46, 102, 82, 0.1);
+            color: #2e6652;
             border-radius: 50%;
             display: flex;
             align-items: center;
@@ -81,7 +81,7 @@
             transition: all 0.2s;
         }
         .action-box:hover .action-icon-wrapper {
-            background: #3b82f6;
+            background: #2e6652;
             color: #ffffff;
         }
         .action-box h3 {
@@ -105,7 +105,7 @@
             overflow: hidden;
         }
         .announcements-header {
-            background: #1f5f46;
+            background: #2e6652;
             color: #ffffff;
             padding: 12px 20px;
             font-size: 15px;
@@ -265,10 +265,10 @@
             width: 140px;
             height: 175px;
             margin: 0 auto 15px auto;
-            border: 2px solid #3b82f6;
+            border: 2px solid #2e6652;
             border-radius: 8px;
             overflow: hidden;
-            background: linear-gradient(135deg, #3b82f6 0%, #1d2243 100%);
+            background: linear-gradient(135deg, #2e6652 0%, #26294d 100%);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -331,7 +331,7 @@
         
         /* Information Card Header */
         .info-card-header {
-            background: linear-gradient(135deg, #1f5f46 0%, #1e2445 100%);
+            background: linear-gradient(135deg, #2e6652 0%, #26294d 100%);
             color: #ffffff;
             padding: 14px 20px;
             font-size: 16px;
@@ -370,7 +370,7 @@
             transition: border-color 0.2s;
         }
         .info-input-field:focus {
-            border-color: #3b82f6;
+            border-color: #2e6652;
             background-color: #f1f5f9;
         }
         .info-input-field[readonly] {
@@ -379,7 +379,7 @@
         }
         
         .btn-save-info {
-            background: linear-gradient(135deg, #1f5f46 0%, #1e2445 100%);
+            background: linear-gradient(135deg, #2e6652 0%, #26294d 100%);
             color: white;
             border: none;
             padding: 10px 24px;
@@ -582,7 +582,7 @@
                     </div>
                     
                     <div id="edit-btn-container" style="text-align: right; margin-top: 20px;">
-                        <button type="button" onclick="enableEditMode()" class="btn-save-info" style="background: linear-gradient(135deg, #3b82f6 0%, #1d2243 100%);">Edit Profile</button>
+                        <button type="button" onclick="enableEditMode()" class="btn-save-info" style="background: linear-gradient(135deg, #2e6652 0%, #26294d 100%);">Edit Profile</button>
                     </div>
                     <div id="save-btn-container" style="display: none; justify-content: flex-end; gap: 10px; margin-top: 20px;">
                         <button type="button" onclick="disableEditMode()" class="btn-cancel" style="margin-top: 0; padding: 10px 20px;">Cancel</button>
@@ -664,7 +664,7 @@
                             <td><?php echo htmlspecialchars(mb_strimwidth($latestReport['report_detail'], 0, 40, '...')); ?></td>
                             <td>
                                 <?php if (!empty($latestReport['report_ref_img'])): ?>
-                                    <a href="<?php echo htmlspecialchars($latestReport['report_ref_img']); ?>" target="_blank" style="color: #2e7d5b; text-decoration: underline;">
+                                    <a href="<?php echo htmlspecialchars($latestReport['report_ref_img']); ?>" target="_blank" style="color: #2e6652; text-decoration: underline;">
                                         <i class="fa-solid fa-paperclip"></i> View File
                                     </a>
                                 <?php else: ?>
@@ -761,7 +761,7 @@
 <!-- ========================================== -->
 <div id="student-site-supervisor" class="tab-content">
     <div class="table-header-bar">
-        <button class="btn-primary-action" onclick="openModal('placementModal')" style="background: linear-gradient(135deg, #3b82f6 0%, #1d2243 100%);">
+        <button class="btn-primary-action" onclick="openModal('placementModal')" style="background: linear-gradient(135deg, #2e6652 0%, #26294d 100%);">
             <i class="fa-solid fa-pen-to-square"></i> <?php echo empty($placement['org_name']) ? 'Insert Site Supervisor Details' : 'Edit Placement Details'; ?>
         </button>
     </div>
@@ -839,6 +839,161 @@
             <?php endif; ?>
         </div>
     </div>
+</div>
+
+<!-- ========================================== -->
+<!-- TAB 5: RESET PASSWORD                      -->
+<!-- ========================================== -->
+<div id="student-change-password" class="tab-content" style="background-color: #e3efea; padding: 20px; border-radius: 6px;">
+    <h2 style="font-size: 22px; font-weight: 600; color: #1e293b; margin-bottom: 20px;">Reset Password</h2>
+    
+    <div class="student-profile-wrapper" style="margin-top: 0;">
+        <!-- LEFT COLUMN: Profile Sidebar -->
+        <div class="student-profile-sidebar" style="border: 1px solid #c2dbd0;">
+            <div class="profile-pic-frame" style="border-color: #2e6652; background: linear-gradient(135deg, #2e6652 0%, #26294d 100%);">
+                <i class="fa-solid fa-user"></i>
+            </div>
+            
+            <div class="student-name-title" style="color: #2e6652;"><?php echo htmlspecialchars($profile['name'] ?: 'Student Name'); ?></div>
+            <div class="student-dept-subtitle" style="color: #2e6652; font-weight: 600;"><?php echo htmlspecialchars($semesterDetail['department'] ?: 'Department'); ?></div>
+            
+            <hr class="profile-divider">
+            <div class="sidebar-info-text"><?php echo htmlspecialchars($profile['fname'] ?: 'Father Name'); ?></div>
+            
+            <hr class="profile-divider">
+            <div class="sidebar-info-text"><?php echo htmlspecialchars($rollno); ?></div>
+            
+            <hr class="profile-divider">
+            <div class="sidebar-info-text" style="font-size: 13.5px; font-weight: 600; color: #26294d;"><?php echo htmlspecialchars($credString); ?></div>
+        </div>
+        
+        <!-- RIGHT COLUMN: Reset Password Card -->
+        <div class="student-profile-main" style="border: 1px solid #c2dbd0;">
+            <div class="info-card-header" style="background: linear-gradient(135deg, #2e6652 0%, #26294d 100%); padding: 14px 20px;">Reset Password</div>
+            <div class="info-card-body" style="padding: 25px 20px;">
+                <form action="" method="POST" id="change-password-form">
+                    
+                    <div class="info-row" style="margin-bottom: 20px;">
+                        <label class="info-label" style="width: 25%; font-weight: bold; color: #2e6652;" for="old_password">Old Password</label>
+                        <div class="info-value" style="width: 75%; position: relative;">
+                            <input type="password" id="old_password" name="old_password" required class="info-input-field" style="background-color: #ffffff; border: 1px solid #cbd5e1; padding-right: 40px; width: 100%;" placeholder="Old Password">
+                            <span onclick="toggleFieldPassword('old_password', this)" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); cursor: pointer; color: #dc3545; display: inline-flex; align-items: center;">
+                                <i class="fa-solid fa-eye" style="font-size: 14px;"></i>
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <div class="info-row" style="margin-bottom: 8px;">
+                        <label class="info-label" style="width: 25%; font-weight: bold; color: #2e6652;" for="new_password">New Password</label>
+                        <div class="info-value" style="width: 75%; position: relative;">
+                            <input type="password" id="new_password" name="new_password" required class="info-input-field" style="background-color: #ffffff; border: 1px solid #cbd5e1; padding-right: 40px; width: 100%;" placeholder="New Password" oninput="validateNewPassword()">
+                            <span onclick="toggleFieldPassword('new_password', this)" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); cursor: pointer; color: #dc3545; display: inline-flex; align-items: center;">
+                                <i class="fa-solid fa-eye" style="font-size: 14px;"></i>
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <!-- Password requirements info checklist -->
+                    <div class="info-row" style="margin-bottom: 20px;">
+                        <div class="info-label" style="width: 25%;"></div>
+                        <div class="info-value" style="width: 75%; font-size: 12.5px; color: #64748b; line-height: 1.5;">
+                            Password must contain:
+                            <ul style="margin: 5px 0 0 15px; padding: 0; list-style-type: disc;">
+                                <li id="req-length" style="color: #64748b;">At least 6 characters</li>
+                                <li id="req-uppercase" style="color: #64748b;">At least 1 uppercase letter</li>
+                                <li id="req-number" style="color: #64748b;">At least 1 number</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="info-row" style="margin-bottom: 25px;">
+                        <label class="info-label" style="width: 25%; font-weight: bold; color: #2e6652;" for="confirm_password">Confirm Password</label>
+                        <div class="info-value" style="width: 75%; position: relative;">
+                            <input type="password" id="confirm_password" name="confirm_password" required class="info-input-field" style="background-color: #ffffff; border: 1px solid #cbd5e1; padding-right: 40px; width: 100%;" placeholder="Confirm Password">
+                            <span onclick="toggleFieldPassword('confirm_password', this)" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); cursor: pointer; color: #dc3545; display: inline-flex; align-items: center;">
+                                <i class="fa-solid fa-eye" style="font-size: 14px;"></i>
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <div style="padding-left: 25%; text-align: left;">
+                        <button type="submit" name="change_student_password" class="btn-save-info" style="background: linear-gradient(135deg, #2e6652 0%, #26294d 100%); padding: 12px 30px; font-size: 15px; border-radius: 4px;">Reset Password</button>
+                    </div>
+                    
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        function toggleFieldPassword(fieldId, iconContainer) {
+            const inputField = document.getElementById(fieldId);
+            const icon = iconContainer.querySelector('i');
+            if (inputField && icon) {
+                if (inputField.type === 'password') {
+                    inputField.type = 'text';
+                    icon.classList.remove('fa-eye');
+                    icon.classList.add('fa-eye-slash');
+                } else {
+                    inputField.type = 'password';
+                    icon.classList.remove('fa-eye-slash');
+                    icon.classList.add('fa-eye');
+                }
+            }
+        }
+        
+        function validateNewPassword() {
+            const val = document.getElementById('new_password').value;
+            
+            // At least 6 characters
+            const reqLen = document.getElementById('req-length');
+            if (val.length >= 6) {
+                reqLen.style.color = '#155724';
+                reqLen.style.fontWeight = 'bold';
+            } else {
+                reqLen.style.color = '#64748b';
+                reqLen.style.fontWeight = 'normal';
+            }
+            
+            // At least 1 uppercase letter
+            const reqUpper = document.getElementById('req-uppercase');
+            if (/[A-Z]/.test(val)) {
+                reqUpper.style.color = '#155724';
+                reqUpper.style.fontWeight = 'bold';
+            } else {
+                reqUpper.style.color = '#64748b';
+                reqUpper.style.fontWeight = 'normal';
+            }
+            
+            // At least 1 number
+            const reqNum = document.getElementById('req-number');
+            if (/[0-9]/.test(val)) {
+                reqNum.style.color = '#155724';
+                reqNum.style.fontWeight = 'bold';
+            } else {
+                reqNum.style.color = '#64748b';
+                reqNum.style.fontWeight = 'normal';
+            }
+        }
+        
+        // Add form validation
+        document.getElementById('change-password-form').addEventListener('submit', function(e) {
+            const newPass = document.getElementById('new_password').value;
+            const confirmPass = document.getElementById('confirm_password').value;
+            
+            if (newPass.length < 6 || !/[A-Z]/.test(newPass) || !/[0-9]/.test(newPass)) {
+                e.preventDefault();
+                alert('Please ensure your new password satisfies all validation criteria.');
+                return;
+            }
+            
+            if (newPass !== confirmPass) {
+                e.preventDefault();
+                alert('New password and confirm password do not match.');
+                return;
+            }
+        });
+    </script>
 </div>
 
 <!-- ========================================== -->

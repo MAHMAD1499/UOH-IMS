@@ -11,6 +11,20 @@
         <li class="nav-section-title">Internship Management System</li>
 
         <?php if (!isset($_SESSION['user_type']) || $_SESSION['user_type'] === 'STD'): ?>
+            <li class="nav-item nav-item-dropdown-toggle" onclick="toggleSidebarDropdown('profile-dropdown')">
+                <div>
+                    <i class="fa-solid fa-id-card"></i> <span style="margin-left: 12px;">Profile</span>
+                </div>
+                <i class="fa-solid fa-chevron-down dropdown-chevron"></i>
+            </li>
+            <ul class="nav-dropdown" id="profile-dropdown">
+                <li class="nav-subitem" id="nav-subitem-view-profile" onclick="switchTab('student-dashboard', this)">
+                    <i class="fa-solid fa-chevron-right"></i> <span>View Profile</span>
+                </li>
+                <li class="nav-subitem" id="nav-subitem-change-password" onclick="switchTab('student-change-password', this)">
+                    <i class="fa-solid fa-chevron-right"></i> <span>Change Password</span>
+                </li>
+            </ul>
             <li class="nav-item active" onclick="switchTab('student-welcome-dashboard', this)">
                 <i class="fa-solid fa-gauge"></i> <span>Dashboard</span>
             </li>
