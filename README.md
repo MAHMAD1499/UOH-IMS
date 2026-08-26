@@ -6,6 +6,8 @@ A comprehensive web application designed to streamline, track and manage student
 
 ## 🚀 Key Features & Role Portals
 
+<img width="1915" height="912" alt="Screenshot 2026-08-26 201042" src="https://github.com/user-attachments/assets/477263a5-0562-47fa-b12a-f85d1b7ecc80" />
+
 ### 1. Student Portal
 * **Academic & Profile Details:** Students can view and update their profile and academic semester details.
 * **Internship Reports:** Submit weekly/final internship reports with support for image/document attachment validations (JPG, PNG).
