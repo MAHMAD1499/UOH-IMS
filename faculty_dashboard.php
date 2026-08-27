@@ -307,290 +307,71 @@ while ($row = mysqli_fetch_assoc($orgsResult)) {
     $organizations[] = $row;
 }
 mysqli_stmt_close($stmtOrg);
+
+// Compute Pending Tasks & Alerts for Faculty Supervisor Welcome Dashboard
+$urgentReviews = [];
+$flaggedIssues = [];
+$overdueSubmissions = [];
+
+// Track report counts and last submissions per student
+$studentReportCount = [];
+$studentLastReportDate = [];
+
+foreach ($weeklyReports as $rep) {
+    $rollNo = $rep['roll_no'];
+    if (!isset($studentReportCount[$rollNo])) {
+        $studentReportCount[$rollNo] = 0;
+    }
+    $studentReportCount[$rollNo]++;
+    
+    $subDate = strtotime($rep['submitted_at']);
+    if (!isset($studentLastReportDate[$rollNo]) || $subDate > $studentLastReportDate[$rollNo]) {
+        $studentLastReportDate[$rollNo] = $subDate;
+    }
+
+    if ($rep['status'] === 'submitted') {
+        $urgentReviews[] = [
+            'student_name' => $rep['student_name'],
+            'roll_no' => $rep['roll_no'],
+            'week_number' => $rep['week_number'],
+            'submitted_at' => $rep['submitted_at'],
+            'report_id' => $rep['report_id']
+        ];
+    } elseif ($rep['status'] === 'needs_improvement') {
+        $flaggedIssues[] = [
+            'student_name' => $rep['student_name'],
+            'roll_no' => $rep['roll_no'],
+            'week_number' => $rep['week_number'],
+            'revision_count' => $rep['revision_count']
+        ];
+    }
+}
+
+// Find overdue submissions
+foreach ($assignedStudents as $student) {
+    $rollNo = $student['roll_no'];
+    $repCount = $studentReportCount[$rollNo] ?? 0;
+    
+    if ($repCount === 0) {
+        $overdueSubmissions[] = [
+            'student_name' => $student['student_name'],
+            'roll_no' => $rollNo,
+            'reason' => 'No reports submitted yet'
+        ];
+    } else {
+        $lastSub = $studentLastReportDate[$rollNo];
+        $daysSinceLastSub = (time() - $lastSub) / (60 * 60 * 24);
+        if ($daysSinceLastSub > 10) {
+            $overdueSubmissions[] = [
+                'student_name' => $student['student_name'],
+                'roll_no' => $rollNo,
+                'reason' => 'Last submission was ' . round($daysSinceLastSub) . ' days ago'
+            ];
+        }
+    }
+}
 ?>
 
-<!-- Embedded Custom Styling for FSP Portal Components -->
-<style>
-    .fsp-kpi-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-        gap: 16px;
-        margin-bottom: 22px;
-    }
-
-    .fsp-kpi-card {
-        background: #ffffff;
-        border: 1px solid #e2e8f0;
-        border-radius: 6px;
-        padding: 18px 20px;
-        display: flex;
-        align-items: center;
-        gap: 16px;
-        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
-        transition: transform 0.2s ease, box-shadow 0.2s ease;
-    }
-
-    .fsp-kpi-card:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-    }
-
-    .fsp-kpi-icon {
-        width: 48px;
-        height: 48px;
-        border-radius: 8px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 22px;
-    }
-
-    .kpi-blue {
-        background: #e0f2fe;
-        color: #0284c7;
-    }
-
-    .kpi-amber {
-        background: #fef3c7;
-        color: #d97706;
-    }
-
-    .kpi-green {
-        background: #dcfce7;
-        color: #16a34a;
-    }
-
-    .kpi-purple {
-        background: #f3e8ff;
-        color: #9333ea;
-    }
-
-    .fsp-kpi-info h4 {
-        font-size: 24px;
-        font-weight: 700;
-        color: #1e293b;
-        margin-bottom: 2px;
-    }
-
-    .fsp-kpi-info p {
-        font-size: 13px;
-        color: #64748b;
-        font-weight: 500;
-    }
-
-    .fsp-filter-bar {
-        display: flex;
-        flex-wrap: wrap;
-        align-items: center;
-        justify-content: space-between;
-        gap: 12px;
-        background: #f8fafc;
-        padding: 12px 16px;
-        border-radius: 6px;
-        border: 1px solid #e2e8f0;
-        margin-bottom: 18px;
-    }
-
-    .fsp-filter-group {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-    }
-
-    .fsp-filter-group label {
-        font-size: 13px;
-        font-weight: 600;
-        color: #475569;
-    }
-
-    .fsp-select,
-    .fsp-input {
-        padding: 7px 12px;
-        border: 1px solid #cbd5e1;
-        border-radius: 4px;
-        font-size: 13px;
-        outline: none;
-        background: #fff;
-        color: #334155;
-        transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-
-    .fsp-select:hover,
-    .fsp-input:hover {
-        border-color: #2e6652;
-        background-color: #f8fafc;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-    }
-
-    .fsp-select:focus,
-    .fsp-input:focus {
-        border-color: #2e6652;
-        background-color: #fff;
-        box-shadow: 0 0 0 3px rgba(46, 102, 82, 0.2);
-    }
-
-    .status-pill {
-        display: inline-flex;
-        align-items: center;
-        gap: 5px;
-        padding: 4px 10px;
-        border-radius: 12px;
-        font-size: 11px;
-        font-weight: 700;
-        text-transform: uppercase;
-        letter-spacing: 0.3px;
-    }
-
-    .pill-submitted {
-        background: #e0f2fe;
-        color: #0369a1;
-    }
-
-    .pill-approved {
-        background: #dcfce7;
-        color: #15803d;
-    }
-
-    .pill-rejected {
-        background: #fee2e2;
-        color: #b91c1c;
-    }
-
-    .pill-needs_improvement {
-        background: #fef3c7;
-        color: #b45309;
-    }
-
-    .revision-badge {
-        background: #f1f5f9;
-        color: #475569;
-        border: 1px solid #cbd5e1;
-        border-radius: 4px;
-        padding: 2px 6px;
-        font-size: 11px;
-        font-weight: 600;
-    }
-
-    .revision-limit-reached {
-        background: #fee2e2;
-        color: #991b1b;
-        border-color: #fca5a5;
-    }
-
-    .action-btn-sm {
-        padding: 5px 10px;
-        font-size: 12px;
-        font-weight: 600;
-        border-radius: 4px;
-        border: none;
-        cursor: pointer;
-        display: inline-flex;
-        align-items: center;
-        gap: 5px;
-        transition: all 0.15s ease;
-        text-decoration: none;
-    }
-
-    .btn-fsp-primary {
-        background: #2e6652;
-        color: #fff;
-    }
-
-    .btn-fsp-primary:hover {
-        background: #234d3e;
-    }
-
-    .btn-fsp-secondary {
-        background: #26294d;
-        color: #fff;
-    }
-
-    .btn-fsp-secondary:hover {
-        background: #1b1d36;
-    }
-
-    .btn-fsp-outline {
-        background: transparent;
-        border: 1px solid #cbd5e1;
-        color: #334155;
-    }
-
-    .btn-fsp-outline:hover {
-        background: #f1f5f9;
-    }
-
-    .report-callout {
-        background: #f8fafc;
-        border-left: 4px solid #2e6652;
-        padding: 12px 14px;
-        border-radius: 0 4px 4px 0;
-        margin-bottom: 14px;
-        font-size: 13px;
-        color: #334155;
-        line-height: 1.5;
-    }
-
-    .report-callout-title {
-        font-weight: 700;
-        color: #1e293b;
-        margin-bottom: 4px;
-        display: flex;
-        align-items: center;
-        gap: 6px;
-    }
-
-    .org-info-card {
-        background: #ffffff;
-        border: 1px solid #e2e8f0;
-        border-radius: 6px;
-        padding: 18px;
-        margin-bottom: 16px;
-        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.03);
-    }
-
-    .org-info-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        border-bottom: 1px solid #f1f5f9;
-        padding-bottom: 10px;
-        margin-bottom: 12px;
-    }
-
-    .org-info-header h4 {
-        font-size: 16px;
-        color: #1e293b;
-        font-weight: 700;
-    }
-
-    .org-details-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-        gap: 14px;
-        font-size: 13px;
-    }
-
-    .org-detail-block {
-        background: #f8fafc;
-        border: 1px solid #e2e8f0;
-        border-radius: 4px;
-        padding: 12px;
-    }
-
-    .org-detail-block h5 {
-        font-size: 12px;
-        text-transform: uppercase;
-        color: #64748b;
-        margin-bottom: 8px;
-        font-weight: 700;
-        letter-spacing: 0.5px;
-    }
-
-    .org-detail-block p {
-        margin-bottom: 5px;
-        color: #334155;
-    }
-</style>
 
 <!-- Flash Alerts Notification -->
 <?php if (!empty($flashMessage)): ?>
@@ -605,9 +386,105 @@ mysqli_stmt_close($stmtOrg);
 <?php endif; ?>
 
 <!-- ========================================== -->
+<!-- TAB 0: WELCOME DASHBOARD                   -->
+<!-- ========================================== -->
+<div id="faculty-welcome-dashboard" class="tab-content active">
+
+
+    <div class="welcome-banner">
+        <h2>Welcome back, <?php echo htmlspecialchars($supervisor['full_name'] ?: 'Faculty Supervisor'); ?>!</h2>
+        <p>Designation: <strong><?php echo htmlspecialchars($supervisor['designation'] ?: 'Faculty Supervisor'); ?></strong> | Email: <strong><?php echo htmlspecialchars($supervisor['email'] ?: 'supervisor@uoh.edu.pk'); ?></strong></p>
+    </div>
+
+    <h3 style="font-size: 16px; font-weight: 600; color: #1e293b; margin-bottom: 15px;">Quick Actions</h3>
+    <div class="action-boxes-container">
+        <!-- Action 1: Assigned Students -->
+        <div class="action-box" onclick="switchTab('faculty-dashboard', document.getElementById('nav-item-faculty-dashboard'))">
+            <div class="action-icon-wrapper">
+                <i class="fa-solid fa-users-rectangle"></i>
+            </div>
+            <h3>Assigned Students</h3>
+            <p>View lists and supervisor status of all students assigned to your supervision.</p>
+        </div>
+        
+        <!-- Action 2: Weekly Reports Review -->
+        <div class="action-box" onclick="switchTab('faculty-reports', document.getElementById('nav-item-faculty-reports'))">
+            <div class="action-icon-wrapper">
+                <i class="fa-solid fa-file-signature"></i>
+            </div>
+            <h3>Weekly Reports Review</h3>
+            <p>Review student weekly log submissions, submit feedback comments, and request changes.</p>
+        </div>
+
+        <!-- Action 3: Marks Evaluation -->
+        <div class="action-box" onclick="switchTab('faculty-marks', document.getElementById('nav-item-faculty-marks'))">
+            <div class="action-icon-wrapper">
+                <i class="fa-solid fa-award"></i>
+            </div>
+            <h3>Marks Evaluation</h3>
+            <p>Submit final performance evaluations and award final marks to students.</p>
+        </div>
+    </div>
+
+
+
+    <!-- 1. Pending Tasks & Alerts -->
+    <div class="widget-card">
+        <div class="widget-header accent-amber">
+            <i class="fa-solid fa-triangle-exclamation"></i> Pending Tasks & Alerts
+        </div>
+        <div class="widget-body">
+            <?php if (empty($urgentReviews) && empty($flaggedIssues) && empty($overdueSubmissions)): ?>
+                <p style="font-size: 13.5px; color: #64748b;">No pending alerts or issues found.</p>
+            <?php endif; ?>
+
+            <!-- Urgent Reviews -->
+            <?php foreach ($urgentReviews as $review): ?>
+                <div class="alert-item urgent">
+                    <i class="fa-solid fa-circle-exclamation alert-icon"></i>
+                    <div class="alert-details">
+                        <div class="alert-title">Urgent Review Request</div>
+                        <div class="alert-desc">
+                            <strong><?php echo htmlspecialchars($review['student_name']); ?></strong> (<?php echo htmlspecialchars($review['roll_no']); ?>) submitted Weekly Report for Week <?php echo $review['week_number']; ?>.
+                        </div>
+                    </div>
+                    <button class="btn-primary-action" onclick="switchTab('faculty-reports', document.querySelectorAll('.nav-menu .nav-item')[2])" style="padding: 4px 8px; font-size: 11px; margin: 0; background: #991b1b; border: none;">Review</button>
+                </div>
+            <?php endforeach; ?>
+
+            <!-- Flagged Issues -->
+            <?php foreach ($flaggedIssues as $issue): ?>
+                <div class="alert-item flagged">
+                    <i class="fa-solid fa-flag alert-icon"></i>
+                    <div class="alert-details">
+                        <div class="alert-title">Flagged student issue (Needs Improvement)</div>
+                        <div class="alert-desc">
+                            <strong><?php echo htmlspecialchars($issue['student_name']); ?></strong>'s Report for Week <?php echo $issue['week_number']; ?> is marked as Needs Improvement (Revision #<?php echo $issue['revision_count']; ?>).
+                        </div>
+                    </div>
+                </div>
+            <?php endforeach; ?>
+
+            <!-- Overdue Submissions -->
+            <?php foreach (array_slice($overdueSubmissions, 0, 5) as $overdue): ?>
+                <div class="alert-item overdue">
+                    <i class="fa-solid fa-clock alert-icon"></i>
+                    <div class="alert-details">
+                        <div class="alert-title">Report submission overdue</div>
+                        <div class="alert-desc">
+                            <strong><?php echo htmlspecialchars($overdue['student_name']); ?></strong> (<?php echo htmlspecialchars($overdue['roll_no']); ?>): <?php echo htmlspecialchars($overdue['reason']); ?>.
+                        </div>
+                    </div>
+                </div>
+            <?php endforeach; ?>
+        </div>
+    </div>
+</div>
+
+<!-- ========================================== -->
 <!-- TAB 1: Assigned Students Directory -->
 <!-- ========================================== -->
-<div id="faculty-dashboard" class="tab-content active">
+<div id="faculty-dashboard" class="tab-content">
 
     <!-- KPI Summary Metrics -->
     <div class="fsp-kpi-grid">

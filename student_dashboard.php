@@ -11,143 +11,6 @@
 <!-- TAB 0: WELCOME DASHBOARD                   -->
 <!-- ========================================== -->
 <div id="student-welcome-dashboard" class="tab-content active">
-    <!-- Style for welcome dashboard -->
-    <style>
-        .welcome-banner {
-            background: linear-gradient(135deg, #2e6652 0%, #26294d 100%);
-            color: #ffffff;
-            padding: 24px;
-            border-radius: 6px;
-            margin-bottom: 24px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-        }
-        .welcome-banner h2 {
-            font-size: 24px;
-            margin-bottom: 8px;
-            font-weight: 600;
-        }
-        .welcome-banner p {
-            font-size: 14.5px;
-            opacity: 0.9;
-        }
-        
-        .dashboard-grid {
-            display: grid;
-            grid-template-columns: 2fr 1fr;
-            gap: 24px;
-        }
-        
-        @media (max-width: 992px) {
-            .dashboard-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-        
-        /* Action Boxes */
-        .action-boxes-container {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-            gap: 20px;
-            margin-bottom: 24px;
-        }
-        .action-box {
-            background: #ffffff;
-            border: 1px solid #e2e8f0;
-            border-radius: 6px;
-            padding: 20px;
-            text-align: center;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
-            transition: all 0.2s ease;
-            cursor: pointer;
-            text-decoration: none;
-            color: inherit;
-        }
-        .action-box:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
-            border-color: #2e6652;
-        }
-        .action-icon-wrapper {
-            width: 60px;
-            height: 60px;
-            margin: 0 auto 15px auto;
-            background: rgba(46, 102, 82, 0.1);
-            color: #2e6652;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 24px;
-            transition: all 0.2s;
-        }
-        .action-box:hover .action-icon-wrapper {
-            background: #2e6652;
-            color: #ffffff;
-        }
-        .action-box h3 {
-            font-size: 16px;
-            font-weight: 600;
-            margin-bottom: 8px;
-            color: #1e293b;
-        }
-        .action-box p {
-            font-size: 13px;
-            color: #64748b;
-            line-height: 1.4;
-        }
-        
-        /* Announcements Section */
-        .announcements-card {
-            background: #ffffff;
-            border: 1px solid #e2e8f0;
-            border-radius: 6px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
-            overflow: hidden;
-        }
-        .announcements-header {
-            background: #2e6652;
-            color: #ffffff;
-            padding: 12px 20px;
-            font-size: 15px;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        .announcements-body {
-            padding: 20px;
-            max-height: 400px;
-            overflow-y: auto;
-        }
-        .announcement-item {
-            padding-bottom: 15px;
-            margin-bottom: 15px;
-            border-bottom: 1px solid #e2e8f0;
-        }
-        .announcement-item:last-child {
-            padding-bottom: 0;
-            margin-bottom: 0;
-            border-bottom: none;
-        }
-        .announcement-meta {
-            display: flex;
-            justify-content: space-between;
-            font-size: 12px;
-            color: #64748b;
-            margin-bottom: 6px;
-        }
-        .announcement-title {
-            font-size: 14.5px;
-            font-weight: 600;
-            color: #1e293b;
-            margin-bottom: 4px;
-        }
-        .announcement-content {
-            font-size: 13.5px;
-            color: #334155;
-            line-height: 1.5;
-        }
-    </style>
 
     <div class="welcome-banner">
         <h2>Welcome back, <?php echo htmlspecialchars($profile['name'] ?: 'Student'); ?>!</h2>
@@ -159,7 +22,7 @@
             <h3 style="font-size: 16px; font-weight: 600; color: #1e293b; margin-bottom: 15px;">Quick Actions</h3>
             <div class="action-boxes-container">
                 <!-- Action 1: Reports -->
-                <div class="action-box" onclick="switchTab('student-reports', document.querySelectorAll('.nav-menu .nav-item')[1])">
+                <div class="action-box" onclick="switchTab('student-reports', document.getElementById('nav-item-student-reports'))">
                     <div class="action-icon-wrapper">
                         <i class="fa-solid fa-file-signature"></i>
                     </div>
@@ -168,7 +31,7 @@
                 </div>
                 
                 <!-- Action 2: Recommendation Letters -->
-                <div class="action-box" onclick="switchTab('student-letters', document.querySelectorAll('.nav-menu .nav-item')[2])">
+                <div class="action-box" onclick="switchTab('student-letters', document.getElementById('nav-item-student-letters'))">
                     <div class="action-icon-wrapper">
                         <i class="fa-solid fa-file-contract"></i>
                     </div>
@@ -177,7 +40,7 @@
                 </div>
 
                 <!-- Action 3: Site Supervisor -->
-                <div class="action-box" onclick="switchTab('student-site-supervisor', document.querySelectorAll('.nav-menu .nav-item')[3])">
+                <div class="action-box" onclick="switchTab('student-site-supervisor', document.getElementById('nav-item-student-site-supervisor'))">
                     <div class="action-icon-wrapper">
                         <i class="fa-solid fa-user-tie"></i>
                     </div>
@@ -203,26 +66,31 @@
                     <i class="fa-solid fa-bullhorn"></i> Important Announcements
                 </div>
                 <div class="announcements-body">
-                    <div class="announcement-item">
-                        <div class="announcement-meta">
-                            <span><i class="fa-solid fa-user-tie"></i> Focal Person IT</span>
-                            <span>August 24, 2026</span>
-                        </div>
-                        <div class="announcement-title">Internship Reports Submission Deadline</div>
-                        <div class="announcement-content">
-                            All students are required to submit their weekly internship reports on time. The supervisor reviews will determine final marks evaluation. Keep your drafts updated.
-                        </div>
-                    </div>
-                    <div class="announcement-item">
-                        <div class="announcement-meta">
-                            <span><i class="fa-solid fa-university"></i> Admin Portal</span>
-                            <span>August 15, 2026</span>
-                        </div>
-                        <div class="announcement-title">Official Letter Templates Released</div>
-                        <div class="announcement-content">
-                            The official Internship Recommendation Letter templates for Session <?php echo htmlspecialchars($semesterDetail['session'] ?: 'Fall 2026'); ?> have been released. Once approved by the focal person, they will be unlocked in your letter tab.
-                        </div>
-                    </div>
+                    <?php
+                    $stdAnnQuery = mysqli_query($conn, "SELECT * FROM announcements ORDER BY created_at DESC LIMIT 5");
+                    $stdAnnouncements = [];
+                    if ($stdAnnQuery) {
+                        while ($row = mysqli_fetch_assoc($stdAnnQuery)) {
+                            $stdAnnouncements[] = $row;
+                        }
+                    }
+                    if (empty($stdAnnouncements)):
+                    ?>
+                        <p style="font-size: 13px; color: #64748b; text-align: center; padding: 10px 0;">No active announcements from the department.</p>
+                    <?php else: ?>
+                        <?php foreach ($stdAnnouncements as $ann): ?>
+                            <div class="announcement-item">
+                                <div class="announcement-meta">
+                                    <span><i class="fa-solid fa-user-tie"></i> <?php echo htmlspecialchars($ann['created_by']); ?></span>
+                                    <span><?php echo date('M d, Y', strtotime($ann['created_at'])); ?></span>
+                                </div>
+                                <div class="announcement-title"><?php echo htmlspecialchars($ann['title']); ?></div>
+                                <div class="announcement-content">
+                                    <?php echo nl2br(htmlspecialchars($ann['content'])); ?>
+                                </div>
+                            </div>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
                 </div>
             </div>
         </div>
@@ -233,176 +101,7 @@
 <!-- TAB 1: PERSONAL (Academic & Profile Info)  -->
 <!-- ========================================== -->
 <div id="student-dashboard" class="tab-content">
-    <!-- Inline styles to design it exactly like the student portal screenshot -->
-    <style>
-        .student-profile-wrapper {
-            display: flex;
-            gap: 24px;
-            align-items: flex-start;
-            margin-top: 10px;
-        }
-        .student-profile-sidebar {
-            width: 320px;
-            flex-shrink: 0;
-            background: #ffffff;
-            border: 1px solid #e2e8f0;
-            border-radius: 6px;
-            padding: 24px 20px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-            text-align: center;
-        }
-        .student-profile-main {
-            flex-grow: 1;
-            background: #ffffff;
-            border: 1px solid #e2e8f0;
-            border-radius: 6px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-            overflow: hidden;
-        }
-        
-        /* Avatar photo frame */
-        .profile-pic-frame {
-            width: 140px;
-            height: 175px;
-            margin: 0 auto 15px auto;
-            border: 2px solid #2e6652;
-            border-radius: 8px;
-            overflow: hidden;
-            background: linear-gradient(135deg, #2e6652 0%, #26294d 100%);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
-        }
-        .profile-pic-frame i {
-            font-size: 85px;
-            color: rgba(255, 255, 255, 0.95);
-        }
-        
-        .student-name-title {
-            font-size: 19px;
-            font-weight: 700;
-            color: #1e293b;
-            margin-bottom: 4px;
-            line-height: 1.3;
-        }
-        .student-dept-subtitle {
-            font-size: 13.5px;
-            color: #64748b;
-            margin-bottom: 15px;
-        }
-        
-        .profile-divider {
-            border: none;
-            border-top: 1px solid #e2e8f0;
-            margin: 12px 0;
-        }
-        
-        .sidebar-info-text {
-            font-size: 14.5px;
-            font-weight: 700;
-            color: #1e293b;
-            margin: 8px 0;
-        }
-        .sidebar-cred-badge {
-            background-color: #007bff;
-            color: #ffffff;
-            font-size: 12px;
-            font-weight: 700;
-            padding: 8px 12px;
-            border-radius: 4px;
-            margin: 20px 0 15px 0;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-        
-        .cred-label {
-            font-size: 13px;
-            color: #007bff;
-            font-weight: 700;
-            margin-bottom: 2px;
-        }
-        .cred-val {
-            font-size: 14px;
-            color: #334155;
-            margin-bottom: 15px;
-            word-break: break-all;
-        }
-        
-        /* Information Card Header */
-        .info-card-header {
-            background: linear-gradient(135deg, #2e6652 0%, #26294d 100%);
-            color: #ffffff;
-            padding: 14px 20px;
-            font-size: 16px;
-            font-weight: 600;
-        }
-        
-        .info-card-body {
-            padding: 24px 20px;
-        }
-        
-        /* Information card rows */
-        .info-row {
-            display: flex;
-            align-items: center;
-            margin-bottom: 16px;
-        }
-        .info-label {
-            width: 25%;
-            font-weight: 700;
-            color: #1e293b;
-            font-size: 14.5px;
-        }
-        .info-value {
-            width: 75%;
-        }
-        .info-input-field {
-            width: 100%;
-            padding: 10px 14px;
-            background-color: #eaedf1;
-            border: 1px solid #cbd5e1;
-            border-radius: 4px;
-            color: #334155;
-            font-size: 14.5px;
-            font-weight: 500;
-            outline: none;
-            transition: border-color 0.2s;
-        }
-        .info-input-field:focus {
-            border-color: #2e6652;
-            background-color: #f1f5f9;
-        }
-        .info-input-field[readonly] {
-            background-color: #eaedf1;
-            cursor: not-allowed;
-        }
-        
-        .btn-save-info {
-            background: linear-gradient(135deg, #2e6652 0%, #26294d 100%);
-            color: white;
-            border: none;
-            padding: 10px 24px;
-            border-radius: 4px;
-            font-size: 15px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s ease;
-        }
-        .btn-save-info:hover {
-            opacity: 0.9;
-            transform: translateY(-1px);
-        }
-        
-        @media (max-width: 992px) {
-            .student-profile-wrapper {
-                flex-direction: column;
-            }
-            .student-profile-sidebar {
-                width: 100%;
-            }
-        }
-    </style>
+
 
     <?php
     // Helper to generate dynamic credential string

@@ -5,8 +5,79 @@ if (session_status() === PHP_SESSION_NONE) {
 
 require_once __DIR__ . '/includes/db.php';
 
+// Resolve Focal Person details from users table
+$fpUserId = (int)($_SESSION['user_id'] ?? 21);
+$fpStmt = mysqli_prepare($conn, "SELECT user_id, full_name, email, phone, designation FROM users WHERE user_id = ? LIMIT 1");
+mysqli_stmt_bind_param($fpStmt, 'i', $fpUserId);
+mysqli_stmt_execute($fpStmt);
+$fpRes = mysqli_stmt_get_result($fpStmt);
+$focalPerson = mysqli_fetch_assoc($fpRes) ?: [
+    'user_id' => $fpUserId,
+    'full_name' => 'Focal Person',
+    'email' => 'focal@uoh.edu.pk',
+    'phone' => '0300-1234567',
+    'designation' => 'Lecturer / Internship Focal Person'
+];
+mysqli_stmt_close($fpStmt);
+
+// Create announcements table if it doesn't exist
+mysqli_query($conn, "
+    CREATE TABLE IF NOT EXISTS `announcements` (
+        `id` INT AUTO_INCREMENT PRIMARY KEY,
+        `title` VARCHAR(255) NOT NULL,
+        `content` TEXT NOT NULL,
+        `created_by` VARCHAR(100) DEFAULT 'Focal Person',
+        `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+");
+
+// Fetch existing announcements
+$announcementsResult = mysqli_query($conn, "SELECT * FROM announcements ORDER BY created_at DESC");
+$announcements = [];
+if ($announcementsResult) {
+    while ($row = mysqli_fetch_assoc($announcementsResult)) {
+        $announcements[] = $row;
+    }
+}
+
 // Handle POST request processing for Focal Person actions
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // Add Announcement Action
+    if (isset($_POST['add_announcement'])) {
+        $title = trim($_POST['title'] ?? '');
+        $content = trim($_POST['content'] ?? '');
+        $createdBy = $_SESSION['username'] ?? 'Focal Person';
+        
+        if ($title !== '' && $content !== '') {
+            $stmt = mysqli_prepare($conn, "INSERT INTO announcements (title, content, created_by) VALUES (?, ?, ?)");
+            mysqli_stmt_bind_param($stmt, 'sss', $title, $content, $createdBy);
+            mysqli_stmt_execute($stmt);
+            mysqli_stmt_close($stmt);
+            $_SESSION['flash_message'] = 'Announcement published successfully.';
+            $_SESSION['flash_type'] = 'success';
+        } else {
+            $_SESSION['flash_message'] = 'Title and content cannot be empty.';
+            $_SESSION['flash_type'] = 'error';
+        }
+        header('Location: index.php');
+        exit;
+    }
+
+    // Delete Announcement Action
+    if (isset($_POST['delete_announcement'])) {
+        $announcementId = (int)($_POST['announcement_id'] ?? 0);
+        if ($announcementId > 0) {
+            $stmt = mysqli_prepare($conn, "DELETE FROM announcements WHERE id = ?");
+            mysqli_stmt_bind_param($stmt, 'i', $announcementId);
+            mysqli_stmt_execute($stmt);
+            mysqli_stmt_close($stmt);
+            $_SESSION['flash_message'] = 'Announcement deleted successfully.';
+            $_SESSION['flash_type'] = 'success';
+        }
+        header('Location: index.php');
+        exit;
+    }
+
     if (isset($_POST['add_student'])) {
         $rollno = strtoupper(trim($_POST['rollno'] ?? ''));
         $name = trim($_POST['name'] ?? '');
@@ -220,6 +291,15 @@ foreach ($students as $stud) {
     }
 }
 sort($sessions);
+
+// Compute registered candidates and unassigned student stats
+$totalRegisteredCandidates = count($students);
+$unassignedStudentsCount = 0;
+foreach ($students as $stud) {
+    if (empty($stud['supervisor_id'])) {
+        $unassignedStudentsCount++;
+    }
+}
 ?>
 
 <!-- FLASH MESSAGES -->
@@ -234,9 +314,133 @@ sort($sessions);
 <?php endif; ?>
 
 <!-- ========================================== -->
+<!-- TAB 0: WELCOME DASHBOARD                   -->
+<!-- ========================================== -->
+<div id="focal-welcome-dashboard" class="tab-content active">
+
+
+    <div class="welcome-banner">
+        <h2>Welcome back, <?php echo htmlspecialchars($focalPerson['full_name'] ?: 'Focal Person'); ?>!</h2>
+        <p>Designation: <strong><?php echo htmlspecialchars($focalPerson['designation'] ?: 'Internship Focal Person'); ?></strong> | Email: <strong><?php echo htmlspecialchars($focalPerson['email'] ?: 'focal@uoh.edu.pk'); ?></strong></p>
+    </div>
+
+    <h3 style="font-size: 16px; font-weight: 600; color: #1e293b; margin-bottom: 15px;">Quick Actions</h3>
+    <div class="action-boxes-container">
+        <!-- Action 1: Registered Students List -->
+        <div class="action-box" onclick="switchTab('focal-dashboard', document.getElementById('nav-item-focal-dashboard'))">
+            <div class="action-icon-wrapper">
+                <i class="fa-solid fa-list-check"></i>
+            </div>
+            <h3>Registered Students List</h3>
+            <p>View registered student profiles, filter by session, and assign faculty supervisors.</p>
+        </div>
+        
+        <!-- Action 2: Letters -->
+        <div class="action-box" onclick="switchTab('focal-letters', document.getElementById('nav-item-focal-letters'))">
+            <div class="action-icon-wrapper">
+                <i class="fa-solid fa-file-contract"></i>
+            </div>
+            <h3>Internship Letters</h3>
+            <p>Approve or revoke student recommendations and manage department-approved letters.</p>
+        </div>
+
+        <!-- Action 3: Add Student -->
+        <div class="action-box" onclick="openModal('addStudentModal')">
+            <div class="action-icon-wrapper">
+                <i class="fa-solid fa-user-plus"></i>
+            </div>
+            <h3>Add New Student</h3>
+            <p>Directly register a new student profile in the Internship Management System.</p>
+        </div>
+    </div>
+
+    <!-- KPI Summary Metrics for FP -->
+    <div class="fsp-kpi-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; margin-bottom: 24px;">
+        <div class="fsp-kpi-card" style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 6px; padding: 20px; display: flex; align-items: center; gap: 16px; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
+            <div class="fsp-kpi-icon kpi-blue" style="width: 50px; height: 50px; background: rgba(59, 130, 246, 0.1); color: #3b82f6; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px;">
+                <i class="fa-solid fa-user-graduate"></i>
+            </div>
+            <div class="fsp-kpi-info">
+                <h4 style="font-size: 20px; font-weight: 700; color: #1e293b; margin: 0;"><?php echo $totalRegisteredCandidates; ?></h4>
+                <p style="font-size: 13px; color: #64748b; margin: 2px 0 0 0;">Total Registered Candidates</p>
+            </div>
+        </div>
+        
+        <div class="fsp-kpi-card" style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 6px; padding: 20px; display: flex; align-items: center; gap: 16px; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
+            <div class="fsp-kpi-icon kpi-amber" style="width: 50px; height: 50px; background: rgba(245, 158, 11, 0.1); color: #f59e0b; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px;">
+                <i class="fa-solid fa-user-slash"></i>
+            </div>
+            <div class="fsp-kpi-info">
+                <h4 style="font-size: 20px; font-weight: 700; color: #1e293b; margin: 0;"><?php echo $unassignedStudentsCount; ?></h4>
+                <p style="font-size: 13px; color: #64748b; margin: 2px 0 0 0;">Unassigned Students</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Announcements Layout -->
+    <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 24px; margin-top: 24px;">
+        <!-- Left Side: Active Announcements -->
+        <div>
+            <div class="card" style="margin: 0; height: 100%;">
+                <div class="card-header" style="background: #2e6652; color: #ffffff; padding: 12px 20px; font-size: 15px; font-weight: 600; display: flex; align-items: center; gap: 8px;">
+                    <i class="fa-solid fa-bullhorn"></i> Active Announcements & Circulars
+                </div>
+                <div class="card-body" style="padding: 20px; max-height: 450px; overflow-y: auto;">
+                    <?php if (empty($announcements)): ?>
+                        <p style="font-size: 13.5px; color: #64748b; text-align: center; padding: 20px 0;">No active announcements. Use the panel on the right to broadcast one.</p>
+                    <?php else: ?>
+                        <?php foreach ($announcements as $ann): ?>
+                            <div style="padding-bottom: 15px; margin-bottom: 15px; border-bottom: 1px solid #e2e8f0; position: relative;">
+                                <div style="display: flex; justify-content: space-between; font-size: 12px; color: #64748b; margin-bottom: 6px;">
+                                    <span><i class="fa-solid fa-user-tie"></i> <?php echo htmlspecialchars($ann['created_by']); ?></span>
+                                    <span><?php echo date('M d, Y', strtotime($ann['created_at'])); ?></span>
+                                </div>
+                                <h4 style="font-size: 15px; font-weight: 600; color: #1e293b; margin-bottom: 4px; padding-right: 30px;"><?php echo htmlspecialchars($ann['title']); ?></h4>
+                                <p style="font-size: 13.5px; color: #334155; line-height: 1.5; margin-bottom: 8px;"><?php echo nl2br(htmlspecialchars($ann['content'])); ?></p>
+                                
+                                <form action="" method="POST" style="position: absolute; right: 0; top: 0;" onsubmit="return confirm('Are you sure you want to delete this announcement?');">
+                                    <input type="hidden" name="announcement_id" value="<?php echo $ann['id']; ?>">
+                                    <button type="submit" name="delete_announcement" style="background: none; border: none; color: #ef4444; cursor: pointer; font-size: 14px;" title="Delete Announcement">
+                                        <i class="fa-solid fa-trash-can"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Side: Broadcast Form -->
+        <div>
+            <div class="card" style="margin: 0;">
+                <div class="card-header" style="background: #26294d; color: #ffffff; padding: 12px 20px; font-size: 15px; font-weight: 600;">
+                    <i class="fa-solid fa-paper-plane"></i> Broadcast Circular
+                </div>
+                <div class="card-body" style="padding: 20px;">
+                    <form action="" method="POST">
+                        <div style="margin-bottom: 14px;">
+                            <label style="display: block; font-size: 13px; font-weight: 600; color: #475569; margin-bottom: 6px;">Announcement Title</label>
+                            <input type="text" name="title" required placeholder="e.g. Internship Report Deadline Extended" style="width: 100%; padding: 8px 12px; font-size: 13px; border: 1px solid #cbd5e1; border-radius: 4px; outline: none; box-sizing: border-box;">
+                        </div>
+                        <div style="margin-bottom: 16px;">
+                            <label style="display: block; font-size: 13px; font-weight: 600; color: #475569; margin-bottom: 6px;">Announcement Details</label>
+                            <textarea name="content" required rows="5" placeholder="Write guidelines, deadlines, or templates links here..." style="width: 100%; padding: 8px 12px; font-size: 13px; border: 1px solid #cbd5e1; border-radius: 4px; outline: none; resize: vertical; box-sizing: border-box;"></textarea>
+                        </div>
+                        <button type="submit" name="add_announcement" class="btn-primary-action" style="width: 100%; margin: 0; padding: 10px; font-size: 13px; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                            <i class="fa-solid fa-broadcast-tower"></i> Broadcast Announcement
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ========================================== -->
 <!-- MAIN SECTION: PORTAL DASHBOARD             -->
 <!-- ========================================== -->
-<div id="focal-dashboard" class="tab-content active">
+<div id="focal-dashboard" class="tab-content">
 
     <!-- Add Student Button top-right (unattached from Registered Students List tab/card) -->
     <div style="display: flex; justify-content: flex-end; margin-bottom: 15px;">

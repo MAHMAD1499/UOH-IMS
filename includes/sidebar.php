@@ -11,7 +11,7 @@
         <li class="nav-section-title">Internship Management System</li>
 
         <?php if (!isset($_SESSION['user_type']) || $_SESSION['user_type'] === 'STD'): ?>
-            <li class="nav-item nav-item-dropdown-toggle" onclick="toggleSidebarDropdown('profile-dropdown')">
+            <li class="nav-item nav-item-dropdown-toggle" id="nav-item-student-profile-toggle" onclick="toggleSidebarDropdown('profile-dropdown')">
                 <div>
                     <i class="fa-solid fa-id-card"></i> <span style="margin-left: 12px;">Profile</span>
                 </div>
@@ -25,37 +25,43 @@
                     <i class="fa-solid fa-chevron-right"></i> <span>Change Password</span>
                 </li>
             </ul>
-            <li class="nav-item active" onclick="switchTab('student-welcome-dashboard', this)">
+            <li class="nav-item active" id="nav-item-student-dashboard" onclick="switchTab('student-welcome-dashboard', this)">
                 <i class="fa-solid fa-gauge"></i> <span>Dashboard</span>
             </li>
-            <li class="nav-item" onclick="switchTab('student-reports', this)">
+            <li class="nav-item" id="nav-item-student-reports" onclick="switchTab('student-reports', this)">
                 <i class="fa-solid fa-file-lines"></i> <span>Internship Reports</span>
             </li>
-            <li class="nav-item" onclick="switchTab('student-letters', this)">
+            <li class="nav-item" id="nav-item-student-letters" onclick="switchTab('student-letters', this)">
                 <i class="fa-solid fa-envelope-open-text"></i> <span>Internship Letters</span>
             </li>
-            <li class="nav-item" onclick="switchTab('student-site-supervisor', this)">
+            <li class="nav-item" id="nav-item-student-site-supervisor" onclick="switchTab('student-site-supervisor', this)">
                 <i class="fa-solid fa-user-tie"></i> <span>Site Supervisor</span>
             </li>
         <?php endif; ?>
 
         <?php if (isset($_SESSION['user_type']) && $_SESSION['user_type'] === 'FP'): ?>
-            <li class="nav-item active" onclick="switchTab('focal-dashboard', this)">
-                <i class="fa-solid fa-gauge"></i> <span>Registered Students list</span>
+            <li class="nav-item active" id="nav-item-focal-dashboard-welcome" onclick="switchTab('focal-welcome-dashboard', this)">
+                <i class="fa-solid fa-gauge"></i> <span>Dashboard</span>
             </li>
-            <li class="nav-item" onclick="switchTab('focal-letters', this)">
+            <li class="nav-item" id="nav-item-focal-dashboard" onclick="switchTab('focal-dashboard', this)">
+                <i class="fa-solid fa-list-check"></i> <span>Registered Students list</span>
+            </li>
+            <li class="nav-item" id="nav-item-focal-letters" onclick="switchTab('focal-letters', this)">
                 <i class="fa-solid fa-file-contract"></i> <span>Internship Letter</span>
             </li>
         <?php endif; ?>
 
         <?php if (isset($_SESSION['user_type']) && $_SESSION['user_type'] === 'FSP'): ?>
-            <li class="nav-item active" onclick="switchTab('faculty-dashboard', this)">
+            <li class="nav-item active" id="nav-item-faculty-dashboard-welcome" onclick="switchTab('faculty-welcome-dashboard', this)">
+                <i class="fa-solid fa-gauge"></i> <span>Dashboard</span>
+            </li>
+            <li class="nav-item" id="nav-item-faculty-dashboard" onclick="switchTab('faculty-dashboard', this)">
                 <i class="fa-solid fa-users-rectangle"></i> <span>Assigned Students</span>
             </li>
-            <li class="nav-item" onclick="switchTab('faculty-reports', this)">
+            <li class="nav-item" id="nav-item-faculty-reports" onclick="switchTab('faculty-reports', this)">
                 <i class="fa-solid fa-file-signature"></i> <span>Weekly Reports Review</span>
             </li>
-            <li class="nav-item" onclick="switchTab('faculty-marks', this)">
+            <li class="nav-item" id="nav-item-faculty-marks" onclick="switchTab('faculty-marks', this)">
                 <i class="fa-solid fa-award"></i> <span>Marks Evaluation</span>
             </li>
         <?php endif; ?>
