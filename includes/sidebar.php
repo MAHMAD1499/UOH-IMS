@@ -11,6 +11,9 @@
         <li class="nav-section-title">Internship Management System</li>
 
         <?php if (!isset($_SESSION['user_type']) || $_SESSION['user_type'] === 'STD'): ?>
+            <li class="nav-item active" id="nav-item-student-dashboard" onclick="switchTab('student-welcome-dashboard', this)">
+                <i class="fa-solid fa-gauge"></i> <span>Dashboard</span>
+            </li>
             <li class="nav-item nav-item-dropdown-toggle" id="nav-item-student-profile-toggle" onclick="toggleSidebarDropdown('profile-dropdown')">
                 <div>
                     <i class="fa-solid fa-id-card"></i> <span style="margin-left: 12px;">Profile</span>
@@ -25,17 +28,17 @@
                     <i class="fa-solid fa-chevron-right"></i> <span>Change Password</span>
                 </li>
             </ul>
-            <li class="nav-item active" id="nav-item-student-dashboard" onclick="switchTab('student-welcome-dashboard', this)">
-                <i class="fa-solid fa-gauge"></i> <span>Dashboard</span>
+            <li class="nav-item" id="nav-item-student-faculty-supervisor" onclick="switchTab('student-faculty-supervisor', this)">
+                <i class="fa-solid fa-user-graduate"></i> <span>Faculty Supervisor</span>
             </li>
-            <li class="nav-item" id="nav-item-student-reports" onclick="switchTab('student-reports', this)">
-                <i class="fa-solid fa-file-lines"></i> <span>Internship Reports</span>
+            <li class="nav-item" id="nav-item-student-site-supervisor" onclick="switchTab('student-site-supervisor', this)">
+                <i class="fa-solid fa-user-tie"></i> <span>Site Supervisor</span>
             </li>
             <li class="nav-item" id="nav-item-student-letters" onclick="switchTab('student-letters', this)">
                 <i class="fa-solid fa-envelope-open-text"></i> <span>Internship Letters</span>
             </li>
-            <li class="nav-item" id="nav-item-student-site-supervisor" onclick="switchTab('student-site-supervisor', this)">
-                <i class="fa-solid fa-user-tie"></i> <span>Site Supervisor</span>
+            <li class="nav-item" id="nav-item-student-reports" onclick="switchTab('student-reports', this)">
+                <i class="fa-solid fa-file-lines"></i> <span>Internship Reports</span>
             </li>
         <?php endif; ?>
 

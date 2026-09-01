@@ -570,6 +570,23 @@ if ($role === 'STD') {
         }
         mysqli_stmt_close($placementStmt);
     }
+
+    $facultySupervisor = [
+        'full_name' => '',
+        'email' => '',
+        'phone' => '',
+        'designation' => ''
+    ];
+    $facultyStmt = mysqli_prepare($conn, 'SELECT u.full_name, u.email, u.phone, u.designation FROM assign_faculty_supervisor afs JOIN users u ON afs.u_id = u.user_id WHERE afs.rollno = ?');
+    if ($facultyStmt) {
+        mysqli_stmt_bind_param($facultyStmt, 's', $rollno);
+        mysqli_stmt_execute($facultyStmt);
+        $facultyRes = mysqli_stmt_get_result($facultyStmt);
+        if ($facultyRes && ($row = mysqli_fetch_assoc($facultyRes))) {
+            $facultySupervisor = array_merge($facultySupervisor, $row);
+        }
+        mysqli_stmt_close($facultyStmt);
+    }
 }
 ?>
 

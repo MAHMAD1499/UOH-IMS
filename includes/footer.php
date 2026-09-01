@@ -1,6 +1,6 @@
 </div> <!-- End of content-area -->
 <footer
-    style="background: linear-gradient(90deg, var(--color2), var(--color3)); color: rgba(255,255,255,0.9); padding: 12px 24px; text-align: right; font-size: 13px; font-weight: 500; flex-shrink: 0; box-shadow: 0 -2px 10px rgba(0,0,0,0.05); letter-spacing: 0.3px;">
+    style="background: linear-gradient(90deg, var(--color2), var(--color3)); color: rgba(255,255,255,0.9); padding: 12px 24px; text-align: center; font-size: 13px; font-weight: 500; flex-shrink: 0; box-shadow: 0 -2px 10px rgba(0,0,0,0.05); letter-spacing: 0.3px;">
     Copyright &copy; 2023 The University of Haripur. All rights reserved.
 </footer>
 </div> <!-- End of main-wrapper -->
@@ -156,9 +156,30 @@
     });
 
     const sidebarToggle = document.getElementById('sidebarToggle');
-    if (sidebarToggle) {
-        sidebarToggle.addEventListener('click', function () {
-            document.querySelector('.sidebar').classList.toggle('collapsed');
+    const sidebar = document.querySelector('.sidebar');
+    
+    if (sidebarToggle && sidebar) {
+        sidebarToggle.addEventListener('click', function (e) {
+            e.stopPropagation();
+            if (window.innerWidth <= 992) {
+                sidebar.classList.toggle('mobile-open');
+            } else {
+                sidebar.classList.toggle('collapsed');
+            }
+        });
+
+        // Close sidebar on mobile when clicking outside
+        document.addEventListener('click', function(e) {
+            if (window.innerWidth <= 992 && sidebar.classList.contains('mobile-open')) {
+                if (!sidebar.contains(e.target) && e.target !== sidebarToggle) {
+                    sidebar.classList.remove('mobile-open');
+                }
+            }
+        });
+
+        // Prevent clicks inside the sidebar from closing it
+        sidebar.addEventListener('click', function(e) {
+            e.stopPropagation();
         });
     }
 </script>

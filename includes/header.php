@@ -29,7 +29,7 @@ if (session_status() === PHP_SESSION_NONE) {
                 <?php elseif (isset($_SESSION['user_type']) && $_SESSION['user_type'] === 'FSP'): ?>
                     Faculty Supervisor Portal
                 <?php else: ?>
-                    Welcome
+                    Welcome <?php echo htmlspecialchars($_SESSION['username'] ?? 'Student'); ?>
                 <?php endif; ?>
             </div>
             <div style="display: flex; align-items: center; gap: 15px;">

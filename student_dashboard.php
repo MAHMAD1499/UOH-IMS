@@ -24,24 +24,23 @@
         <div class="dashboard-left">
             <h3 style="font-size: 16px; font-weight: 600; color: #1e293b; margin-bottom: 15px;">Quick Actions</h3>
             <div class="action-boxes-container">
-                <!-- Action 1: Reports -->
-                <div class="action-box"
-                    onclick="switchTab('student-reports', document.getElementById('nav-item-student-reports'))">
+                <!-- Action 1: Profile Settings -->
+                <div class="action-box" onclick="switchToProfileTab()">
                     <div class="action-icon-wrapper">
-                        <i class="fa-solid fa-file-signature"></i>
+                        <i class="fa-solid fa-user-gear"></i>
                     </div>
-                    <h3>Weekly Internship Reports</h3>
-                    <p>Submit weekly tasks, track supervisor remarks, and view evaluation grades.</p>
+                    <h3>My Profile & Settings</h3>
+                    <p>Manage and update your personal info, contact information, CNIC, and portal credentials.</p>
                 </div>
 
-                <!-- Action 2: Recommendation Letters -->
+                <!-- Action 2: Faculty Supervisor -->
                 <div class="action-box"
-                    onclick="switchTab('student-letters', document.getElementById('nav-item-student-letters'))">
+                    onclick="switchTab('student-faculty-supervisor', document.getElementById('nav-item-student-faculty-supervisor'))">
                     <div class="action-icon-wrapper">
-                        <i class="fa-solid fa-file-contract"></i>
+                        <i class="fa-solid fa-user-graduate"></i>
                     </div>
-                    <h3>Internship Letter</h3>
-                    <p>View, print, and download your official department-approved internship recommendation letter.</p>
+                    <h3>Faculty Supervisor</h3>
+                    <p>View your assigned university faculty supervisor details and contact information.</p>
                 </div>
 
                 <!-- Action 3: Site Supervisor -->
@@ -55,18 +54,123 @@
                         information.</p>
                 </div>
 
-                <!-- Action 4: Profile Settings -->
-                <div class="action-box" onclick="switchToProfileTab()">
+                <!-- Action 4: Recommendation Letters -->
+                <div class="action-box"
+                    onclick="switchTab('student-letters', document.getElementById('nav-item-student-letters'))">
                     <div class="action-icon-wrapper">
-                        <i class="fa-solid fa-user-gear"></i>
+                        <i class="fa-solid fa-file-contract"></i>
                     </div>
-                    <h3>My Profile & Settings</h3>
-                    <p>Manage and update your personal info, contact information, CNIC, and portal credentials.</p>
+                    <h3>Internship Letter</h3>
+                    <p>View, print, and download your official department-approved internship recommendation letter.</p>
+                </div>
+
+                <!-- Action 5: Reports -->
+                <div class="action-box"
+                    onclick="switchTab('student-reports', document.getElementById('nav-item-student-reports'))">
+                    <div class="action-icon-wrapper">
+                        <i class="fa-solid fa-file-signature"></i>
+                    </div>
+                    <h3>Weekly Internship Reports</h3>
+                    <p>Submit weekly tasks, track supervisor remarks, and view evaluation grades.</p>
                 </div>
             </div>
         </div>
 
         <div class="dashboard-right">
+            <!-- Internship Checklist Card -->
+            <div class="announcements-card" style="margin-bottom: 20px;">
+                <div class="announcements-header" style="background-color: #f8fafc; color: #334155; border-bottom: 1px solid #e2e8f0;">
+                    <i class="fa-solid fa-list-check"></i> Internship Progress Checklist
+                </div>
+                <div class="announcements-body" style="padding: 15px;">
+                    <?php
+                        $tasks = [
+                            [
+                                'name' => 'Complete Profile Details',
+                                'status' => (!empty($profile['cnic']) && !empty($semesterDetail['session'])),
+                                'icon' => 'fa-id-card'
+                            ],
+                            [
+                                'name' => 'Obtain Internship Letter',
+                                'status' => ((int)($semesterDetail['letter_approved'] ?? 0) === 1),
+                                'icon' => 'fa-file-contract'
+                            ],
+                            [
+                                'name' => 'Submit Placement Details',
+                                'status' => (!empty($placement['org_name'])),
+                                'icon' => 'fa-building'
+                            ],
+                            [
+                                'name' => 'Faculty Supervisor Assigned',
+                                'status' => (!empty($facultySupervisor['full_name'])),
+                                'icon' => 'fa-user-graduate'
+                            ],
+                            [
+                                'name' => 'Submit Weekly Reports',
+                                'status' => (!empty($latestReport['report_detail'])),
+                                'icon' => 'fa-file-signature'
+                            ]
+                        ];
+
+                        $completedCount = 0;
+                        foreach ($tasks as $task) {
+                            if ($task['status']) {
+                                $completedCount++;
+                            }
+                        }
+                        $progressPercent = count($tasks) > 0 ? round(($completedCount / count($tasks)) * 100) : 0;
+                    ?>
+                    
+                    <div style="margin-bottom: 15px;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 5px; font-size: 13px; font-weight: 600; color: #475569;">
+                            <span>Progress Overview</span>
+                            <span><?php echo $progressPercent; ?>%</span>
+                        </div>
+                        <div style="width: 100%; background-color: #e2e8f0; border-radius: 4px; height: 8px;">
+                            <div style="background-color: <?php echo $progressPercent == 100 ? '#16a34a' : '#3b82f6'; ?>; height: 8px; border-radius: 4px; width: <?php echo $progressPercent; ?>%;"></div>
+                        </div>
+                    </div>
+
+                    <ul style="list-style: none; padding: 0; margin: 0;">
+                        <?php foreach ($tasks as $task): ?>
+                            <li style="display: flex; align-items: center; margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px solid #f1f5f9; font-size: 13.5px;">
+                                <?php if ($task['status']): ?>
+                                    <div style="width: 24px; height: 24px; background-color: #16a34a; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 12px; flex-shrink: 0;">
+                                        <i class="fa-solid fa-check" style="font-size: 11px;"></i>
+                                    </div>
+                                    <span style="color: #475569; text-decoration: line-through; flex-grow: 1;"><i class="fa-solid <?php echo $task['icon']; ?>" style="width: 16px; margin-right: 5px; opacity: 0.6;"></i> <?php echo $task['name']; ?></span>
+                                <?php else: ?>
+                                    <div style="width: 24px; height: 24px; background-color: #f1f5f9; border: 1px solid #cbd5e1; color: #94a3b8; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 12px; flex-shrink: 0;">
+                                        <i class="fa-solid fa-spinner" style="font-size: 11px;"></i>
+                                    </div>
+                                    <span style="color: #1e293b; font-weight: 600; flex-grow: 1;"><i class="fa-solid <?php echo $task['icon']; ?>" style="width: 16px; margin-right: 5px; color: #64748b;"></i> <?php echo $task['name']; ?></span>
+                                    <span style="font-size: 11px; background-color: #fef3c7; color: #d97706; padding: 2px 6px; border-radius: 4px; font-weight: 600;">Pending</span>
+                                <?php endif; ?>
+                            </li>
+                        <?php endforeach; ?>
+                    </ul>
+                </div>
+            </div>
+
+            <?php if (!empty($facultySupervisor['full_name'])): ?>
+            <!-- Faculty Supervisor Card -->
+            <div class="announcements-card" style="margin-bottom: 20px;">
+                <div class="announcements-header" style="background-color: #f0fdf4; color: #166534; border-bottom: 1px solid #bbf7d0;">
+                    <i class="fa-solid fa-user-graduate"></i> Assigned Faculty Supervisor
+                </div>
+                <div class="announcements-body" style="padding: 15px;">
+                    <p style="margin-bottom: 8px; font-size: 14px; color: #334155;"><strong>Name:</strong> <?php echo htmlspecialchars($facultySupervisor['full_name']); ?></p>
+                    <p style="margin-bottom: 8px; font-size: 14px; color: #334155;"><strong>Designation:</strong> <?php echo htmlspecialchars($facultySupervisor['designation']); ?></p>
+                    <p style="margin-bottom: 8px; font-size: 14px; color: #334155;"><strong>Email:</strong> <?php echo htmlspecialchars($facultySupervisor['email']); ?></p>
+                    <div style="margin-top: 15px;">
+                        <button class="btn-primary-action" onclick="switchTab('student-faculty-supervisor', document.getElementById('nav-item-student-faculty-supervisor'))" style="width: 100%; justify-content: center; padding: 8px; font-size: 13px; background: #16a34a;">
+                            View Full Details <i class="fa-solid fa-arrow-right"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <?php endif; ?>
+
             <!-- Announcements Card -->
             <div class="announcements-card">
                 <div class="announcements-header">
@@ -524,6 +628,49 @@
 </div>
 
 <!-- ========================================== -->
+<!-- TAB X: FACULTY SUPERVISOR                  -->
+<!-- ========================================== -->
+<div id="student-faculty-supervisor" class="tab-content">
+    <div class="card">
+        <div class="card-header">
+            <span><i class="fa-solid fa-user-graduate"></i> Assigned Faculty Supervisor</span>
+        </div>
+        <div class="card-body">
+            <?php if (empty($facultySupervisor['full_name'])): ?>
+                <div class="empty-state">
+                    <i class="fa-solid fa-user-xmark" style="font-size: 40px; color: #cbd5e1; margin-bottom: 15px;"></i>
+                    <h3 style="font-size: 16px; margin: 0 0 10px 0;">No Faculty Supervisor Assigned</h3>
+                    <p style="font-size: 14px; color: #64748b; margin: 0; max-width: 400px; text-align: center; margin: 0 auto;">
+                        You have not been assigned a faculty supervisor yet. Please contact your department for more information.
+                    </p>
+                </div>
+            <?php else: ?>
+                <div class="org-details-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; font-size: 13.5px;">
+                    <!-- Faculty Supervisor Block -->
+                    <div class="org-detail-block" style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 15px;">
+                        <h5 style="font-size: 12px; text-transform: uppercase; color: #64748b; margin-bottom: 10px; font-weight: 700; letter-spacing: 0.5px; border-bottom: 1px solid #e2e8f0; padding-bottom: 5px;">
+                            <i class="fa-solid fa-user-graduate"></i> Supervisor Information
+                        </h5>
+                        <p style="margin-bottom: 6px;"><strong>Name:</strong> <?php echo htmlspecialchars($facultySupervisor['full_name']); ?></p>
+                        <p style="margin-bottom: 6px;"><strong>Designation:</strong> <?php echo htmlspecialchars($facultySupervisor['designation']); ?></p>
+                        <p style="margin-bottom: 6px;"><strong>Department:</strong> <?php echo htmlspecialchars($semesterDetail['department'] ?: 'N/A'); ?></p>
+                    </div>
+                    
+                    <!-- Contact Info Block -->
+                    <div class="org-detail-block" style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 15px;">
+                        <h5 style="font-size: 12px; text-transform: uppercase; color: #64748b; margin-bottom: 10px; font-weight: 700; letter-spacing: 0.5px; border-bottom: 1px solid #e2e8f0; padding-bottom: 5px;">
+                            <i class="fa-solid fa-address-book"></i> Contact Details
+                        </h5>
+                        <p style="margin-bottom: 6px;"><strong>Email:</strong> <?php echo htmlspecialchars($facultySupervisor['email']); ?></p>
+                        <p style="margin-bottom: 6px;"><strong>Phone:</strong> <?php echo htmlspecialchars($facultySupervisor['phone']); ?></p>
+                    </div>
+                </div>
+            <?php endif; ?>
+        </div>
+    </div>
+</div>
+
+<!-- ========================================== -->
 <!-- TAB 4: SITE SUPERVISOR                     -->
 <!-- ========================================== -->
 <div id="student-site-supervisor" class="tab-content">
@@ -552,29 +699,29 @@
                 <div class="org-info-card"
                     style="border: 1px solid #e2e8f0; border-radius: 6px; padding: 20px; background: #ffffff;">
                     <div class="org-info-header"
-                        style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #f1f5f9; padding-bottom: 10px; margin-bottom: 15px;">
+                        style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 12px; border-bottom: 1px solid #f1f5f9; padding-bottom: 10px; margin-bottom: 15px;">
                         <div>
-                            <h4 style="font-size: 17px; font-weight: 700; color: #1e293b; margin: 0;">
-                                <i class="fa-solid fa-building text-success" style="margin-right: 5px;"></i>
+                            <h4 style="font-size: 17px; font-weight: 700; color: #1e293b; margin: 0; margin-bottom: 8px;">
+                                <i class="fa-solid fa-building text-success" style="margin-right: 5px; font-weight: 900;"></i>
                                 <?php echo htmlspecialchars($placement['org_name']); ?>
                             </h4>
-                            <div style="display: flex; gap: 6px; margin-top: 6px;">
+                            <div style="display: flex; gap: 6px; flex-wrap: wrap;">
                                 <span class="status-pill pill-submitted"
-                                    style="font-size: 11px; padding: 3px 8px; border-radius: 12px; background: #e0f2fe; color: #0369a1; font-weight: 700;">
+                                    style="font-size: 11px; padding: 3px 8px; border-radius: 12px; background: #e0f2fe; color: #0369a1; font-weight: 700; white-space: nowrap;">
                                     Category: <?php echo htmlspecialchars($placement['category'] ?? 'General'); ?>
                                 </span>
                                 <?php if (!empty($placement['type'])): ?>
                                     <span class="status-pill"
-                                        style="font-size: 11px; padding: 3px 8px; border-radius: 12px; background-color: #3b82f6; color: white; font-weight: 700;">
+                                        style="font-size: 11px; padding: 3px 8px; border-radius: 12px; background-color: #3b82f6; color: white; font-weight: 700; white-space: nowrap;">
                                         Type: <?php echo htmlspecialchars($placement['type']); ?>
                                     </span>
                                 <?php endif; ?>
                             </div>
                         </div>
-                        <div>
+                        <div style="max-width: 100%;">
                             <span class="revision-badge"
-                                style="background: #f1f5f9; color: #475569; padding: 4px 10px; border-radius: 4px; font-size: 12px; border: 1px solid #cbd5e1; font-weight: 600;">
-                                <i class="fa-solid fa-location-dot"></i>
+                                style="display: inline-flex; align-items: flex-start; gap: 6px; background: #f1f5f9; color: #475569; padding: 6px 10px; border-radius: 4px; font-size: 12px; border: 1px solid #cbd5e1; font-weight: 600; word-break: break-word;">
+                                <i class="fa-solid fa-location-dot" style="margin-top: 2px; font-weight: 900;"></i>
                                 <?php echo htmlspecialchars($placement['address']); ?>
                             </span>
                         </div>
@@ -587,7 +734,7 @@
                             style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 15px;">
                             <h5
                                 style="font-size: 12px; text-transform: uppercase; color: #64748b; margin-bottom: 10px; font-weight: 700; letter-spacing: 0.5px; border-bottom: 1px solid #e2e8f0; padding-bottom: 5px;">
-                                <i class="fa-solid fa-address-book"></i> Organization Contact Person
+                                <i class="fa-solid fa-address-book" style="font-weight: 900;"></i> Organization Contact Person
                             </h5>
                             <p style="margin-bottom: 6px;"><strong>Name:</strong>
                                 <?php echo htmlspecialchars($placement['contact_person_name'] ?? 'N/A'); ?></p>
@@ -604,7 +751,7 @@
                             style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 15px;">
                             <h5
                                 style="font-size: 12px; text-transform: uppercase; color: #64748b; margin-bottom: 10px; font-weight: 700; letter-spacing: 0.5px; border-bottom: 1px solid #e2e8f0; padding-bottom: 5px;">
-                                <i class="fa-solid fa-user-tie"></i> Placed Site Supervisor
+                                <i class="fa-solid fa-user-tie" style="font-weight: 900;"></i> Placed Site Supervisor
                             </h5>
                             <p style="margin-bottom: 6px;"><strong>Name:</strong>
                                 <?php echo htmlspecialchars($placement['site_supervisor_name'] ?? 'Not Assigned'); ?></p>
@@ -621,9 +768,9 @@
                             style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 15px;">
                             <h5
                                 style="font-size: 12px; text-transform: uppercase; color: #64748b; margin-bottom: 10px; font-weight: 700; letter-spacing: 0.5px; border-bottom: 1px solid #e2e8f0; padding-bottom: 5px;">
-                                <i class="fa-solid fa-briefcase"></i> Placed Internship & Project
+                                <i class="fa-solid fa-briefcase" style="font-weight: 900;"></i> Placed Internship
                             </h5>
-                            <p style="margin-bottom: 6px;"><strong>Project Title:</strong>
+                            <p style="margin-bottom: 6px;"><strong>Internship Title:</strong>
                                 <?php echo htmlspecialchars($placement['internship_title'] ?? 'N/A'); ?></p>
                             <p style="margin-bottom: 6px;"><strong>Duration:</strong>
                                 <?php echo (int) ($placement['duration_weeks'] ?? 0); ?> Weeks</p>
@@ -953,24 +1100,32 @@
                                 class="info-input-field" style="background-color: #fff; border: 1px solid #cbd5e1;">
                         </div>
                         <div class="form-group">
+                            <label for="modal_org_type">Type</label>
+                            <select id="modal_org_type" name="type" required class="info-input-field"
+                                style="background-color: #fff; border: 1px solid #cbd5e1; width: 100%; height: 38px;">
+                                <option value="" disabled <?php echo empty($placement['type']) ? 'selected' : ''; ?>>Select Type</option>
+                                <option value="IT" <?php echo ($placement['type'] ?? '') === 'IT' ? 'selected' : ''; ?>>IT Organization</option>
+                                <option value="Non-IT" <?php echo ($placement['type'] ?? '') === 'Non-IT' ? 'selected' : ''; ?>>Non-IT Organization</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="modal_org_category">Category</label>
+                            <select id="modal_org_category" name="category" required class="info-input-field"
+                                style="background-color: #fff; border: 1px solid #cbd5e1; width: 100%; height: 38px;">
+                                <option value="" disabled <?php echo empty($placement['category']) ? 'selected' : ''; ?>>Select Category</option>
+                                <option value="Software House" <?php echo ($placement['category'] ?? '') === 'Software House' ? 'selected' : ''; ?>>Software House</option>
+                                <option value="Telecommunication" <?php echo ($placement['category'] ?? '') === 'Telecommunication' ? 'selected' : ''; ?>>Telecommunication</option>
+                                <option value="Banking/Finance" <?php echo ($placement['category'] ?? '') === 'Banking/Finance' ? 'selected' : ''; ?>>Banking/Finance</option>
+                                <option value="Education" <?php echo ($placement['category'] ?? '') === 'Education' ? 'selected' : ''; ?>>Education</option>
+                                <option value="Government" <?php echo ($placement['category'] ?? '') === 'Government' ? 'selected' : ''; ?>>Government</option>
+                                <option value="Other" <?php echo ($placement['category'] ?? '') === 'Other' ? 'selected' : ''; ?>>Other</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
                             <label for="modal_org_address">Address</label>
                             <input type="text" id="modal_org_address" name="address"
                                 value="<?php echo htmlspecialchars($placement['address']); ?>" required
                                 class="info-input-field" style="background-color: #fff; border: 1px solid #cbd5e1;">
-                        </div>
-                        <div class="form-group">
-                            <label for="modal_org_category">Category</label>
-                            <input type="text" id="modal_org_category" name="category"
-                                value="<?php echo htmlspecialchars($placement['category']); ?>"
-                                placeholder="e.g. Software House, Telecom" required class="info-input-field"
-                                style="background-color: #fff; border: 1px solid #cbd5e1;">
-                        </div>
-                        <div class="form-group">
-                            <label for="modal_org_type">Type</label>
-                            <input type="text" id="modal_org_type" name="type"
-                                value="<?php echo htmlspecialchars($placement['type']); ?>"
-                                placeholder="e.g. IT, Non-IT" required class="info-input-field"
-                                style="background-color: #fff; border: 1px solid #cbd5e1;">
                         </div>
                     </div>
                 </div>
