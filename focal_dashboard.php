@@ -186,7 +186,131 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             mysqli_stmt_close($insertAssign);
         }
 
+        // Sync with students table
+        $checkStudent = mysqli_prepare($conn, 'SELECT student_id FROM students WHERE roll_no = ? LIMIT 1');
+        if ($checkStudent) {
+            mysqli_stmt_bind_param($checkStudent, 's', $rollno);
+            mysqli_stmt_execute($checkStudent);
+            $resStudent = mysqli_stmt_get_result($checkStudent);
+            $studentExists = mysqli_fetch_assoc($resStudent);
+            mysqli_stmt_close($checkStudent);
+
+            if ($studentExists) {
+                $updateStudent = mysqli_prepare($conn, 'UPDATE students SET faculty_supervisor_id = ? WHERE roll_no = ?');
+                if ($updateStudent) {
+                    mysqli_stmt_bind_param($updateStudent, 'is', $supervisorId, $rollno);
+                    mysqli_stmt_execute($updateStudent);
+                    mysqli_stmt_close($updateStudent);
+                }
+            } else {
+                $uQuery = mysqli_prepare($conn, 'SELECT u.u_id, sd.session FROM user u LEFT JOIN user_semester_detail sd ON u.u_name = sd.rollno WHERE u.u_name = ? LIMIT 1');
+                if ($uQuery) {
+                    mysqli_stmt_bind_param($uQuery, 's', $rollno);
+                    mysqli_stmt_execute($uQuery);
+                    $uRes = mysqli_stmt_get_result($uQuery);
+                    if ($uRow = mysqli_fetch_assoc($uRes)) {
+                        $uId = $uRow['u_id'];
+                        $session = $uRow['session'] ?: 'Unknown';
+                        $insStudent = mysqli_prepare($conn, 'INSERT INTO students (user_id, roll_no, session, faculty_supervisor_id) VALUES (?, ?, ?, ?)');
+                        if ($insStudent) {
+                            mysqli_stmt_bind_param($insStudent, 'issi', $uId, $rollno, $session, $supervisorId);
+                            mysqli_stmt_execute($insStudent);
+                            mysqli_stmt_close($insStudent);
+                        }
+                    }
+                    mysqli_stmt_close($uQuery);
+                }
+            }
+        }
+
         $_SESSION['flash_message'] = 'Faculty supervisor assigned successfully.';
+        $_SESSION['flash_type'] = 'success';
+        header('Location: index.php');
+        exit;
+    }
+
+    if (isset($_POST['bulk_assign_supervisor'])) {
+        $supervisorId = (int) ($_POST['supervisor_id'] ?? 0);
+        $rollnos = $_POST['rollnos'] ?? [];
+        
+        if ($supervisorId <= 0 || empty($rollnos)) {
+            $_SESSION['flash_message'] = 'Invalid selection. Supervisor and at least one student are required.';
+            $_SESSION['flash_type'] = 'error';
+            header('Location: index.php');
+            exit;
+        }
+        
+        if (count($rollnos) > 30) {
+            $_SESSION['flash_message'] = 'You can only assign up to 30 students at a time.';
+            $_SESSION['flash_type'] = 'error';
+            header('Location: index.php');
+            exit;
+        }
+
+        $assignedCount = 0;
+        foreach ($rollnos as $rollno) {
+            $rollno = trim($rollno);
+            if ($rollno === '') continue;
+
+            $checkAssign = mysqli_prepare($conn, 'SELECT a_f_s_id FROM assign_faculty_supervisor WHERE rollno = ? LIMIT 1');
+            mysqli_stmt_bind_param($checkAssign, 's', $rollno);
+            mysqli_stmt_execute($checkAssign);
+            $resAssign = mysqli_stmt_get_result($checkAssign);
+            $assignment = mysqli_fetch_assoc($resAssign);
+            mysqli_stmt_close($checkAssign);
+
+            if ($assignment) {
+                $updateAssign = mysqli_prepare($conn, 'UPDATE assign_faculty_supervisor SET u_id = ?, status = 1, updated_at = NOW() WHERE rollno = ?');
+                mysqli_stmt_bind_param($updateAssign, 'is', $supervisorId, $rollno);
+                mysqli_stmt_execute($updateAssign);
+                mysqli_stmt_close($updateAssign);
+            } else {
+                $insertAssign = mysqli_prepare($conn, 'INSERT INTO assign_faculty_supervisor (rollno, u_id, status) VALUES (?, ?, 1)');
+                mysqli_stmt_bind_param($insertAssign, 'si', $rollno, $supervisorId);
+                mysqli_stmt_execute($insertAssign);
+                mysqli_stmt_close($insertAssign);
+            }
+
+            // Sync with students table
+            $checkStudent = mysqli_prepare($conn, 'SELECT student_id FROM students WHERE roll_no = ? LIMIT 1');
+            if ($checkStudent) {
+                mysqli_stmt_bind_param($checkStudent, 's', $rollno);
+                mysqli_stmt_execute($checkStudent);
+                $resStudent = mysqli_stmt_get_result($checkStudent);
+                $studentExists = mysqli_fetch_assoc($resStudent);
+                mysqli_stmt_close($checkStudent);
+
+                if ($studentExists) {
+                    $updateStudent = mysqli_prepare($conn, 'UPDATE students SET faculty_supervisor_id = ? WHERE roll_no = ?');
+                    if ($updateStudent) {
+                        mysqli_stmt_bind_param($updateStudent, 'is', $supervisorId, $rollno);
+                        mysqli_stmt_execute($updateStudent);
+                        mysqli_stmt_close($updateStudent);
+                    }
+                } else {
+                    $uQuery = mysqli_prepare($conn, 'SELECT u.u_id, sd.session FROM user u LEFT JOIN user_semester_detail sd ON u.u_name = sd.rollno WHERE u.u_name = ? LIMIT 1');
+                    if ($uQuery) {
+                        mysqli_stmt_bind_param($uQuery, 's', $rollno);
+                        mysqli_stmt_execute($uQuery);
+                        $uRes = mysqli_stmt_get_result($uQuery);
+                        if ($uRow = mysqli_fetch_assoc($uRes)) {
+                            $uId = $uRow['u_id'];
+                            $session = $uRow['session'] ?: 'Unknown';
+                            $insStudent = mysqli_prepare($conn, 'INSERT INTO students (user_id, roll_no, session, faculty_supervisor_id) VALUES (?, ?, ?, ?)');
+                            if ($insStudent) {
+                                mysqli_stmt_bind_param($insStudent, 'issi', $uId, $rollno, $session, $supervisorId);
+                                mysqli_stmt_execute($insStudent);
+                                mysqli_stmt_close($insStudent);
+                            }
+                        }
+                        mysqli_stmt_close($uQuery);
+                    }
+                }
+            }
+            $assignedCount++;
+        }
+
+        $_SESSION['flash_message'] = "Faculty supervisor assigned successfully to $assignedCount student(s).";
         $_SESSION['flash_type'] = 'success';
         header('Location: index.php');
         exit;
@@ -283,6 +407,18 @@ if ($supervisorsResult) {
     }
 }
 
+// Count how many students each supervisor has assigned
+$supervisorCounts = [];
+foreach ($students as $stud) {
+    if (!empty($stud['supervisor_id'])) {
+        $sid = $stud['supervisor_id'];
+        if (!isset($supervisorCounts[$sid])) {
+            $supervisorCounts[$sid] = 0;
+        }
+        $supervisorCounts[$sid]++;
+    }
+}
+
 // Get distinct sessions for filtering
 $sessions = [];
 foreach ($students as $stud) {
@@ -324,36 +460,6 @@ foreach ($students as $stud) {
         <p>Designation: <strong><?php echo htmlspecialchars($focalPerson['designation'] ?: 'Internship Focal Person'); ?></strong> | Email: <strong><?php echo htmlspecialchars($focalPerson['email'] ?: 'focal@uoh.edu.pk'); ?></strong></p>
     </div>
 
-    <h3 style="font-size: 16px; font-weight: 600; color: #1e293b; margin-bottom: 15px;">Quick Actions</h3>
-    <div class="action-boxes-container">
-        <!-- Action 1: Registered Students List -->
-        <div class="action-box" onclick="switchTab('focal-dashboard', document.getElementById('nav-item-focal-dashboard'))">
-            <div class="action-icon-wrapper">
-                <i class="fa-solid fa-list-check"></i>
-            </div>
-            <h3>Registered Students List</h3>
-            <p>View registered student profiles, filter by session, and assign faculty supervisors.</p>
-        </div>
-        
-        <!-- Action 2: Letters -->
-        <div class="action-box" onclick="switchTab('focal-letters', document.getElementById('nav-item-focal-letters'))">
-            <div class="action-icon-wrapper">
-                <i class="fa-solid fa-file-contract"></i>
-            </div>
-            <h3>Internship Letters</h3>
-            <p>Approve or revoke student recommendations and manage department-approved letters.</p>
-        </div>
-
-        <!-- Action 3: Add Student -->
-        <div class="action-box" onclick="openModal('addStudentModal')">
-            <div class="action-icon-wrapper">
-                <i class="fa-solid fa-user-plus"></i>
-            </div>
-            <h3>Add New Student</h3>
-            <p>Directly register a new student profile in the Internship Management System.</p>
-        </div>
-    </div>
-
     <!-- KPI Summary Metrics for FP -->
     <div class="fsp-kpi-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; margin-bottom: 24px;">
         <div class="fsp-kpi-card" style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 6px; padding: 20px; display: flex; align-items: center; gap: 16px; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
@@ -374,6 +480,36 @@ foreach ($students as $stud) {
                 <h4 style="font-size: 20px; font-weight: 700; color: #1e293b; margin: 0;"><?php echo $unassignedStudentsCount; ?></h4>
                 <p style="font-size: 13px; color: #64748b; margin: 2px 0 0 0;">Unassigned Students</p>
             </div>
+        </div>
+    </div>
+
+    <h3 style="font-size: 16px; font-weight: 600; color: #1e293b; margin-bottom: 15px;">Quick Actions</h3>
+    <div class="action-boxes-container">
+        <!-- Action 1: Registered Students List -->
+        <div class="action-box" onclick="switchTab('focal-dashboard', document.getElementById('nav-item-focal-dashboard'))">
+            <div class="action-icon-wrapper">
+                <i class="fa-solid fa-list-check"></i>
+            </div>
+            <h3>Registered Students List</h3>
+            <p>View registered student profiles, filter by session, and assign faculty supervisors.</p>
+        </div>
+        
+        <!-- Action 2: Add Student -->
+        <div class="action-box" onclick="openModal('addStudentModal')">
+            <div class="action-icon-wrapper">
+                <i class="fa-solid fa-user-plus"></i>
+            </div>
+            <h3>Add New Student</h3>
+            <p>Directly register a new student profile in the Internship Management System.</p>
+        </div>
+
+        <!-- Action 3: Letters -->
+        <div class="action-box" onclick="switchTab('focal-letters', document.getElementById('nav-item-focal-letters'))">
+            <div class="action-icon-wrapper">
+                <i class="fa-solid fa-file-contract"></i>
+            </div>
+            <h3>Internship Letters</h3>
+            <p>Approve or revoke student recommendations and manage department-approved letters.</p>
         </div>
     </div>
 
@@ -452,13 +588,22 @@ foreach ($students as $stud) {
 
     <!-- Section 2 — Session-wise Student Table & Assignment -->
     <div class="card">
-        <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
-            <span><i class="fa-solid fa-users"></i> Registered Students List</span>
-            <div style="display: flex; align-items: center; gap: 12px;">
-                <!-- Session Filter -->
-                <div style="display: flex; align-items: center; gap: 8px;">
-                    <label for="session-filter-dropdown" style="font-size: 13px; font-weight: bold; color: #fff;">Filter
-                        Session:</label>
+        <div class="card-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+            <span style="white-space: nowrap;"><i class="fa-solid fa-users"></i> Registered Students List</span>
+            <div style="display: flex; align-items: center; flex-wrap: wrap; gap: 12px;">
+                <!-- Bulk Assign and Session Filter -->
+                <div style="display: flex; align-items: center; flex-wrap: wrap; gap: 8px;">
+                    <button type="button" id="toggleBulkSelectionBtn" class="btn-primary-action" data-active="false"
+                        onclick="toggleBulkSelectionMode()"
+                        style="padding: 6px 12px; font-size: 13px; margin: 0; background: linear-gradient(135deg, #475569 0%, #334155 100%); cursor: pointer;">
+                        <i class="fa-solid fa-list-check"></i> Bulk Selection
+                    </button>
+                    <button type="button" id="bulkAssignBtn" class="btn-primary-action" disabled
+                        onclick="openBulkAssignModal()"
+                        style="display: none; padding: 6px 12px; font-size: 13px; margin: 0; background: linear-gradient(135deg, #10b981 0%, #059669 100%); opacity: 0.6; cursor: not-allowed; align-items: center; gap: 4px;">
+                        <i class="fa-solid fa-users"></i> Assign Selected (<span id="bulkCount">0</span>/30)
+                    </button>
+                    <label for="session-filter-dropdown" style="font-size: 13px; font-weight: bold; color: #fff; white-space: nowrap;">Session:</label>
                     <select id="session-filter-dropdown" onchange="filterSession(this.value);"
                         style="padding: 4px 8px; font-size: 13px; border-radius: 4px; border: 1px solid #cbd5e1; outline: none; color: #333; transition: all 0.25s ease;"
                         onmouseover="this.style.borderColor='#10b981'; this.style.backgroundColor='#f8fafc';"
@@ -475,6 +620,23 @@ foreach ($students as $stud) {
                         }
                         ?>
                     </select>
+
+                    <label id="supervisor-filter-label" for="supervisor-filter-dropdown" style="font-size: 13px; font-weight: bold; color: #fff; white-space: nowrap; margin-left: 6px;">Supervisor:</label>
+                    <select id="supervisor-filter-dropdown" onchange="filterBySupervisor(this.value);"
+                        style="padding: 4px 8px; font-size: 13px; border-radius: 4px; border: 1px solid #cbd5e1; outline: none; color: #333; transition: all 0.25s ease; max-width: 180px;"
+                        onmouseover="this.style.borderColor='#10b981'; this.style.backgroundColor='#f8fafc';"
+                        onmouseout="this.style.borderColor='#cbd5e1'; this.style.backgroundColor='#fff';"
+                        onfocus="this.style.borderColor='#10b981'; this.style.boxShadow='0 0 0 3px rgba(16, 185, 129, 0.25)';"
+                        onblur="this.style.borderColor='#cbd5e1'; this.style.boxShadow='none';">
+                        <option value="all">All Supervisors</option>
+                        <?php foreach ($supervisors as $sup): ?>
+                            <?php 
+                                $c = $supervisorCounts[$sup['u_id']] ?? 0;
+                                $display = htmlspecialchars($sup['name'] ?: $sup['u_name']) . " ($c/65)";
+                            ?>
+                            <option value="<?php echo $sup['u_id']; ?>"><?php echo $display; ?></option>
+                        <?php endforeach; ?>
+                    </select>
                 </div>
             </div>
         </div>
@@ -482,6 +644,7 @@ foreach ($students as $stud) {
             <table class="custom-table">
                 <thead>
                     <tr>
+                        <th class="bulk-select-col" style="width: 40px; text-align: center; display: none;"><input type="checkbox" id="selectAllCheckbox"></th>
                         <th>Roll No</th>
                         <th>Name</th>
                         <th>Father Name</th>
@@ -497,12 +660,13 @@ foreach ($students as $stud) {
                 <tbody id="student-table-body">
                     <?php if (empty($students)): ?>
                         <tr>
-                            <td colspan="10" style="text-align: center; color: #64748b; padding: 20px;">No student records
+                            <td colspan="11" style="text-align: center; color: #64748b; padding: 20px;">No student records
                                 found.</td>
                         </tr>
                     <?php else: ?>
                         <?php foreach ($students as $student): ?>
-                            <tr data-session="<?php echo htmlspecialchars($student['student_session'] ?? ''); ?>">
+                            <tr data-session="<?php echo htmlspecialchars($student['student_session'] ?? ''); ?>" data-assigned="<?php echo !empty($student['supervisor_id']) ? '1' : '0'; ?>" data-supervisor-id="<?php echo htmlspecialchars($student['supervisor_id'] ?? ''); ?>">
+                                <td class="bulk-select-col" style="text-align: center; display: none;"><input type="checkbox" class="student-checkbox" value="<?php echo htmlspecialchars($student['student_rollno']); ?>"></td>
                                 <td><strong><?php echo htmlspecialchars($student['student_rollno']); ?></strong></td>
                                 <td><?php echo htmlspecialchars($student['student_name'] ?? 'N/A'); ?></td>
                                 <td><?php echo htmlspecialchars($student['student_fname'] ?? 'N/A'); ?></td>
@@ -773,6 +937,41 @@ foreach ($students as $stud) {
 </div>
 
 <!-- ========================================== -->
+<!-- MODAL: BULK ASSIGN SUPERVISOR              -->
+<!-- ========================================== -->
+<div id="bulkAssignSupervisorModal" class="modal-overlay">
+    <div class="modal-container">
+        <div class="modal-header">
+            <h3><i class="fa-solid fa-users"></i> Bulk Assign Faculty Supervisor</h3>
+            <span class="modal-close" onclick="closeModal('bulkAssignSupervisorModal')">&times;</span>
+        </div>
+        <div class="modal-body">
+            <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 4px; padding: 12px; margin-bottom: 15px;">
+                <p style="font-size: 14px; margin-bottom: 0;"><strong>Selected Students:</strong> <span id="modal_bulk_count">0</span></p>
+            </div>
+            <form action="" method="POST" id="bulkAssignForm">
+                <div id="bulk_hidden_inputs"></div>
+                <div class="form-group">
+                    <label for="modal_bulk_supervisor_select">Select Faculty Supervisor <span style="color: red;">*</span></label>
+                    <select id="modal_bulk_supervisor_select" name="supervisor_id" required style="width: 100%; margin-top: 5px;">
+                        <option value="">-- Select Supervisor --</option>
+                        <?php foreach ($supervisors as $supervisor): ?>
+                            <option value="<?php echo $supervisor['u_id']; ?>">
+                                <?php echo htmlspecialchars($supervisor['name'] ?: $supervisor['u_name']); ?> (Faculty Supervisor)
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+                <div style="margin-top: 20px; text-align: right;">
+                    <button type="button" class="btn-cancel" onclick="closeModal('bulkAssignSupervisorModal')">Cancel</button>
+                    <button type="submit" name="bulk_assign_supervisor" class="btn-submit" style="margin-top: 0;">Assign Supervisor</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- ========================================== -->
 <!-- MODAL: INTERNSHIP RECOMMENDATION LETTER     -->
 <!-- ========================================== -->
 <div id="letterViewModal" class="modal-overlay">
@@ -946,29 +1145,123 @@ foreach ($students as $stud) {
         return true;
     }
 
-    // Dynamic Filter for Session dropdown
-    function filterSession(sessionValue) {
-        const rows = document.querySelectorAll('#student-table-body tr');
-        rows.forEach(row => {
-            const session = row.getAttribute('data-session');
-            // Handle empty row
-            if (!session) return;
+    let currentAssignmentFilter = 'all';
+    let currentSupervisorFilter = 'all';
 
-            if (sessionValue === '') {
-                row.style.display = '';
+    function setAssignmentFilter(filterType) {
+        currentAssignmentFilter = filterType;
+        const sessionVal = document.getElementById('session-filter-dropdown') ? document.getElementById('session-filter-dropdown').value : 'all';
+        
+        const supDropdown = document.getElementById('supervisor-filter-dropdown');
+        const supLabel = document.getElementById('supervisor-filter-label');
+        if (supDropdown && supLabel) {
+            if (filterType === 'unassigned') {
+                supDropdown.value = 'all';
+                currentSupervisorFilter = 'all';
+                supDropdown.style.display = 'none';
+                supLabel.style.display = 'none';
             } else {
-                const normSession = session.replace(/\s+/g, '-').toLowerCase();
-                const normVal = sessionValue.replace(/\s+/g, '-').toLowerCase();
-                if (normSession === normVal) {
-                    row.style.display = '';
-                } else {
-                    row.style.display = 'none';
-                }
+                supDropdown.style.display = 'inline-block';
+                supLabel.style.display = 'inline-block';
             }
-        });
+        }
+        
+        applyFilters(sessionVal, currentAssignmentFilter, currentSupervisorFilter);
     }
 
+    function filterSession(sessionValue) {
+        applyFilters(sessionValue, currentAssignmentFilter, currentSupervisorFilter);
+    }
 
+    function filterBySupervisor(supervisorId) {
+        currentSupervisorFilter = supervisorId;
+        const sessionVal = document.getElementById('session-filter-dropdown') ? document.getElementById('session-filter-dropdown').value : 'all';
+        applyFilters(sessionVal, currentAssignmentFilter, currentSupervisorFilter);
+    }
+
+    function applyFilters(sessionValue, assignmentFilter, supervisorFilter) {
+        const tbody = document.getElementById('student-table-body');
+        if (!tbody) return;
+        
+        const rows = tbody.querySelectorAll('tr:not(.empty-message-row)');
+        
+        // Remove existing empty message row if any
+        const existingEmptyRow = document.querySelector('.empty-message-row');
+        if (existingEmptyRow) {
+            existingEmptyRow.remove();
+        }
+        
+        const legacyEmptyRow = document.getElementById('filter-empty-row');
+        if (legacyEmptyRow) legacyEmptyRow.remove();
+
+        let anyVisible = false;
+        rows.forEach(row => {
+            const rowSession = row.getAttribute('data-session');
+            const rowAssigned = row.getAttribute('data-assigned');
+            
+            // Structural empty row or other row without data-session
+            if (!rowSession && row.textContent.indexOf('No student records') !== -1) {
+                // If it's the "No student records found" row, hide it because we inject our own
+                row.style.display = 'none';
+                return;
+            }
+
+            // Session match
+            let sessionMatch = false;
+            if (sessionValue === 'all' || sessionValue === '') {
+                sessionMatch = true;
+            } else if (rowSession) {
+                const normSession = sessionValue.replace(/\s+/g, '-').toLowerCase();
+                const normRowSession = rowSession.replace(/\s+/g, '-').toLowerCase();
+                if (normSession === normRowSession) {
+                    sessionMatch = true;
+                }
+            }
+
+            // Assignment match
+            let assignmentMatch = false;
+            if (assignmentFilter === 'all') {
+                assignmentMatch = true;
+            } else if (assignmentFilter === 'assigned' && rowAssigned === '1') {
+                assignmentMatch = true;
+            } else if (assignmentFilter === 'unassigned' && rowAssigned === '0') {
+                assignmentMatch = true;
+            }
+
+            // Supervisor match
+            const rowSupervisor = row.getAttribute('data-supervisor-id');
+            let supervisorMatch = false;
+            if (supervisorFilter === 'all' || supervisorFilter === '') {
+                supervisorMatch = true;
+            } else if (rowSupervisor === supervisorFilter) {
+                supervisorMatch = true;
+            }
+
+            if (sessionMatch && assignmentMatch && supervisorMatch) {
+                row.style.display = '';
+                anyVisible = true;
+            } else {
+                row.style.display = 'none';
+            }
+        });
+
+        // If no rows are visible, inject a friendly message
+        if (!anyVisible && rows.length > 0) {
+            const emptyTr = document.createElement('tr');
+            emptyTr.className = 'empty-message-row';
+            let msg = 'No students found for the selected filters.';
+            emptyTr.innerHTML = '<td colspan="11" style="text-align: center; color: #64748b; padding: 25px;">' + msg + '</td>';
+            tbody.appendChild(emptyTr);
+        }
+        
+        // Uncheck all when filtering
+        const selectAllCb = document.getElementById('selectAllCheckbox');
+        if (selectAllCb) selectAllCb.checked = false;
+        document.querySelectorAll('.student-checkbox').forEach(cb => cb.checked = false);
+        if (typeof updateBulkButtonState === 'function') {
+            updateBulkButtonState();
+        }
+    }
     // Populate and show the recommendation letter
     function viewStudentLetter(name, fname, rollno, session, department, program) {
         document.getElementById('let_student_name').innerText = name || '[Student Name]';
@@ -1021,5 +1314,112 @@ foreach ($students as $stud) {
             // Filter by selected value (which defaults to 'Fall 2026')
             filterSession(sessionFilter.value);
         }
+
+        // Bulk Assignment Checkbox Logic
+        const selectAllCheckbox = document.getElementById('selectAllCheckbox');
+        const studentCheckboxes = document.querySelectorAll('.student-checkbox');
+        const bulkAssignBtn = document.getElementById('bulkAssignBtn');
+        const bulkCountDisplay = document.getElementById('bulkCount');
+        const MAX_SELECTION = 30;
+
+        function updateBulkButtonState() {
+            const checkedCount = document.querySelectorAll('.student-checkbox:checked').length;
+            bulkCountDisplay.textContent = checkedCount;
+            bulkAssignBtn.disabled = !(checkedCount > 0 && checkedCount <= MAX_SELECTION);
+            bulkAssignBtn.style.opacity = (checkedCount > 0 && checkedCount <= MAX_SELECTION) ? '1' : '0.6';
+            bulkAssignBtn.style.cursor = (checkedCount > 0 && checkedCount <= MAX_SELECTION) ? 'pointer' : 'not-allowed';
+        }
+
+        window.toggleBulkSelectionMode = function() {
+            const toggleBtn = document.getElementById('toggleBulkSelectionBtn');
+            const assignBtn = document.getElementById('bulkAssignBtn');
+            const cols = document.querySelectorAll('.bulk-select-col');
+            
+            const isCurrentlyActive = toggleBtn.getAttribute('data-active') === 'true';
+            
+            if (!isCurrentlyActive) {
+                toggleBtn.setAttribute('data-active', 'true');
+                toggleBtn.innerHTML = '<i class="fa-solid fa-xmark"></i> Cancel Bulk Selection';
+                toggleBtn.style.background = 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)';
+                assignBtn.style.display = 'inline-flex';
+                cols.forEach(col => col.style.display = 'table-cell');
+            } else {
+                toggleBtn.setAttribute('data-active', 'false');
+                toggleBtn.innerHTML = '<i class="fa-solid fa-list-check"></i> Bulk Selection';
+                toggleBtn.style.background = 'linear-gradient(135deg, #475569 0%, #334155 100%)';
+                assignBtn.style.display = 'none';
+                cols.forEach(col => col.style.display = 'none');
+                
+                document.getElementById('selectAllCheckbox').checked = false;
+                document.querySelectorAll('.student-checkbox').forEach(cb => cb.checked = false);
+                updateBulkButtonState();
+            }
+        };
+
+        if (selectAllCheckbox) {
+            selectAllCheckbox.addEventListener('change', function() {
+                let checkedCount = document.querySelectorAll('.student-checkbox:checked').length;
+                const isChecked = this.checked;
+                
+                studentCheckboxes.forEach(checkbox => {
+                    // Only modify checkboxes in visible rows
+                    const row = checkbox.closest('tr');
+                    if (row && row.style.display !== 'none') {
+                        if (isChecked) {
+                            if (!checkbox.checked && checkedCount < MAX_SELECTION) {
+                                checkbox.checked = true;
+                                checkedCount++;
+                            }
+                        } else {
+                            checkbox.checked = false;
+                        }
+                    }
+                });
+
+                if (isChecked && checkedCount === MAX_SELECTION) {
+                    alert('Maximum selection limit of 30 students reached.');
+                }
+                updateBulkButtonState();
+            });
+        }
+
+        studentCheckboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', function() {
+                const checkedCount = document.querySelectorAll('.student-checkbox:checked').length;
+                if (this.checked && checkedCount > MAX_SELECTION) {
+                    this.checked = false;
+                    alert('You can only select up to 30 students at a time.');
+                }
+                updateBulkButtonState();
+                
+                // Update 'select all' checkbox state
+                const visibleCheckboxes = Array.from(studentCheckboxes).filter(cb => {
+                    const row = cb.closest('tr');
+                    return row && row.style.display !== 'none';
+                });
+                const allVisibleChecked = visibleCheckboxes.length > 0 && visibleCheckboxes.every(cb => cb.checked);
+                if (selectAllCheckbox) selectAllCheckbox.checked = allVisibleChecked;
+            });
+        });
     });
+
+    function openBulkAssignModal() {
+        const checkedCheckboxes = document.querySelectorAll('.student-checkbox:checked');
+        if (checkedCheckboxes.length === 0) return;
+        
+        document.getElementById('modal_bulk_count').textContent = checkedCheckboxes.length;
+        
+        const hiddenInputsContainer = document.getElementById('bulk_hidden_inputs');
+        hiddenInputsContainer.innerHTML = '';
+        
+        checkedCheckboxes.forEach(cb => {
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = 'rollnos[]';
+            input.value = cb.value;
+            hiddenInputsContainer.appendChild(input);
+        });
+        
+        openModal('bulkAssignSupervisorModal');
+    }
 </script>

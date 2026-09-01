@@ -25,9 +25,29 @@ if (session_status() === PHP_SESSION_NONE) {
             <div class="welcome-text">
                 <i class="fa-solid fa-bars" id="sidebarToggle" style="cursor: pointer;"></i> 
                 <?php if (isset($_SESSION['user_type']) && $_SESSION['user_type'] === 'FP'): ?>
-                    Focal Person Portal
+                    <?php
+                        $headerFpName = 'Focal Person';
+                        if (isset($conn) && isset($_SESSION['user_id'])) {
+                            $fpId = (int)$_SESSION['user_id'];
+                            $fpq = mysqli_query($conn, "SELECT full_name FROM users WHERE user_id = $fpId LIMIT 1");
+                            if ($fpq && $fpr = mysqli_fetch_assoc($fpq)) {
+                                $headerFpName = $fpr['full_name'] ?: 'Focal Person';
+                            }
+                        }
+                    ?>
+                    Welcome <?php echo htmlspecialchars($headerFpName); ?>
                 <?php elseif (isset($_SESSION['user_type']) && $_SESSION['user_type'] === 'FSP'): ?>
-                    Faculty Supervisor Portal
+                    <?php
+                        $headerFspName = $_SESSION['username'] ?? 'Faculty Supervisor';
+                        if (isset($conn) && isset($_SESSION['user_id'])) {
+                            $fspId = (int)$_SESSION['user_id'];
+                            $fspq = mysqli_query($conn, "SELECT name FROM user_profile WHERE u_id = $fspId LIMIT 1");
+                            if ($fspq && $fspr = mysqli_fetch_assoc($fspq)) {
+                                $headerFspName = $fspr['name'] ?: $headerFspName;
+                            }
+                        }
+                    ?>
+                    Welcome <?php echo htmlspecialchars($headerFspName); ?>
                 <?php else: ?>
                     Welcome <?php echo htmlspecialchars($_SESSION['username'] ?? 'Student'); ?>
                 <?php endif; ?>

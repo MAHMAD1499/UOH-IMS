@@ -498,12 +498,21 @@ foreach ($assignedStudents as $student) {
             </div>
         </div>
         <div class="fsp-kpi-card">
+            <div class="fsp-kpi-icon kpi-purple">
+                <i class="fa-solid fa-building"></i>
+            </div>
+            <div class="fsp-kpi-info">
+                <h4><?php echo count($organizations); ?></h4>
+                <p>Host Organizations</p>
+            </div>
+        </div>
+        <div class="fsp-kpi-card">
             <div class="fsp-kpi-icon kpi-amber">
                 <i class="fa-solid fa-clock-rotate-left"></i>
             </div>
             <div class="fsp-kpi-info">
                 <h4><?php echo $totalPendingReportsCount; ?></h4>
-                <p>Reports Pending Review</p>
+                <p>Pending Reports</p>
             </div>
         </div>
         <div class="fsp-kpi-card">
@@ -512,16 +521,7 @@ foreach ($assignedStudents as $student) {
             </div>
             <div class="fsp-kpi-info">
                 <h4><?php echo $totalGradedCount; ?> / <?php echo $totalStudentsCount; ?></h4>
-                <p>Graded Evaluations</p>
-            </div>
-        </div>
-        <div class="fsp-kpi-card">
-            <div class="fsp-kpi-icon kpi-purple">
-                <i class="fa-solid fa-building"></i>
-            </div>
-            <div class="fsp-kpi-info">
-                <h4><?php echo count($organizations); ?></h4>
-                <p>Active Organizations</p>
+                <p>Graded Evaluation</p>
             </div>
         </div>
     </div>

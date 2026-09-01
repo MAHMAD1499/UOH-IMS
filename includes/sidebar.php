@@ -46,9 +46,23 @@
             <li class="nav-item active" id="nav-item-focal-dashboard-welcome" onclick="switchTab('focal-welcome-dashboard', this)">
                 <i class="fa-solid fa-gauge"></i> <span>Dashboard</span>
             </li>
-            <li class="nav-item" id="nav-item-focal-dashboard" onclick="switchTab('focal-dashboard', this)">
-                <i class="fa-solid fa-list-check"></i> <span>Registered Students list</span>
+            <li class="nav-item nav-item-dropdown-toggle" id="nav-item-focal-students-toggle" onclick="toggleSidebarDropdown('focal-students-dropdown')">
+                <div>
+                    <i class="fa-solid fa-list-check"></i> <span style="margin-left: 12px;">Registered Students</span>
+                </div>
+                <i class="fa-solid fa-chevron-down dropdown-chevron"></i>
             </li>
+            <ul class="nav-dropdown" id="focal-students-dropdown">
+                <li class="nav-subitem active" id="nav-subitem-all-students" onclick="switchTab('focal-dashboard', this); if(typeof setAssignmentFilter === 'function') setAssignmentFilter('all');">
+                    <i class="fa-solid fa-chevron-right"></i> <span>All Students</span>
+                </li>
+                <li class="nav-subitem" id="nav-subitem-assigned-students" onclick="switchTab('focal-dashboard', this); if(typeof setAssignmentFilter === 'function') setAssignmentFilter('assigned');">
+                    <i class="fa-solid fa-chevron-right"></i> <span>Assigned Students</span>
+                </li>
+                <li class="nav-subitem" id="nav-subitem-unassigned-students" onclick="switchTab('focal-dashboard', this); if(typeof setAssignmentFilter === 'function') setAssignmentFilter('unassigned');">
+                    <i class="fa-solid fa-chevron-right"></i> <span>Unassigned Students</span>
+                </li>
+            </ul>
             <li class="nav-item" id="nav-item-focal-letters" onclick="switchTab('focal-letters', this)">
                 <i class="fa-solid fa-file-contract"></i> <span>Internship Letter</span>
             </li>
