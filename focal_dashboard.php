@@ -595,7 +595,7 @@ foreach ($students as $stud) {
                 <div style="display: flex; align-items: center; flex-wrap: wrap; gap: 8px;">
                     <button type="button" id="toggleBulkSelectionBtn" class="btn-primary-action" data-active="false"
                         onclick="toggleBulkSelectionMode()"
-                        style="padding: 6px 12px; font-size: 13px; margin: 0; background: linear-gradient(135deg, #475569 0%, #334155 100%); cursor: pointer;">
+                        style="display: none; padding: 6px 12px; font-size: 13px; margin: 0; background: linear-gradient(135deg, #475569 0%, #334155 100%); cursor: pointer;">
                         <i class="fa-solid fa-list-check"></i> Bulk Selection
                     </button>
                     <button type="button" id="bulkAssignBtn" class="btn-primary-action" disabled
@@ -1167,6 +1167,20 @@ foreach ($students as $stud) {
         }
         
         applyFilters(sessionVal, currentAssignmentFilter, currentSupervisorFilter);
+
+        const toggleBtn = document.getElementById('toggleBulkSelectionBtn');
+        if (toggleBtn) {
+            if (filterType === 'unassigned') {
+                toggleBtn.style.display = 'inline-flex';
+            } else {
+                toggleBtn.style.display = 'none';
+                if (toggleBtn.getAttribute('data-active') === 'true') {
+                    if (typeof toggleBulkSelectionMode === 'function') {
+                        toggleBulkSelectionMode();
+                    }
+                }
+            }
+        }
     }
 
     function filterSession(sessionValue) {
