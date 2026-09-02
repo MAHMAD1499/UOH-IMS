@@ -5,7 +5,7 @@ if (session_status() === PHP_SESSION_NONE) {
 
 require_once __DIR__ . '/includes/db.php';
 
-// Resolve Focal Person details from users table
+// Fetch Focal Person details from users table
 $fpUserId = (int)($_SESSION['user_id'] ?? 21);
 $fpStmt = mysqli_prepare($conn, "SELECT user_id, full_name, email, phone, designation FROM users WHERE user_id = ? LIMIT 1");
 mysqli_stmt_bind_param($fpStmt, 'i', $fpUserId);
