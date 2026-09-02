@@ -13,9 +13,24 @@ if (!isset($_SESSION['user_type']) || $_SESSION['user_type'] !== 'FSP') {
 
 $fspUsername = $_SESSION['username'] ?? 'FSP-0001';
 
-// Resolve faculty supervisor user_id from users table
-// Mapping FSP-0001 -> user_id = 1 (Dr. Yousaf), FSP-0002 -> user_id = 2 (Dr. Ikramullah)
-$fspUserId = ($fspUsername === 'FSP-0002') ? 2 : 1;
+// Resolve faculty supervisor user_id from users table dynamically via email mapping
+$fspUserId = 1; // Fallback
+$lookupStmt = mysqli_prepare($conn, "
+    SELECT u.user_id 
+    FROM users u
+    JOIN user_profile up ON u.email = up.email
+    JOIN user usr ON up.u_id = usr.u_id
+    WHERE usr.u_name = ? LIMIT 1
+");
+if ($lookupStmt) {
+    mysqli_stmt_bind_param($lookupStmt, "s", $fspUsername);
+    mysqli_stmt_execute($lookupStmt);
+    $lookupRes = mysqli_stmt_get_result($lookupStmt);
+    if ($row = mysqli_fetch_assoc($lookupRes)) {
+        $fspUserId = (int)$row['user_id'];
+    }
+    mysqli_stmt_close($lookupStmt);
+}
 
 // Fetch Supervisor Profile Details
 $supStmt = mysqli_prepare($conn, "SELECT user_id, full_name, email, phone, designation FROM users WHERE user_id = ? LIMIT 1");

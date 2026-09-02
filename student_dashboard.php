@@ -107,7 +107,7 @@
                             ],
                             [
                                 'name' => 'Submit Weekly Reports',
-                                'status' => (!empty($latestReport['report_detail'])),
+                                'status' => (!empty($weeklyReports)),
                                 'icon' => 'fa-file-signature'
                             ]
                         ];
@@ -507,51 +507,43 @@
             <table class="custom-table">
                 <thead>
                     <tr>
-                        <th style="width: 50px;">Sr#</th>
+                        <th style="width: 50px;">Week</th>
                         <th>Session</th>
                         <th>Semester</th>
-                        <th>Report Detail</th>
-                        <th>Attachment</th>
-                        <th>Obtained Marks</th>
-                        <th>Total Marks</th>
+                        <th>Task Description</th>
+                        <th>Weekly Targets</th>
+                        <th>Revisions</th>
                         <th>Feedback / Status</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <?php if (!empty($latestReport['report_detail'])): ?>
-                        <tr>
-                            <td>1</td>
-                            <td><?php echo htmlspecialchars($latestReport['session'] ?? $semesterDetail['session'] ?? 'N/A'); ?>
-                            </td>
-                            <td><?php echo htmlspecialchars($latestReport['semester'] ?? $semesterDetail['semester'] ?? 'N/A'); ?>
-                            </td>
-                            <td><?php echo htmlspecialchars(mb_strimwidth($latestReport['report_detail'], 0, 40, '...')); ?>
-                            </td>
-                            <td>
-                                <?php if (!empty($latestReport['report_ref_img'])): ?>
-                                    <a href="<?php echo htmlspecialchars($latestReport['report_ref_img']); ?>" target="_blank"
-                                        style="color: #2e6652; text-decoration: underline;">
-                                        <i class="fa-solid fa-paperclip"></i> View File
-                                    </a>
-                                <?php else: ?>
-                                    <span style="color: #999;">None</span>
-                                <?php endif; ?>
-                            </td>
-                            <td><strong><?php echo htmlspecialchars($latestMarks['intern_total_obt_marks'] ?: $latestReport['report_marks'] ?: 'Pending'); ?></strong>
-                            </td>
-                            <td><?php echo htmlspecialchars($latestMarks['total_marks'] ?: 'Pending'); ?></td>
-                            <td>
-                                <?php if (!empty($latestReport['report_feedback'])): ?>
-                                    <span
-                                        style="font-size: 13px;"><?php echo htmlspecialchars($latestReport['report_feedback']); ?></span>
-                                <?php else: ?>
-                                    <span class="badge-status badge-pending">Pending Review</span>
-                                <?php endif; ?>
-                            </td>
-                        </tr>
+                    <?php if (!empty($weeklyReports)): ?>
+                        <?php foreach ($weeklyReports as $rep): ?>
+                            <tr>
+                                <td><?php echo (int)$rep['week_number']; ?></td>
+                                <td><?php echo htmlspecialchars($semesterDetail['session'] ?? 'N/A'); ?></td>
+                                <td><?php echo htmlspecialchars($semesterDetail['semester'] ?? 'N/A'); ?></td>
+                                <td><?php echo htmlspecialchars(mb_strimwidth($rep['task_description'], 0, 40, '...')); ?></td>
+                                <td><?php echo htmlspecialchars(mb_strimwidth($rep['weekly_targets'], 0, 40, '...')); ?></td>
+                                <td><?php echo (int)$rep['revision_count']; ?></td>
+                                <td>
+                                    <?php
+                                        $stClass = 'pill-' . $rep['status'];
+                                    ?>
+                                    <span class="status-pill <?php echo $stClass; ?>" style="margin-bottom: 5px; display: inline-block;">
+                                        <?php echo str_replace('_', ' ', $rep['status']); ?>
+                                    </span>
+                                    <?php if (!empty($rep['faculty_remarks'])): ?>
+                                        <div style="font-size: 12px; color: #555;">
+                                            <strong>Remarks:</strong> <?php echo htmlspecialchars($rep['faculty_remarks']); ?>
+                                        </div>
+                                    <?php endif; ?>
+                                </td>
+                            </tr>
+                        <?php endforeach; ?>
                     <?php else: ?>
                         <tr>
-                            <td colspan="8" style="text-align: center; color: #777; padding: 25px;">No internship reports
+                            <td colspan="7" style="text-align: center; color: #777; padding: 25px;">No internship reports
                                 submitted yet. Click <strong>Add Report</strong> above to create one.</td>
                         </tr>
                     <?php endif; ?>
@@ -991,14 +983,18 @@
                     </div>
                 </div>
                 <div class="form-group" style="margin-top: 12px;">
-                    <label for="pop_report_detail">Report Detail</label>
-                    <textarea id="pop_report_detail" name="report_detail" rows="5"
-                        placeholder="Type your internship weekly report details here..."
-                        required><?php echo htmlspecialchars($latestReport['report_detail'] ?? ''); ?></textarea>
+                    <label for="pop_week_number">Week Number</label>
+                    <input type="number" id="pop_week_number" name="week_number" min="1" max="52" required>
                 </div>
                 <div class="form-group" style="margin-top: 12px;">
-                    <label for="pop_report_ref_img">Reference Image / File</label>
-                    <input type="file" id="pop_report_ref_img" name="report_ref_img" accept="image/png, image/jpeg">
+                    <label for="pop_task_description">Task Description</label>
+                    <textarea id="pop_task_description" name="task_description" rows="5"
+                        placeholder="Type your internship weekly task details here..." required></textarea>
+                </div>
+                <div class="form-group" style="margin-top: 12px;">
+                    <label for="pop_weekly_targets">Weekly Targets</label>
+                    <textarea id="pop_weekly_targets" name="weekly_targets" rows="3"
+                        placeholder="What were your targets for this week?" required></textarea>
                 </div>
                 <div style="margin-top: 20px; text-align: right;">
                     <button type="button" class="btn-cancel" onclick="closeModal('reportModal')">Cancel</button>

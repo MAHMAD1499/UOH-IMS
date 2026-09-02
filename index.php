@@ -438,46 +438,44 @@ if ($role === 'STD') {
         }
 
         if (isset($_POST['submit_report'])) {
-            $reportSession = trim($_POST['session'] ?? '');
-            $reportSemester = trim($_POST['semester'] ?? '');
-            $reportDetail = trim($_POST['report_detail'] ?? '');
+            $weekNumber = (int)($_POST['week_number'] ?? 0);
+            $taskDescription = trim($_POST['task_description'] ?? '');
+            $weeklyTargets = trim($_POST['weekly_targets'] ?? '');
 
-            if ($rollno === '' || $reportSession === '' || $reportSemester === '' || $reportDetail === '') {
+            if ($rollno === '' || $weekNumber <= 0 || $taskDescription === '' || $weeklyTargets === '') {
                 redirectWithFlash('Please complete the report form before submitting.', 'error');
             }
 
-            $reportRefImg = null;
-
-            if (!empty($_FILES['report_ref_img']['name']) && is_uploaded_file($_FILES['report_ref_img']['tmp_name'])) {
-                $uploadDir = __DIR__ . '/uploads/reports/';
-                $allowedExtensions = ['jpg', 'jpeg', 'png'];
-                $originalName = (string) $_FILES['report_ref_img']['name'];
-                $fileExtension = strtolower(pathinfo($originalName, PATHINFO_EXTENSION));
-
-                if (!in_array($fileExtension, $allowedExtensions, true)) {
-                    redirectWithFlash('Only JPG and PNG files are allowed for report uploads.', 'error');
+            // Get internship_id
+            $internshipId = 0;
+            $intStmt = mysqli_prepare($conn, "
+                SELECT i.internship_id 
+                FROM internships i
+                JOIN students s ON i.student_id = s.student_id
+                WHERE s.roll_no = ? LIMIT 1
+            ");
+            if ($intStmt) {
+                mysqli_stmt_bind_param($intStmt, 's', $rollno);
+                mysqli_stmt_execute($intStmt);
+                $res = mysqli_stmt_get_result($intStmt);
+                if ($res && $row = mysqli_fetch_assoc($res)) {
+                    $internshipId = (int)$row['internship_id'];
                 }
-
-                if (!is_dir($uploadDir)) {
-                    mkdir($uploadDir, 0777, true);
-                }
-
-                $safeName = uniqid('report_', true) . '.' . $fileExtension;
-                $destination = $uploadDir . $safeName;
-
-                if (move_uploaded_file($_FILES['report_ref_img']['tmp_name'], $destination)) {
-                    $reportRefImg = 'uploads/reports/' . $safeName;
-                }
+                mysqli_stmt_close($intStmt);
             }
 
-            $insertStmt = mysqli_prepare($conn, 'INSERT INTO user_intern_report (rollno, session, semester, report_detail, report_ref_img) VALUES (?, ?, ?, ?, ?)');
+            if ($internshipId <= 0) {
+                redirectWithFlash('No internship assigned to you yet. You cannot submit reports.', 'error');
+            }
+
+            $insertStmt = mysqli_prepare($conn, 'INSERT INTO weekly_reports (internship_id, week_number, task_description, weekly_targets, status) VALUES (?, ?, ?, ?, "submitted")');
             if ($insertStmt) {
-                mysqli_stmt_bind_param($insertStmt, 'sssss', $rollno, $reportSession, $reportSemester, $reportDetail, $reportRefImg);
+                mysqli_stmt_bind_param($insertStmt, 'iiss', $internshipId, $weekNumber, $taskDescription, $weeklyTargets);
                 mysqli_stmt_execute($insertStmt);
                 mysqli_stmt_close($insertStmt);
             }
 
-            redirectWithFlash('Internship report submitted.');
+            redirectWithFlash('Internship report submitted successfully.');
         }
     }
 
@@ -503,15 +501,25 @@ if ($role === 'STD') {
         mysqli_stmt_close($semesterStmt);
     }
 
-    $reportStmt = mysqli_prepare($conn, 'SELECT * FROM user_intern_report WHERE rollno = ? ORDER BY u_in_r_id DESC LIMIT 1');
-    if ($reportStmt) {
-        mysqli_stmt_bind_param($reportStmt, 's', $rollno);
-        mysqli_stmt_execute($reportStmt);
-        $reportResult = mysqli_stmt_get_result($reportStmt);
-        if ($reportResult && ($row = mysqli_fetch_assoc($reportResult))) {
-            $latestReport = array_merge($latestReport, $row);
+    $weeklyReports = [];
+    $reportsStmt = mysqli_prepare($conn, "
+        SELECT wr.* 
+        FROM weekly_reports wr
+        JOIN internships i ON wr.internship_id = i.internship_id
+        JOIN students s ON i.student_id = s.student_id
+        WHERE s.roll_no = ?
+        ORDER BY wr.week_number ASC
+    ");
+    if ($reportsStmt) {
+        mysqli_stmt_bind_param($reportsStmt, 's', $rollno);
+        mysqli_stmt_execute($reportsStmt);
+        $res = mysqli_stmt_get_result($reportsStmt);
+        if ($res) {
+            while ($row = mysqli_fetch_assoc($res)) {
+                $weeklyReports[] = $row;
+            }
         }
-        mysqli_stmt_close($reportStmt);
+        mysqli_stmt_close($reportsStmt);
     }
 
     $marksStmt = mysqli_prepare($conn, 'SELECT * FROM user_internship_marks WHERE rollno = ? ORDER BY u_i_id DESC LIMIT 1');
