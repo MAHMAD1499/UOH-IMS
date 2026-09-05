@@ -191,5 +191,53 @@ CREATE TABLE `marks_evaluations` (
   CONSTRAINT fk_marks_eval_sup FOREIGN KEY (`faculty_supervisor_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+-- --------------------------------------------------------
+-- 13. Table `internship_full_report` (Title Page + Annexure-2 Section A)
+-- --------------------------------------------------------
+DROP TABLE IF EXISTS `internship_full_report`;
+CREATE TABLE `internship_full_report` (
+  `report_id` INT AUTO_INCREMENT PRIMARY KEY,
+  `rollno` VARCHAR(50) NOT NULL UNIQUE,
+  `internship_title_custom` VARCHAR(200) DEFAULT NULL,
+  `internship_duration_custom` VARCHAR(100) DEFAULT NULL,
+  `internship_start_date` DATE DEFAULT NULL,
+  `internship_end_date` DATE DEFAULT NULL,
+  `learning_objectives` TEXT DEFAULT NULL,
+  `tasks_performed` TEXT DEFAULT NULL,
+  `learning_experience` TEXT DEFAULT NULL,
+  `challenges_faced` TEXT DEFAULT NULL,
+  `student_feedback` TEXT DEFAULT NULL,
+  `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- --------------------------------------------------------
+-- 14. Table `internship_activity_log` (Annexure-3 Weekly Activity Log)
+-- --------------------------------------------------------
+DROP TABLE IF EXISTS `internship_activity_log`;
+CREATE TABLE `internship_activity_log` (
+  `log_id` INT AUTO_INCREMENT PRIMARY KEY,
+  `rollno` VARCHAR(50) NOT NULL,
+  `week_number` INT NOT NULL,
+  `date_range` VARCHAR(100) DEFAULT NULL,
+  `activities` TEXT DEFAULT NULL,
+  `outcome` TEXT DEFAULT NULL,
+  `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- --------------------------------------------------------
+-- 15. Table `internship_annexure2` (Annexure-2 Biweekly Reports)
+-- --------------------------------------------------------
+DROP TABLE IF EXISTS `internship_annexure2`;
+CREATE TABLE `internship_annexure2` (
+  `report_id` INT AUTO_INCREMENT PRIMARY KEY,
+  `rollno` VARCHAR(50) NOT NULL,
+  `report_number` INT NOT NULL,
+  `tasks_performed` TEXT DEFAULT NULL,
+  `learning_experience` TEXT DEFAULT NULL,
+  `challenges_faced` TEXT DEFAULT NULL,
+  `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
 -- Re-enable foreign keys
 SET FOREIGN_KEY_CHECKS = 1;

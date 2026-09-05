@@ -495,62 +495,57 @@
 <!-- TAB 2: INTERNSHIP REPORTS                  -->
 <!-- ========================================== -->
 <div id="student-reports" class="tab-content">
-    <div class="table-header-bar">
-        <button class="btn-primary-action" onclick="openModal('reportModal')">
-            <i class="fa-solid fa-plus"></i> Add Report
+    <div class="table-header-bar" style="flex-wrap: wrap; gap: 10px;">
+        <button class="btn-primary-action" onclick="openModal('annexure2Modal')" id="btn-annexure2" style="background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%);">
+            <i class="fa-solid fa-file-pen"></i> Annexure-2 (Sec-A)
         </button>
+        <button class="btn-primary-action" onclick="openModal('annexure3Modal')" id="btn-annexure3" style="background: linear-gradient(135deg, #b45309 0%, #92400e 100%);">
+            <i class="fa-solid fa-table-list"></i> Annexure-3 (Activity Log)
+        </button>
+        <a href="report_download.php" target="_blank" class="btn-primary-action" id="btn-download-report" style="background: linear-gradient(135deg, #065f46 0%, #047857 100%); text-decoration: none;">
+            <i class="fa-solid fa-file-arrow-down"></i> Download Full Report
+        </a>
     </div>
 
-    <div class="card">
-        <div class="card-header">Submitted Internship Reports</div>
+    <!-- Activity Log Summary (Annexure-3 preview) -->
+    <?php if (!empty($activityLogs)): ?>
+    <div class="card" style="margin-top: 5px;">
+        <div class="card-header">
+            <i class="fa-solid fa-table-list" style="margin-right: 6px;"></i> Annexure-3: Weekly Activity Log Entries
+        </div>
         <div class="card-body" style="padding: 0;">
             <table class="custom-table">
                 <thead>
                     <tr>
-                        <th style="width: 50px;">Week</th>
-                        <th>Session</th>
-                        <th>Semester</th>
-                        <th>Task Description</th>
-                        <th>Weekly Targets</th>
-                        <th>Revisions</th>
-                        <th>Feedback / Status</th>
+                        <th style="width:50px">Week</th>
+                        <th>Date Range</th>
+                        <th>Activities Performed</th>
+                        <th>Outcome / Result</th>
+                        <th style="width:70px">Action</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <?php if (!empty($weeklyReports)): ?>
-                        <?php foreach ($weeklyReports as $rep): ?>
-                            <tr>
-                                <td><?php echo (int)$rep['week_number']; ?></td>
-                                <td><?php echo htmlspecialchars($semesterDetail['session'] ?? 'N/A'); ?></td>
-                                <td><?php echo htmlspecialchars($semesterDetail['semester'] ?? 'N/A'); ?></td>
-                                <td><?php echo htmlspecialchars(mb_strimwidth($rep['task_description'], 0, 40, '...')); ?></td>
-                                <td><?php echo htmlspecialchars(mb_strimwidth($rep['weekly_targets'], 0, 40, '...')); ?></td>
-                                <td><?php echo (int)$rep['revision_count']; ?></td>
-                                <td>
-                                    <?php
-                                        $stClass = 'pill-' . $rep['status'];
-                                    ?>
-                                    <span class="status-pill <?php echo $stClass; ?>" style="margin-bottom: 5px; display: inline-block;">
-                                        <?php echo str_replace('_', ' ', $rep['status']); ?>
-                                    </span>
-                                    <?php if (!empty($rep['faculty_remarks'])): ?>
-                                        <div style="font-size: 12px; color: #555;">
-                                            <strong>Remarks:</strong> <?php echo htmlspecialchars($rep['faculty_remarks']); ?>
-                                        </div>
-                                    <?php endif; ?>
-                                </td>
-                            </tr>
-                        <?php endforeach; ?>
-                    <?php else: ?>
+                    <?php foreach ($activityLogs as $log): ?>
                         <tr>
-                            <td colspan="7" style="text-align: center; color: #777; padding: 25px;">No internship reports
-                                submitted yet. Click <strong>Add Report</strong> above to create one.</td>
+                            <td><?php echo (int)$log['week_number']; ?></td>
+                            <td><?php echo htmlspecialchars($log['date_range'] ?? '—'); ?></td>
+                            <td><?php echo nl2br(htmlspecialchars(mb_strimwidth($log['activities'], 0, 80, '...'))); ?></td>
+                            <td><?php echo htmlspecialchars(mb_strimwidth($log['outcome'] ?? '—', 0, 60, '...')); ?></td>
+                            <td>
+                                <form action="" method="POST" onsubmit="return confirm('Delete this log entry?');">
+                                    <input type="hidden" name="log_id" value="<?php echo (int)$log['log_id']; ?>">
+                                    <button type="submit" name="delete_activity_log" class="btn-table-action" style="background:#dc2626;">
+                                        <i class="fa-solid fa-trash"></i>
+                                    </button>
+                                </form>
+                            </td>
                         </tr>
-                    <?php endif; ?>
+                    <?php endforeach; ?>
                 </tbody>
             </table>
         </div>
     </div>
+    <?php endif; ?>
 </div>
 
 <!-- ========================================== -->
@@ -955,56 +950,138 @@
 </div>
 
 <!-- ========================================== -->
-<!-- MODAL 1: ADD REPORT POPUP                   -->
 <!-- ========================================== -->
-<div id="reportModal" class="modal-overlay">
-    <div class="modal-container">
-        <div class="modal-header">
-            <h3><i class="fa-solid fa-file-circle-plus"></i> Submit Internship Report</h3>
-            <span class="modal-close" onclick="closeModal('reportModal')">&times;</span>
+<!-- MODAL B: ANNEXURE-2 SECTION A               -->
+<!-- ========================================== -->
+<div id="annexure2Modal" class="modal-overlay">
+    <div class="modal-container" style="max-width: 750px;">
+        <div class="modal-header" style="background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%);">
+            <h3><i class="fa-solid fa-file-pen"></i> Annexure-2: Internship Evaluation Report (Section A)</h3>
+            <span class="modal-close" onclick="closeModal('annexure2Modal')">&times;</span>
         </div>
-        <div class="modal-body">
-            <form action="" method="POST" enctype="multipart/form-data">
-                <div class="form-grid">
-                    <div class="form-group">
-                        <label for="pop_rollno">Roll No</label>
-                        <input type="text" id="pop_rollno" value="<?php echo htmlspecialchars($rollno ?? ''); ?>"
-                            readonly>
+        <div class="modal-body" style="max-height: calc(100vh - 200px); overflow-y: auto;">
+            <!-- Info Banner -->
+            <div style="background: #f5f3ff; border: 1px solid #ddd6fe; border-radius: 6px; padding: 12px 14px; margin-bottom: 16px; font-size: 13px; color: #4c1d95;">
+                <strong><i class="fa-solid fa-circle-info"></i> Annexure-2 Section A</strong> is your biweekly Student Self-Evaluation. Fill out your 4 biweekly reports below.
+                <div style="margin-top: 8px; display: flex; gap: 16px; flex-wrap: wrap;">
+                    <span><strong>Student:</strong> <?php echo htmlspecialchars($profile['name'] ?: 'N/A'); ?></span>
+                    <span><strong>Roll No:</strong> <?php echo htmlspecialchars($rollno); ?></span>
+                </div>
+            </div>
+
+            <form action="" method="POST">
+                <?php
+                    $log = $annexure2Logs[0] ?? null;
+                    $tasksAct = $log['tasks_performed'] ?? '';
+                ?>
+                <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 16px; margin-bottom: 16px;">
+                    <p style="font-size: 14px; font-weight: 700; color: #1e293b; margin-bottom: 12px;"><i class="fa-solid fa-file-signature" style="color: #7c3aed;"></i> Comprehensive Internship Evaluation Report</p>
+                    <input type="hidden" name="a2_report_number" value="1">
+                    
+                    <div class="form-grid" style="grid-template-columns: 1fr; gap: 12px;">
+                        <div class="form-group">
+                            <label>a) Task(s) performed</label>
+                            <p style="font-size: 11px; color: #64748b; margin-top:-4px;">(Includes major duties designated to you by site supervisor and assignments you have completed.)</p>
+                            <textarea name="a2_tasks_performed" rows="4"
+                                placeholder="Describe the tasks..."
+                                style="width:100%; padding:10px; border:1px solid #cbd5e1; border-radius:4px; font-size:14px; outline:none; resize:vertical; background:#fff;"><?php echo htmlspecialchars($tasksAct); ?></textarea>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>b) Learning Experience</label>
+                            <p style="font-size: 11px; color: #64748b; margin-top:-4px;">(Communicate skills and knowledge that you gained or refined through the internship so far).</p>
+                            <textarea name="a2_learning_experience" rows="4"
+                                placeholder="Describe your learning experience..."
+                                style="width:100%; padding:10px; border:1px solid #cbd5e1; border-radius:4px; font-size:14px; outline:none; resize:vertical; background:#fff;"><?php echo htmlspecialchars($log['learning_experience'] ?? ''); ?></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label>c) Challenges</label>
+                            <p style="font-size: 11px; color: #64748b; margin-top:-4px;">(Detail major challenges in your role and how you tackled them).</p>
+                            <textarea name="a2_challenges_faced" rows="4"
+                                placeholder="Describe challenges and how you tackled them..."
+                                style="width:100%; padding:10px; border:1px solid #cbd5e1; border-radius:4px; font-size:14px; outline:none; resize:vertical; background:#fff;"><?php echo htmlspecialchars($log['challenges_faced'] ?? ''); ?></textarea>
+                        </div>
                     </div>
-                    <div class="form-group">
-                        <label for="pop_session">Session</label>
-                        <input type="text" id="pop_session" name="session"
-                            value="<?php echo htmlspecialchars($semesterDetail['session'] ?? ''); ?>" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="pop_semester">Semester</label>
-                        <input type="text" id="pop_semester" name="semester"
-                            value="<?php echo htmlspecialchars($semesterDetail['semester'] ?? ''); ?>" required>
-                    </div>
                 </div>
-                <div class="form-group" style="margin-top: 12px;">
-                    <label for="pop_week_number">Week Number</label>
-                    <input type="number" id="pop_week_number" name="week_number" min="1" max="52" required>
-                </div>
-                <div class="form-group" style="margin-top: 12px;">
-                    <label for="pop_task_description">Task Description</label>
-                    <textarea id="pop_task_description" name="task_description" rows="5"
-                        placeholder="Type your internship weekly task details here..." required></textarea>
-                </div>
-                <div class="form-group" style="margin-top: 12px;">
-                    <label for="pop_weekly_targets">Weekly Targets</label>
-                    <textarea id="pop_weekly_targets" name="weekly_targets" rows="3"
-                        placeholder="What were your targets for this week?" required></textarea>
-                </div>
-                <div style="margin-top: 20px; text-align: right;">
-                    <button type="button" class="btn-cancel" onclick="closeModal('reportModal')">Cancel</button>
-                    <button type="submit" name="submit_report" class="btn-submit" style="margin-top: 0;">Submit
-                        Report</button>
+
+                <div style="margin-top: 16px; text-align: right; display: flex; gap: 10px; justify-content: flex-end;">
+                    <button type="button" class="btn-cancel" onclick="closeModal('annexure2Modal')">Close</button>
+                    <button type="submit" name="save_all_annexure2" class="btn-submit" style="margin-top: 0; background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%);">
+                        <i class="fa-solid fa-floppy-disk"></i> Save Report
+                    </button>
                 </div>
             </form>
         </div>
     </div>
 </div>
+
+<!-- ========================================== -->
+<!-- MODAL C: ANNEXURE-3 ACTIVITY LOG            -->
+<!-- ========================================== -->
+<div id="annexure3Modal" class="modal-overlay">
+    <div class="modal-container" style="max-width: 720px;">
+        <div class="modal-header" style="background: linear-gradient(135deg, #b45309 0%, #92400e 100%);">
+            <h3><i class="fa-solid fa-table-list"></i> Annexure-3: Weekly Activity Log</h3>
+            <span class="modal-close" onclick="closeModal('annexure3Modal')">&times;</span>
+        </div>
+        <div class="modal-body" style="max-height: calc(100vh - 200px); overflow-y: auto;">
+            <!-- Info Banner -->
+            <div style="background: #fffbeb; border: 1px solid #fde68a; border-radius: 6px; padding: 12px 14px; margin-bottom: 16px; font-size: 13px; color: #92400e;">
+                <strong><i class="fa-solid fa-circle-info"></i> Annexure-3</strong> records your activities. Fill out your 4 biweekly reports below. All entries will appear in the downloadable report.
+            </div>
+
+            <form action="" method="POST">
+                <?php for ($i=1; $i<=4; $i++): 
+                    $log = $activityLogs[$i-1] ?? null;
+                    $weekLabel = "Week " . $i;
+                ?>
+                <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 16px; margin-bottom: 16px;">
+                    <p style="font-size: 14px; font-weight: 700; color: #1e293b; margin-bottom: 12px;"><i class="fa-solid fa-calendar-week" style="color: #b45309;"></i> Biweekly Report <?php echo $i; ?> (Weeks <?php echo ($i*2)-1; ?> & <?php echo $i*2; ?>)</p>
+                    <input type="hidden" name="log_week_number[]" value="<?php echo $i; ?>">
+                    <div class="form-grid" style="grid-template-columns: 1fr; gap: 12px;">
+                        <div class="form-group">
+                            <label>Activity Period Dates</label>
+                            <input type="text" name="log_date_range[]"
+                                value="<?php echo htmlspecialchars($log['date_range'] ?? ''); ?>"
+                                placeholder="e.g., Aug 05 – Aug 18"
+                                style="padding:8px 10px; border: 1px solid #cbd5e1; border-radius:4px; font-size:14px; outline:none; background:#fff; width: 100%;">
+                        </div>
+                        <div class="form-group">
+                            <label>Tasks Assigned and Performed</label>
+                            <?php 
+                            $act = $log['activities'] ?? '';
+                            if ($act !== '' && strpos($act, '1.') === false) {
+                                $lines = explode("\n", str_replace("\r", "", $act));
+                                $formattedAct = "";
+                                for ($j = 1; $j <= 3; $j++) {
+                                    $line = isset($lines[$j-1]) ? trim($lines[$j-1]) : '';
+                                    $formattedAct .= $j . ". " . $line . "\n";
+                                }
+                                $act = trim($formattedAct);
+                            } elseif ($act === '') {
+                                $act = "1. \n2. \n3. ";
+                            }
+                            ?>
+                            <textarea name="log_activities[]" rows="4"
+                                placeholder="Describe the activities and tasks..."
+                                style="width:100%; padding:10px; border:1px solid #cbd5e1; border-radius:4px; font-size:14px; outline:none; resize:vertical; background:#fff;"><?php echo htmlspecialchars($act); ?></textarea>
+                        </div>
+                    </div>
+                </div>
+                <?php endfor; ?>
+
+                <div style="margin-top: 16px; text-align: right; display: flex; gap: 10px; justify-content: flex-end;">
+                    <button type="button" class="btn-cancel" onclick="closeModal('annexure3Modal')">Close</button>
+                    <button type="submit" name="save_all_activity_logs" class="btn-submit" style="margin-top: 0; background: linear-gradient(135deg, #b45309 0%, #92400e 100%);">
+                        <i class="fa-solid fa-floppy-disk"></i> Save All Reports
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 
 <!-- ========================================== -->
 <!-- MODAL 2: INTERNSHIP LETTER DRAFT POPUP    -->

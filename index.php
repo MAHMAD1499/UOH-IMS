@@ -477,6 +477,81 @@ if ($role === 'STD') {
 
             redirectWithFlash('Internship report submitted successfully.');
         }
+
+        // ── Save Annexure-2 Section A (Comprehensive Report) ───────────
+        if (isset($_POST['save_all_annexure2'])) {
+            $rNum = (int)($_POST['a2_report_number'] ?? 1);
+            $t = trim($_POST['a2_tasks_performed'] ?? '');
+            $e = trim($_POST['a2_learning_experience'] ?? '');
+            $c = trim($_POST['a2_challenges_faced'] ?? '');
+
+            // First, clear existing logs for this student to replace them cleanly
+            $clearStmt = mysqli_prepare($conn, 'DELETE FROM internship_annexure2 WHERE rollno = ?');
+            if ($clearStmt) {
+                mysqli_stmt_bind_param($clearStmt, 's', $rollno);
+                mysqli_stmt_execute($clearStmt);
+                mysqli_stmt_close($clearStmt);
+            }
+
+            // Insert the comprehensive report
+            if ($t !== '' || $e !== '' || $c !== '') {
+                $insertStmt = mysqli_prepare($conn, 'INSERT INTO internship_annexure2 (rollno, report_number, tasks_performed, learning_experience, challenges_faced) VALUES (?, ?, ?, ?, ?)');
+                if ($insertStmt) {
+                    mysqli_stmt_bind_param($insertStmt, 'sisss', $rollno, $rNum, $t, $e, $c);
+                    mysqli_stmt_execute($insertStmt);
+                    mysqli_stmt_close($insertStmt);
+                }
+            }
+
+            redirectWithFlash('Annexure-2 report saved successfully.');
+        }
+
+        // ── Save Annexure-3 Activity Logs (All 4 at once) ────────────────
+        if (isset($_POST['save_all_activity_logs'])) {
+            $weeks = $_POST['log_week_number'] ?? [];
+            $dates = $_POST['log_date_range'] ?? [];
+            $activities = $_POST['log_activities'] ?? [];
+
+            // First, clear existing logs for this student to replace them cleanly
+            $clearStmt = mysqli_prepare($conn, 'DELETE FROM internship_activity_log WHERE rollno = ?');
+            if ($clearStmt) {
+                mysqli_stmt_bind_param($clearStmt, 's', $rollno);
+                mysqli_stmt_execute($clearStmt);
+                mysqli_stmt_close($clearStmt);
+            }
+
+            // Insert the 4 reports
+            $insertStmt = mysqli_prepare($conn, 'INSERT INTO internship_activity_log (rollno, week_number, date_range, activities, outcome) VALUES (?, ?, ?, ?, "")');
+            if ($insertStmt) {
+                for ($i = 0; $i < count($weeks); $i++) {
+                    $w = (int)($weeks[$i] ?? 0);
+                    $d = trim($dates[$i] ?? '');
+                    $a = trim($activities[$i] ?? '');
+                    
+                    if ($w > 0 && ($d !== '' || $a !== '')) {
+                        mysqli_stmt_bind_param($insertStmt, 'siss', $rollno, $w, $d, $a);
+                        mysqli_stmt_execute($insertStmt);
+                    }
+                }
+                mysqli_stmt_close($insertStmt);
+            }
+
+            redirectWithFlash('Activity logs saved successfully.');
+        }
+
+        // ── Delete Annexure-3 Activity Log entry ─────────────────────────
+        if (isset($_POST['delete_activity_log'])) {
+            $deleteLogId = (int)($_POST['log_id'] ?? 0);
+            if ($deleteLogId > 0) {
+                $stmt = mysqli_prepare($conn, 'DELETE FROM internship_activity_log WHERE log_id = ? AND rollno = ?');
+                if ($stmt) {
+                    mysqli_stmt_bind_param($stmt, 'is', $deleteLogId, $rollno);
+                    mysqli_stmt_execute($stmt);
+                    mysqli_stmt_close($stmt);
+                }
+            }
+            redirectWithFlash('Activity log entry deleted.');
+        }
     }
 
     $profileStmt = mysqli_prepare($conn, 'SELECT * FROM user_profile WHERE u_id = ? LIMIT 1');
@@ -594,6 +669,59 @@ if ($role === 'STD') {
             $facultySupervisor = array_merge($facultySupervisor, $row);
         }
         mysqli_stmt_close($facultyStmt);
+    }
+
+    // ── Fetch Full Report (Title Page + Annexure-2) ──────────────────────
+    $fullReport = [
+        'internship_title_custom'   => '',
+        'internship_duration_custom'=> '',
+        'internship_start_date'     => '',
+        'internship_end_date'       => '',
+        'learning_objectives'       => '',
+        'tasks_performed'           => '',
+        'learning_experience'       => '',
+        'challenges_faced'          => '',
+        'student_feedback'          => '',
+    ];
+    $frStmt = mysqli_prepare($conn, 'SELECT * FROM internship_full_report WHERE rollno = ? LIMIT 1');
+    if ($frStmt) {
+        mysqli_stmt_bind_param($frStmt, 's', $rollno);
+        mysqli_stmt_execute($frStmt);
+        $frRes = mysqli_stmt_get_result($frStmt);
+        if ($frRes && ($row = mysqli_fetch_assoc($frRes))) {
+            $fullReport = array_merge($fullReport, $row);
+        }
+        mysqli_stmt_close($frStmt);
+    }
+
+    // ── Fetch Annexure-3 Activity Logs ───────────────────────────────────
+    $activityLogs = [];
+    $alStmt = mysqli_prepare($conn, 'SELECT * FROM internship_activity_log WHERE rollno = ? ORDER BY week_number ASC');
+    if ($alStmt) {
+        mysqli_stmt_bind_param($alStmt, 's', $rollno);
+        mysqli_stmt_execute($alStmt);
+        $alRes = mysqli_stmt_get_result($alStmt);
+        if ($alRes) {
+            while ($row = mysqli_fetch_assoc($alRes)) {
+                $activityLogs[] = $row;
+            }
+        }
+        mysqli_stmt_close($alStmt);
+    }
+
+    // ── Fetch Annexure-2 Biweekly Logs ───────────────────────────────────
+    $annexure2Logs = [];
+    $a2Stmt = mysqli_prepare($conn, 'SELECT * FROM internship_annexure2 WHERE rollno = ? ORDER BY report_number ASC');
+    if ($a2Stmt) {
+        mysqli_stmt_bind_param($a2Stmt, 's', $rollno);
+        mysqli_stmt_execute($a2Stmt);
+        $a2Res = mysqli_stmt_get_result($a2Stmt);
+        if ($a2Res) {
+            while ($row = mysqli_fetch_assoc($a2Res)) {
+                $annexure2Logs[] = $row;
+            }
+        }
+        mysqli_stmt_close($a2Stmt);
     }
 }
 ?>
