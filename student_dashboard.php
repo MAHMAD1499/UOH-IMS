@@ -17,7 +17,8 @@
     <div class="welcome-banner">
         <h2>Welcome back, <?php echo htmlspecialchars($profile['name'] ?: 'Student'); ?>!</h2>
         <p>Roll Number: <strong><?php echo htmlspecialchars($rollno); ?></strong> | Department:
-            <strong><?php echo htmlspecialchars($semesterDetail['department'] ?: 'IT/CS'); ?></strong></p>
+            <strong><?php echo htmlspecialchars($semesterDetail['department'] ?: 'IT/CS'); ?></strong>
+        </p>
     </div>
 
     <div class="dashboard-grid">
@@ -79,72 +80,86 @@
         <div class="dashboard-right">
             <!-- Internship Checklist Card -->
             <div class="announcements-card" style="margin-bottom: 20px;">
-                <div class="announcements-header" style="background-color: #f8fafc; color: #334155; border-bottom: 1px solid #e2e8f0;">
+                <div class="announcements-header"
+                    style="background-color: #f8fafc; color: #334155; border-bottom: 1px solid #e2e8f0;">
                     <i class="fa-solid fa-list-check"></i> Internship Progress Checklist
                 </div>
                 <div class="announcements-body" style="padding: 15px;">
                     <?php
-                        $tasks = [
-                            [
-                                'name' => 'Complete Profile Details',
-                                'status' => (!empty($profile['cnic']) && !empty($semesterDetail['session'])),
-                                'icon' => 'fa-id-card'
-                            ],
-                            [
-                                'name' => 'Obtain Internship Letter',
-                                'status' => ((int)($semesterDetail['letter_approved'] ?? 0) === 1),
-                                'icon' => 'fa-file-contract'
-                            ],
-                            [
-                                'name' => 'Submit Placement Details',
-                                'status' => (!empty($placement['org_name'])),
-                                'icon' => 'fa-building'
-                            ],
-                            [
-                                'name' => 'Faculty Supervisor Assigned',
-                                'status' => (!empty($facultySupervisor['full_name'])),
-                                'icon' => 'fa-user-graduate'
-                            ],
-                            [
-                                'name' => 'Submit Weekly Reports',
-                                'status' => (!empty($weeklyReports)),
-                                'icon' => 'fa-file-signature'
-                            ]
-                        ];
+                    $tasks = [
+                        [
+                            'name' => 'Complete Profile Details',
+                            'status' => (!empty($profile['cnic']) && !empty($semesterDetail['session'])),
+                            'icon' => 'fa-id-card'
+                        ],
+                        [
+                            'name' => 'Obtain Internship Letter',
+                            'status' => ((int) ($semesterDetail['letter_approved'] ?? 0) === 1),
+                            'icon' => 'fa-file-contract'
+                        ],
+                        [
+                            'name' => 'Submit Placement Details',
+                            'status' => (!empty($placement['org_name'])),
+                            'icon' => 'fa-building'
+                        ],
+                        [
+                            'name' => 'Faculty Supervisor Assigned',
+                            'status' => (!empty($facultySupervisor['full_name'])),
+                            'icon' => 'fa-user-graduate'
+                        ],
+                        [
+                            'name' => 'Submit Weekly Reports',
+                            'status' => (!empty($weeklyReports)),
+                            'icon' => 'fa-file-signature'
+                        ]
+                    ];
 
-                        $completedCount = 0;
-                        foreach ($tasks as $task) {
-                            if ($task['status']) {
-                                $completedCount++;
-                            }
+                    $completedCount = 0;
+                    foreach ($tasks as $task) {
+                        if ($task['status']) {
+                            $completedCount++;
                         }
-                        $progressPercent = count($tasks) > 0 ? round(($completedCount / count($tasks)) * 100) : 0;
+                    }
+                    $progressPercent = count($tasks) > 0 ? round(($completedCount / count($tasks)) * 100) : 0;
                     ?>
-                    
+
                     <div style="margin-bottom: 15px;">
-                        <div style="display: flex; justify-content: space-between; margin-bottom: 5px; font-size: 13px; font-weight: 600; color: #475569;">
+                        <div
+                            style="display: flex; justify-content: space-between; margin-bottom: 5px; font-size: 13px; font-weight: 600; color: #475569;">
                             <span>Progress Overview</span>
                             <span><?php echo $progressPercent; ?>%</span>
                         </div>
                         <div style="width: 100%; background-color: #e2e8f0; border-radius: 4px; height: 8px;">
-                            <div style="background-color: <?php echo $progressPercent == 100 ? '#16a34a' : '#3b82f6'; ?>; height: 8px; border-radius: 4px; width: <?php echo $progressPercent; ?>%;"></div>
+                            <div
+                                style="background-color: <?php echo $progressPercent == 100 ? '#16a34a' : '#3b82f6'; ?>; height: 8px; border-radius: 4px; width: <?php echo $progressPercent; ?>%;">
+                            </div>
                         </div>
                     </div>
 
                     <ul style="list-style: none; padding: 0; margin: 0;">
                         <?php foreach ($tasks as $task): ?>
-                            <li style="display: flex; align-items: center; margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px solid #f1f5f9; font-size: 13.5px;">
+                            <li
+                                style="display: flex; align-items: center; margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px solid #f1f5f9; font-size: 13.5px;">
                                 <?php if ($task['status']): ?>
-                                    <div style="width: 24px; height: 24px; background-color: #16a34a; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 12px; flex-shrink: 0;">
+                                    <div
+                                        style="width: 24px; height: 24px; background-color: #16a34a; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 12px; flex-shrink: 0;">
                                         <i class="fa-solid fa-check" style="font-size: 11px;"></i>
                                     </div>
-                                    <span style="color: #475569; text-decoration: line-through; flex-grow: 1;"><i class="fa-solid <?php echo $task['icon']; ?>" style="width: 16px; margin-right: 5px; opacity: 0.6;"></i> <?php echo $task['name']; ?></span>
+                                    <span style="color: #475569; text-decoration: line-through; flex-grow: 1;"><i
+                                            class="fa-solid <?php echo $task['icon']; ?>"
+                                            style="width: 16px; margin-right: 5px; opacity: 0.6;"></i>
+                                        <?php echo $task['name']; ?></span>
                                 <?php else: ?>
-                                    <div style="width: 24px; height: 24px; background-color: #f1f5f9; border: 1px solid #cbd5e1; color: #94a3b8; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 12px; flex-shrink: 0;">
+                                    <div
+                                        style="width: 24px; height: 24px; background-color: #f1f5f9; border: 1px solid #cbd5e1; color: #94a3b8; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 12px; flex-shrink: 0;">
                                         <i class="fa-solid fa-spinner" style="font-size: 11px;"></i>
                                     </div>
-                                    <span style="color: #1e293b; font-weight: 600; flex-grow: 1;"><i class="fa-solid <?php echo $task['icon']; ?>" style="width: 16px; margin-right: 5px; color: #64748b;"></i> <?php echo $task['name']; ?></span>
-                                    <span style="font-size: 11px; background-color: #fef3c7; color: #d97706; padding: 2px 6px; border-radius: 4px; font-weight: 600;">Pending</span>
+                                    <span style="color: #1e293b; font-weight: 600; flex-grow: 1;"><i
+                                            class="fa-solid <?php echo $task['icon']; ?>"
+                                            style="width: 16px; margin-right: 5px; color: #64748b;"></i>
+                                        <?php echo $task['name']; ?></span>
+                                    <span
+                                        style="font-size: 11px; background-color: #fef3c7; color: #d97706; padding: 2px 6px; border-radius: 4px; font-weight: 600;">Pending</span>
                                 <?php endif; ?>
                             </li>
                         <?php endforeach; ?>
@@ -153,22 +168,28 @@
             </div>
 
             <?php if (!empty($facultySupervisor['full_name'])): ?>
-            <!-- Faculty Supervisor Card -->
-            <div class="announcements-card" style="margin-bottom: 20px;">
-                <div class="announcements-header" style="background-color: #f0fdf4; color: #166534; border-bottom: 1px solid #bbf7d0;">
-                    <i class="fa-solid fa-user-graduate"></i> Assigned Faculty Supervisor
-                </div>
-                <div class="announcements-body" style="padding: 15px;">
-                    <p style="margin-bottom: 8px; font-size: 14px; color: #334155;"><strong>Name:</strong> <?php echo htmlspecialchars($facultySupervisor['full_name']); ?></p>
-                    <p style="margin-bottom: 8px; font-size: 14px; color: #334155;"><strong>Designation:</strong> <?php echo htmlspecialchars($facultySupervisor['designation']); ?></p>
-                    <p style="margin-bottom: 8px; font-size: 14px; color: #334155;"><strong>Email:</strong> <?php echo htmlspecialchars($facultySupervisor['email']); ?></p>
-                    <div style="margin-top: 15px;">
-                        <button class="btn-primary-action" onclick="switchTab('student-faculty-supervisor', document.getElementById('nav-item-student-faculty-supervisor'))" style="width: 100%; justify-content: center; padding: 8px; font-size: 13px; background: #16a34a;">
-                            View Full Details <i class="fa-solid fa-arrow-right"></i>
-                        </button>
+                <!-- Faculty Supervisor Card -->
+                <div class="announcements-card" style="margin-bottom: 20px;">
+                    <div class="announcements-header"
+                        style="background-color: #f0fdf4; color: #166534; border-bottom: 1px solid #bbf7d0;">
+                        <i class="fa-solid fa-user-graduate"></i> Assigned Faculty Supervisor
+                    </div>
+                    <div class="announcements-body" style="padding: 15px;">
+                        <p style="margin-bottom: 8px; font-size: 14px; color: #334155;"><strong>Name:</strong>
+                            <?php echo htmlspecialchars($facultySupervisor['full_name']); ?></p>
+                        <p style="margin-bottom: 8px; font-size: 14px; color: #334155;"><strong>Designation:</strong>
+                            <?php echo htmlspecialchars($facultySupervisor['designation']); ?></p>
+                        <p style="margin-bottom: 8px; font-size: 14px; color: #334155;"><strong>Email:</strong>
+                            <?php echo htmlspecialchars($facultySupervisor['email']); ?></p>
+                        <div style="margin-top: 15px;">
+                            <button class="btn-primary-action"
+                                onclick="switchTab('student-faculty-supervisor', document.getElementById('nav-item-student-faculty-supervisor'))"
+                                style="width: 100%; justify-content: center; padding: 8px; font-size: 13px; background: #16a34a;">
+                                View Full Details <i class="fa-solid fa-arrow-right"></i>
+                            </button>
+                        </div>
                     </div>
                 </div>
-            </div>
             <?php endif; ?>
 
             <!-- Announcements Card -->
@@ -264,7 +285,8 @@
 
             <div class="student-name-title"><?php echo htmlspecialchars($profile['name'] ?: 'Student Name'); ?></div>
             <div class="student-dept-subtitle">
-                <?php echo htmlspecialchars($semesterDetail['department'] ?: 'Department'); ?></div>
+                <?php echo htmlspecialchars($semesterDetail['department'] ?: 'Department'); ?>
+            </div>
 
             <hr class="profile-divider">
             <div class="sidebar-info-text"><?php echo htmlspecialchars($profile['fname'] ?: 'Father Name'); ?></div>
@@ -274,13 +296,15 @@
 
             <hr class="profile-divider">
             <div class="sidebar-info-text" style="font-size: 13.5px; font-weight: 600; color: #475569;">
-                <?php echo htmlspecialchars($credString); ?></div>
+                <?php echo htmlspecialchars($credString); ?>
+            </div>
 
             <div class="sidebar-cred-badge">Official Email Credentials</div>
 
             <div class="cred-label">Email Address</div>
             <div class="cred-val">
-                <?php echo htmlspecialchars($profile['email'] ?: ($rollno . '@student.uoh.edu.pk')); ?></div>
+                <?php echo htmlspecialchars($profile['email'] ?: ($rollno . '@student.uoh.edu.pk')); ?>
+            </div>
 
             <div class="cred-label">Password</div>
             <div style="display: flex; align-items: center; justify-content: center; gap: 8px;">
@@ -496,55 +520,59 @@
 <!-- ========================================== -->
 <div id="student-reports" class="tab-content">
     <div class="table-header-bar" style="flex-wrap: wrap; gap: 10px;">
-        <button class="btn-primary-action" onclick="openModal('annexure2Modal')" id="btn-annexure2" style="background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%);">
+        <button class="btn-primary-action" onclick="openModal('annexure2Modal')" id="btn-annexure2"
+            style="background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%);">
             <i class="fa-solid fa-file-pen"></i> Annexure-2 (Sec-A)
         </button>
-        <button class="btn-primary-action" onclick="openModal('annexure3Modal')" id="btn-annexure3" style="background: linear-gradient(135deg, #b45309 0%, #92400e 100%);">
+        <button class="btn-primary-action" onclick="openModal('annexure3Modal')" id="btn-annexure3"
+            style="background: linear-gradient(135deg, #b45309 0%, #92400e 100%);">
             <i class="fa-solid fa-table-list"></i> Annexure-3 (Activity Log)
         </button>
-        <a href="report_download.php" target="_blank" class="btn-primary-action" id="btn-download-report" style="background: linear-gradient(135deg, #065f46 0%, #047857 100%); text-decoration: none;">
+        <a href="report_download.php" target="_blank" class="btn-primary-action" id="btn-download-report"
+            style="background: linear-gradient(135deg, #065f46 0%, #047857 100%); text-decoration: none;">
             <i class="fa-solid fa-file-arrow-down"></i> Download Full Report
         </a>
     </div>
 
     <!-- Activity Log Summary (Annexure-3 preview) -->
     <?php if (!empty($activityLogs)): ?>
-    <div class="card" style="margin-top: 5px;">
-        <div class="card-header">
-            <i class="fa-solid fa-table-list" style="margin-right: 6px;"></i> Annexure-3: Weekly Activity Log Entries
-        </div>
-        <div class="card-body" style="padding: 0;">
-            <table class="custom-table">
-                <thead>
-                    <tr>
-                        <th style="width:50px">Week</th>
-                        <th>Date Range</th>
-                        <th>Activities Performed</th>
-                        <th>Outcome / Result</th>
-                        <th style="width:70px">Action</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php foreach ($activityLogs as $log): ?>
+        <div class="card" style="margin-top: 5px;">
+            <div class="card-header">
+                <i class="fa-solid fa-table-list" style="margin-right: 6px;"></i> Annexure-3: Weekly Activity Log Entries
+            </div>
+            <div class="card-body" style="padding: 0;">
+                <table class="custom-table">
+                    <thead>
                         <tr>
-                            <td><?php echo (int)$log['week_number']; ?></td>
-                            <td><?php echo htmlspecialchars($log['date_range'] ?? '—'); ?></td>
-                            <td><?php echo nl2br(htmlspecialchars(mb_strimwidth($log['activities'], 0, 80, '...'))); ?></td>
-                            <td><?php echo htmlspecialchars(mb_strimwidth($log['outcome'] ?? '—', 0, 60, '...')); ?></td>
-                            <td>
-                                <form action="" method="POST" onsubmit="return confirm('Delete this log entry?');">
-                                    <input type="hidden" name="log_id" value="<?php echo (int)$log['log_id']; ?>">
-                                    <button type="submit" name="delete_activity_log" class="btn-table-action" style="background:#dc2626;">
-                                        <i class="fa-solid fa-trash"></i>
-                                    </button>
-                                </form>
-                            </td>
+                            <th style="width:50px">Week</th>
+                            <th>Date Range</th>
+                            <th>Activities Performed</th>
+                            <th>Outcome / Result</th>
+                            <th style="width:70px">Action</th>
                         </tr>
-                    <?php endforeach; ?>
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        <?php foreach ($activityLogs as $log): ?>
+                            <tr>
+                                <td><?php echo (int) $log['week_number']; ?></td>
+                                <td><?php echo htmlspecialchars($log['date_range'] ?? '—'); ?></td>
+                                <td><?php echo nl2br(htmlspecialchars(mb_strimwidth($log['activities'], 0, 80, '...'))); ?></td>
+                                <td><?php echo htmlspecialchars(mb_strimwidth($log['outcome'] ?? '—', 0, 60, '...')); ?></td>
+                                <td>
+                                    <form action="" method="POST" onsubmit="return confirm('Delete this log entry?');">
+                                        <input type="hidden" name="log_id" value="<?php echo (int) $log['log_id']; ?>">
+                                        <button type="submit" name="delete_activity_log" class="btn-table-action"
+                                            style="background:#dc2626;">
+                                            <i class="fa-solid fa-trash"></i>
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+            </div>
         </div>
-    </div>
     <?php endif; ?>
 </div>
 
@@ -627,29 +655,41 @@
                 <div class="empty-state">
                     <i class="fa-solid fa-user-xmark" style="font-size: 40px; color: #cbd5e1; margin-bottom: 15px;"></i>
                     <h3 style="font-size: 16px; margin: 0 0 10px 0;">No Faculty Supervisor Assigned</h3>
-                    <p style="font-size: 14px; color: #64748b; margin: 0; max-width: 400px; text-align: center; margin: 0 auto;">
-                        You have not been assigned a faculty supervisor yet. Please contact your department for more information.
+                    <p
+                        style="font-size: 14px; color: #64748b; margin: 0; max-width: 400px; text-align: center; margin: 0 auto;">
+                        You have not been assigned a faculty supervisor yet. Please contact your department for more
+                        information.
                     </p>
                 </div>
             <?php else: ?>
-                <div class="org-details-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; font-size: 13.5px;">
+                <div class="org-details-grid"
+                    style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; font-size: 13.5px;">
                     <!-- Faculty Supervisor Block -->
-                    <div class="org-detail-block" style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 15px;">
-                        <h5 style="font-size: 12px; text-transform: uppercase; color: #64748b; margin-bottom: 10px; font-weight: 700; letter-spacing: 0.5px; border-bottom: 1px solid #e2e8f0; padding-bottom: 5px;">
+                    <div class="org-detail-block"
+                        style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 15px;">
+                        <h5
+                            style="font-size: 12px; text-transform: uppercase; color: #64748b; margin-bottom: 10px; font-weight: 700; letter-spacing: 0.5px; border-bottom: 1px solid #e2e8f0; padding-bottom: 5px;">
                             <i class="fa-solid fa-user-graduate"></i> Supervisor Information
                         </h5>
-                        <p style="margin-bottom: 6px;"><strong>Name:</strong> <?php echo htmlspecialchars($facultySupervisor['full_name']); ?></p>
-                        <p style="margin-bottom: 6px;"><strong>Designation:</strong> <?php echo htmlspecialchars($facultySupervisor['designation']); ?></p>
-                        <p style="margin-bottom: 6px;"><strong>Department:</strong> <?php echo htmlspecialchars($semesterDetail['department'] ?: 'N/A'); ?></p>
+                        <p style="margin-bottom: 6px;"><strong>Name:</strong>
+                            <?php echo htmlspecialchars($facultySupervisor['full_name']); ?></p>
+                        <p style="margin-bottom: 6px;"><strong>Designation:</strong>
+                            <?php echo htmlspecialchars($facultySupervisor['designation']); ?></p>
+                        <p style="margin-bottom: 6px;"><strong>Department:</strong>
+                            <?php echo htmlspecialchars($semesterDetail['department'] ?: 'N/A'); ?></p>
                     </div>
-                    
+
                     <!-- Contact Info Block -->
-                    <div class="org-detail-block" style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 15px;">
-                        <h5 style="font-size: 12px; text-transform: uppercase; color: #64748b; margin-bottom: 10px; font-weight: 700; letter-spacing: 0.5px; border-bottom: 1px solid #e2e8f0; padding-bottom: 5px;">
+                    <div class="org-detail-block"
+                        style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 15px;">
+                        <h5
+                            style="font-size: 12px; text-transform: uppercase; color: #64748b; margin-bottom: 10px; font-weight: 700; letter-spacing: 0.5px; border-bottom: 1px solid #e2e8f0; padding-bottom: 5px;">
                             <i class="fa-solid fa-address-book"></i> Contact Details
                         </h5>
-                        <p style="margin-bottom: 6px;"><strong>Email:</strong> <?php echo htmlspecialchars($facultySupervisor['email']); ?></p>
-                        <p style="margin-bottom: 6px;"><strong>Phone:</strong> <?php echo htmlspecialchars($facultySupervisor['phone']); ?></p>
+                        <p style="margin-bottom: 6px;"><strong>Email:</strong>
+                            <?php echo htmlspecialchars($facultySupervisor['email']); ?></p>
+                        <p style="margin-bottom: 6px;"><strong>Phone:</strong>
+                            <?php echo htmlspecialchars($facultySupervisor['phone']); ?></p>
                     </div>
                 </div>
             <?php endif; ?>
@@ -689,7 +729,8 @@
                         style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 12px; border-bottom: 1px solid #f1f5f9; padding-bottom: 10px; margin-bottom: 15px;">
                         <div>
                             <h4 style="font-size: 17px; font-weight: 700; color: #1e293b; margin: 0; margin-bottom: 8px;">
-                                <i class="fa-solid fa-building text-success" style="margin-right: 5px; font-weight: 900;"></i>
+                                <i class="fa-solid fa-building text-success"
+                                    style="margin-right: 5px; font-weight: 900;"></i>
                                 <?php echo htmlspecialchars($placement['org_name']); ?>
                             </h4>
                             <div style="display: flex; gap: 6px; flex-wrap: wrap;">
@@ -721,7 +762,8 @@
                             style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 15px;">
                             <h5
                                 style="font-size: 12px; text-transform: uppercase; color: #64748b; margin-bottom: 10px; font-weight: 700; letter-spacing: 0.5px; border-bottom: 1px solid #e2e8f0; padding-bottom: 5px;">
-                                <i class="fa-solid fa-address-book" style="font-weight: 900;"></i> Organization Contact Person
+                                <i class="fa-solid fa-address-book" style="font-weight: 900;"></i> Organization Contact
+                                Person
                             </h5>
                             <p style="margin-bottom: 6px;"><strong>Name:</strong>
                                 <?php echo htmlspecialchars($placement['contact_person_name'] ?? 'N/A'); ?></p>
@@ -785,9 +827,11 @@
             </div>
 
             <div class="student-name-title" style="color: #2e6652;">
-                <?php echo htmlspecialchars($profile['name'] ?: 'Student Name'); ?></div>
+                <?php echo htmlspecialchars($profile['name'] ?: 'Student Name'); ?>
+            </div>
             <div class="student-dept-subtitle" style="color: #2e6652; font-weight: 600;">
-                <?php echo htmlspecialchars($semesterDetail['department'] ?: 'Department'); ?></div>
+                <?php echo htmlspecialchars($semesterDetail['department'] ?: 'Department'); ?>
+            </div>
 
             <hr class="profile-divider">
             <div class="sidebar-info-text"><?php echo htmlspecialchars($profile['fname'] ?: 'Father Name'); ?></div>
@@ -797,7 +841,8 @@
 
             <hr class="profile-divider">
             <div class="sidebar-info-text" style="font-size: 13.5px; font-weight: 600; color: #26294d;">
-                <?php echo htmlspecialchars($credString); ?></div>
+                <?php echo htmlspecialchars($credString); ?>
+            </div>
         </div>
 
         <!-- RIGHT COLUMN: Reset Password Card -->
@@ -961,8 +1006,10 @@
         </div>
         <div class="modal-body" style="max-height: calc(100vh - 200px); overflow-y: auto;">
             <!-- Info Banner -->
-            <div style="background: #f5f3ff; border: 1px solid #ddd6fe; border-radius: 6px; padding: 12px 14px; margin-bottom: 16px; font-size: 13px; color: #4c1d95;">
-                <strong><i class="fa-solid fa-circle-info"></i> Annexure-2 Section A</strong> is your biweekly Student Self-Evaluation. Fill out your 4 biweekly reports below.
+            <div
+                style="background: #f5f3ff; border: 1px solid #ddd6fe; border-radius: 6px; padding: 12px 14px; margin-bottom: 16px; font-size: 13px; color: #4c1d95;">
+                <strong><i class="fa-solid fa-circle-info"></i> Annexure-2 Section A</strong> is your biweekly Student
+                Self-Evaluation. Fill out your 4 biweekly reports below.
                 <div style="margin-top: 8px; display: flex; gap: 16px; flex-wrap: wrap;">
                     <span><strong>Student:</strong> <?php echo htmlspecialchars($profile['name'] ?: 'N/A'); ?></span>
                     <span><strong>Roll No:</strong> <?php echo htmlspecialchars($rollno); ?></span>
@@ -971,25 +1018,29 @@
 
             <form action="" method="POST">
                 <?php
-                    $log = $annexure2Logs[0] ?? null;
-                    $tasksAct = $log['tasks_performed'] ?? '';
+                $log = $annexure2Logs[0] ?? null;
+                $tasksAct = $log['tasks_performed'] ?? '';
                 ?>
-                <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 16px; margin-bottom: 16px;">
-                    <p style="font-size: 14px; font-weight: 700; color: #1e293b; margin-bottom: 12px;"><i class="fa-solid fa-file-signature" style="color: #7c3aed;"></i> Comprehensive Internship Evaluation Report</p>
+                <div
+                    style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 16px; margin-bottom: 16px;">
+                    <p style="font-size: 14px; font-weight: 700; color: #1e293b; margin-bottom: 12px;"><i
+                            class="fa-solid fa-file-signature" style="color: #7c3aed;"></i> Comprehensive Internship
+                        Evaluation Report</p>
                     <input type="hidden" name="a2_report_number" value="1">
-                    
+
                     <div class="form-grid" style="grid-template-columns: 1fr; gap: 12px;">
                         <div class="form-group">
                             <label>a) Task(s) performed</label>
-                            <p style="font-size: 11px; color: #64748b; margin-top:-4px;">(Includes major duties designated to you by site supervisor and assignments you have completed.)</p>
-                            <textarea name="a2_tasks_performed" rows="4"
-                                placeholder="Describe the tasks..."
+                            <p style="font-size: 11px; color: #64748b; margin-top:-4px;">(Includes major duties
+                                designated to you by site supervisor and assignments you have completed.)</p>
+                            <textarea name="a2_tasks_performed" rows="4" placeholder="Describe the tasks..."
                                 style="width:100%; padding:10px; border:1px solid #cbd5e1; border-radius:4px; font-size:14px; outline:none; resize:vertical; background:#fff;"><?php echo htmlspecialchars($tasksAct); ?></textarea>
                         </div>
-                        
+
                         <div class="form-group">
                             <label>b) Learning Experience</label>
-                            <p style="font-size: 11px; color: #64748b; margin-top:-4px;">(Communicate skills and knowledge that you gained or refined through the internship so far).</p>
+                            <p style="font-size: 11px; color: #64748b; margin-top:-4px;">(Communicate skills and
+                                knowledge that you gained or refined through the internship so far).</p>
                             <textarea name="a2_learning_experience" rows="4"
                                 placeholder="Describe your learning experience..."
                                 style="width:100%; padding:10px; border:1px solid #cbd5e1; border-radius:4px; font-size:14px; outline:none; resize:vertical; background:#fff;"><?php echo htmlspecialchars($log['learning_experience'] ?? ''); ?></textarea>
@@ -997,7 +1048,8 @@
 
                         <div class="form-group">
                             <label>c) Challenges</label>
-                            <p style="font-size: 11px; color: #64748b; margin-top:-4px;">(Detail major challenges in your role and how you tackled them).</p>
+                            <p style="font-size: 11px; color: #64748b; margin-top:-4px;">(Detail major challenges in
+                                your role and how you tackled them).</p>
                             <textarea name="a2_challenges_faced" rows="4"
                                 placeholder="Describe challenges and how you tackled them..."
                                 style="width:100%; padding:10px; border:1px solid #cbd5e1; border-radius:4px; font-size:14px; outline:none; resize:vertical; background:#fff;"><?php echo htmlspecialchars($log['challenges_faced'] ?? ''); ?></textarea>
@@ -1007,7 +1059,8 @@
 
                 <div style="margin-top: 16px; text-align: right; display: flex; gap: 10px; justify-content: flex-end;">
                     <button type="button" class="btn-cancel" onclick="closeModal('annexure2Modal')">Close</button>
-                    <button type="submit" name="save_all_annexure2" class="btn-submit" style="margin-top: 0; background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%);">
+                    <button type="submit" name="save_all_annexure2" class="btn-submit"
+                        style="margin-top: 0; background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%);">
                         <i class="fa-solid fa-floppy-disk"></i> Save Report
                     </button>
                 </div>
@@ -1027,53 +1080,60 @@
         </div>
         <div class="modal-body" style="max-height: calc(100vh - 200px); overflow-y: auto;">
             <!-- Info Banner -->
-            <div style="background: #fffbeb; border: 1px solid #fde68a; border-radius: 6px; padding: 12px 14px; margin-bottom: 16px; font-size: 13px; color: #92400e;">
-                <strong><i class="fa-solid fa-circle-info"></i> Annexure-3</strong> records your activities. Fill out your 4 biweekly reports below. All entries will appear in the downloadable report.
+            <div
+                style="background: #fffbeb; border: 1px solid #fde68a; border-radius: 6px; padding: 12px 14px; margin-bottom: 16px; font-size: 13px; color: #92400e;">
+                <strong><i class="fa-solid fa-circle-info"></i> Annexure-3</strong> records your activities. Fill out
+                your 4 biweekly reports below. All entries will appear in the downloadable report.
             </div>
 
             <form action="" method="POST">
-                <?php for ($i=1; $i<=4; $i++): 
-                    $log = $activityLogs[$i-1] ?? null;
+                <?php for ($i = 1; $i <= 4; $i++):
+                    $log = $activityLogs[$i - 1] ?? null;
                     $weekLabel = "Week " . $i;
-                ?>
-                <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 16px; margin-bottom: 16px;">
-                    <p style="font-size: 14px; font-weight: 700; color: #1e293b; margin-bottom: 12px;"><i class="fa-solid fa-calendar-week" style="color: #b45309;"></i> Biweekly Report <?php echo $i; ?> (Weeks <?php echo ($i*2)-1; ?> & <?php echo $i*2; ?>)</p>
-                    <input type="hidden" name="log_week_number[]" value="<?php echo $i; ?>">
-                    <div class="form-grid" style="grid-template-columns: 1fr; gap: 12px;">
-                        <div class="form-group">
-                            <label>Activity Period Dates</label>
-                            <input type="text" name="log_date_range[]"
-                                value="<?php echo htmlspecialchars($log['date_range'] ?? ''); ?>"
-                                placeholder="e.g., Aug 05 – Aug 18"
-                                style="padding:8px 10px; border: 1px solid #cbd5e1; border-radius:4px; font-size:14px; outline:none; background:#fff; width: 100%;">
-                        </div>
-                        <div class="form-group">
-                            <label>Tasks Assigned and Performed</label>
-                            <?php 
-                            $act = $log['activities'] ?? '';
-                            if ($act !== '' && strpos($act, '1.') === false) {
-                                $lines = explode("\n", str_replace("\r", "", $act));
-                                $formattedAct = "";
-                                for ($j = 1; $j <= 3; $j++) {
-                                    $line = isset($lines[$j-1]) ? trim($lines[$j-1]) : '';
-                                    $formattedAct .= $j . ". " . $line . "\n";
+                    ?>
+                    <div
+                        style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 16px; margin-bottom: 16px;">
+                        <p style="font-size: 14px; font-weight: 700; color: #1e293b; margin-bottom: 12px;"><i
+                                class="fa-solid fa-calendar-week" style="color: #b45309;"></i> Biweekly Report
+                            <?php echo $i; ?> (Weeks <?php echo ($i * 2) - 1; ?> & <?php echo $i * 2; ?>)
+                        </p>
+                        <input type="hidden" name="log_week_number[]" value="<?php echo $i; ?>">
+                        <div class="form-grid" style="grid-template-columns: 1fr; gap: 12px;">
+                            <div class="form-group">
+                                <label>Activity Period Dates</label>
+                                <input type="text" name="log_date_range[]"
+                                    value="<?php echo htmlspecialchars($log['date_range'] ?? ''); ?>"
+                                    placeholder="e.g., Aug 05 – Aug 18"
+                                    style="padding:8px 10px; border: 1px solid #cbd5e1; border-radius:4px; font-size:14px; outline:none; background:#fff; width: 100%;">
+                            </div>
+                            <div class="form-group">
+                                <label>Tasks Assigned and Performed</label>
+                                <?php
+                                $act = $log['activities'] ?? '';
+                                if ($act !== '' && strpos($act, '1.') === false) {
+                                    $lines = explode("\n", str_replace("\r", "", $act));
+                                    $formattedAct = "";
+                                    for ($j = 1; $j <= 3; $j++) {
+                                        $line = isset($lines[$j - 1]) ? trim($lines[$j - 1]) : '';
+                                        $formattedAct .= $j . ". " . $line . "\n";
+                                    }
+                                    $act = trim($formattedAct);
+                                } elseif ($act === '') {
+                                    $act = "1. \n2. \n3. ";
                                 }
-                                $act = trim($formattedAct);
-                            } elseif ($act === '') {
-                                $act = "1. \n2. \n3. ";
-                            }
-                            ?>
-                            <textarea name="log_activities[]" rows="4"
-                                placeholder="Describe the activities and tasks..."
-                                style="width:100%; padding:10px; border:1px solid #cbd5e1; border-radius:4px; font-size:14px; outline:none; resize:vertical; background:#fff;"><?php echo htmlspecialchars($act); ?></textarea>
+                                ?>
+                                <textarea name="log_activities[]" rows="4"
+                                    placeholder="Describe the activities and tasks..."
+                                    style="width:100%; padding:10px; border:1px solid #cbd5e1; border-radius:4px; font-size:14px; outline:none; resize:vertical; background:#fff;"><?php echo htmlspecialchars($act); ?></textarea>
+                            </div>
                         </div>
                     </div>
-                </div>
                 <?php endfor; ?>
 
                 <div style="margin-top: 16px; text-align: right; display: flex; gap: 10px; justify-content: flex-end;">
                     <button type="button" class="btn-cancel" onclick="closeModal('annexure3Modal')">Close</button>
-                    <button type="submit" name="save_all_activity_logs" class="btn-submit" style="margin-top: 0; background: linear-gradient(135deg, #b45309 0%, #92400e 100%);">
+                    <button type="submit" name="save_all_activity_logs" class="btn-submit"
+                        style="margin-top: 0; background: linear-gradient(135deg, #b45309 0%, #92400e 100%);">
                         <i class="fa-solid fa-floppy-disk"></i> Save All Reports
                     </button>
                 </div>
@@ -1086,52 +1146,140 @@
 <!-- ========================================== -->
 <!-- MODAL 2: INTERNSHIP LETTER DRAFT POPUP    -->
 <!-- ========================================== -->
+<style>
+    @media print {
+        body * {
+            visibility: hidden;
+        }
+        #letterModal, #letterModal * {
+            visibility: visible;
+        }
+        #letterModal {
+            position: absolute;
+            left: 0;
+            top: 0;
+            margin: 0;
+            padding: 0;
+            background: none !important;
+            width: 100%;
+        }
+        #letterModal .modal-container {
+            box-shadow: none !important;
+            border: none !important;
+            background: none !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            width: 100% !important;
+            max-width: 100% !important;
+        }
+        #letterModal .modal-header, 
+        #letterModal .modal-close, 
+        #letterModal .btn-submit, 
+        #letterModal .btn-cancel,
+        #letterModal .modal-footer {
+            display: none !important;
+        }
+        #letterModal .modal-body {
+            max-height: none !important;
+            overflow: visible !important;
+            padding: 0 !important;
+        }
+        #letterModal .letter-paper {
+            box-shadow: none !important;
+            border: none !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            max-width: 100% !important;
+        }
+    }
+</style>
 <div id="letterModal" class="modal-overlay">
     <div class="modal-container" style="max-width: 650px;">
         <div class="modal-header">
             <h3><i class="fa-solid fa-file-contract"></i> Internship Recommendation Letter</h3>
             <span class="modal-close" onclick="closeModal('letterModal')">&times;</span>
         </div>
-        <div class="modal-body">
-            <div class="letter-paper">
-                <div
-                    style="text-align: center; border-bottom: 2px solid #1d2243; padding-bottom: 10px; margin-bottom: 15px;">
-                    <h2 style="font-size: 18px; color: #1d2243; text-transform: uppercase; margin: 0;">University of
-                        Haripur</h2>
-                    <p style="font-size: 12px; color: #666; margin-top: 2px;">Department of Information Technology /
-                        Computer Science</p>
+        <div class="modal-body" style="max-height: 75vh; overflow-y: auto;">
+            <div class="letter-paper"
+                style="padding: 40px; font-family: 'Times New Roman', Times, serif; color: #000; background: #fff; max-width: 800px; margin: 0 auto; line-height: 1.6;">
+                <div style="display: flex; align-items: center; margin-bottom: 20px;">
+                    <div style="flex-shrink: 0; width: 140px; text-align: left;">
+                        <img src="assets/img/university_of_haripur_logo.svg" alt="UoH Logo"
+                            style="width: 80px; height: auto;">
+                    </div>
+                    <div style="flex-grow: 1; text-align: center; margin-left: -50px;">
+                        <h2
+                            style="font-size: 16px; color: #000; text-transform: uppercase; margin: 0; font-family: 'Times New Roman', Times, serif; font-weight: bold; text-decoration: underline;">
+                            DEPARTMENT OF INFORMATION TECHNOLOGY</h2>
+                        <p
+                            style="font-size: 15px; color: #000; margin: 2px 0; font-family: 'Times New Roman', Times, serif; font-weight: bold;">
+                            The University of Haripur, Khyber Pakhtunkhwa</p>
+                        <p style="font-size: 14px; margin: 0; font-family: 'Times New Roman', Times, serif;"><a
+                                href="http://www.uoh.edu.pk"
+                                style="color: blue; text-decoration: underline;">www.uoh.edu.pk</a></p>
+                    </div>
                 </div>
 
-                <p style="text-align: right; font-size: 12px; color: #555; margin-bottom: 15px;">Date:
-                    <strong><?php echo date('F d, Y'); ?></strong></p>
-
-                <p style="font-weight: bold; margin-bottom: 10px; font-size: 13px;">To Whom It May Concern,</p>
-
-                <p style="font-size: 13px; line-height: 1.6; color: #333; margin-bottom: 12px;">
-                    This is to certify that
-                    <strong><?php echo htmlspecialchars($profile['name'] ?: '[Student Name]'); ?></strong>, Son/Daughter
-                    of <strong><?php echo htmlspecialchars($profile['fname'] ?: '[Father Name]'); ?></strong> bearing
-                    Roll No: <strong><?php echo htmlspecialchars($rollno); ?></strong>, is a bona fide student of
-                    Session <strong><?php echo htmlspecialchars($semesterDetail['session'] ?: '[Session]'); ?></strong>
-                    at our institution.
-                </p>
-
-                <p style="font-size: 13px; line-height: 1.6; color: #333; margin-bottom: 15px;">
-                    As part of our degree program requirements, the student is required to complete an internship to
-                    gain practical industry exposure. We highly recommend them for an internship position at your
-                    esteemed organization.
-                </p>
-
                 <div
-                    style="margin-top: 30px; display: flex; justify-content: space-between; font-size: 12px; color: #444;">
-                    <div>
-                        <p>_______________________</p>
-                        <p><strong>Department Focal Person</strong></p>
-                    </div>
-                    <div style="text-align: right;">
-                        <p>_______________________</p>
-                        <p><strong>Head of Department</strong></p>
-                    </div>
+                    style="display: flex; justify-content: space-between; font-size: 14px; color: #000; margin-bottom: 30px;">
+                    <div><span style="text-decoration: underline;">F. No. UoH/IT/</span>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</div>
+                    <div><span style="text-decoration: underline;">Dated: <?php echo date('d/m/Y'); ?></span></div>
+                </div>
+
+                <h3
+                    style="text-align: center; font-weight: bold; font-size: 18px; margin-bottom: 25px; font-family: 'Times New Roman', Times, serif;">
+                    To Whom It May Concern,</h3>
+
+                <?php
+                $progFull = htmlspecialchars($semesterDetail['program'] ?: 'Bachelor of Science in Artificial Intelligence');
+                $progShort = str_replace(['Bachelor of Science in ', 'Bachelor of Science '], ['BS ', 'BS '], $progFull);
+                $sessionParts = explode(' ', $semesterDetail['session'] ?? 'Summer / Fall / Spring');
+                $sessionName = $sessionParts[0] ?: 'Summer / Fall / Spring';
+                ?>
+                <p style="font-size: 15px; color: #000; margin-bottom: 15px; text-align: justify;">
+                    This is to certify that
+                    <strong><?php echo htmlspecialchars($profile['name'] ?: '[Student Name]'); ?></strong>, bearing
+                    Student ID <strong><?php echo htmlspecialchars($rollno); ?></strong>, is currently enrolled in the
+                    <strong><?php echo $progFull; ?></strong> program at University of Haripur.
+                </p>
+
+                <p style="font-size: 15px; color: #000; margin-bottom: 15px; text-align: justify;">
+                    As part of the degree requirements of the <span
+                        style="font-weight: bold;"><?php echo $progShort; ?></span> program, students are required to
+                    complete an industry internship. This internship is intended to provide practical exposure and
+                    hands-on experience related to their field of study, helping them bridge the gap between theoretical
+                    knowledge and real-world applications.
+                </p>
+
+                <p style="font-size: 15px; color: #000; margin-bottom: 15px; text-align: justify;">
+                    We kindly request your organization to consider
+                    <strong><?php echo htmlspecialchars($profile['name'] ?: '[Student Name]'); ?></strong> for an
+                    internship opportunity in your esteemed organization. The duration of the internship is <strong>6-8
+                        weeks</strong>, and it is expected to be conducted during the
+                    <strong><?php echo htmlspecialchars($sessionName); ?></strong> session of the academic calendar.
+                    Upon completion, students are required to submit an internship report and obtain an evaluation from
+                    the host organization.
+                </p>
+
+                <p style="font-size: 15px; color: #000; margin-bottom: 15px; text-align: justify;">
+                    We would greatly appreciate your support in providing internship to
+                    <strong><?php echo htmlspecialchars($profile['name'] ?: '[Student Name]'); ?></strong> with an
+                    opportunity to gain valuable experience in the professional field.
+                </p>
+
+                <p style="font-size: 15px; color: #000; margin-bottom: 40px; text-align: left;">
+                    If you require any further information, please feel free to contact us.
+                </p>
+
+                <div style="font-size: 15px; color: #000; text-align: left;">
+                    <p style="margin-bottom: 60px;">Sincerely,</p>
+                    <p style="margin: 0;"><?php echo htmlspecialchars($studentFocalPerson['designation']); ?></p>
+                    <p style="margin: 0;"><?php echo htmlspecialchars($studentFocalPerson['full_name']); ?></p>
+                    <p style="margin: 0;">Department of
+                        <?php echo (stripos($semesterDetail['department'] ?? '', 'Computer Science') !== false) ? 'CS' : 'IT'; ?>
+                    </p>
+                    <p style="margin: 0;">Email: <?php echo htmlspecialchars($studentFocalPerson['email']); ?></p>
                 </div>
             </div>
 
@@ -1176,8 +1324,10 @@
                             <label for="modal_org_type">Type</label>
                             <select id="modal_org_type" name="type" required class="info-input-field"
                                 style="background-color: #fff; border: 1px solid #cbd5e1; width: 100%; height: 38px;">
-                                <option value="" disabled <?php echo empty($placement['type']) ? 'selected' : ''; ?>>Select Type</option>
-                                <option value="IT" <?php echo ($placement['type'] ?? '') === 'IT' ? 'selected' : ''; ?>>IT Organization</option>
+                                <option value="" disabled <?php echo empty($placement['type']) ? 'selected' : ''; ?>>
+                                    Select Type</option>
+                                <option value="IT" <?php echo ($placement['type'] ?? '') === 'IT' ? 'selected' : ''; ?>>IT
+                                    Organization</option>
                                 <option value="Non-IT" <?php echo ($placement['type'] ?? '') === 'Non-IT' ? 'selected' : ''; ?>>Non-IT Organization</option>
                             </select>
                         </div>

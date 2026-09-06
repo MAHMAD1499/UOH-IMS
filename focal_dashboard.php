@@ -974,50 +974,105 @@ foreach ($students as $stud) {
 <!-- ========================================== -->
 <!-- MODAL: INTERNSHIP RECOMMENDATION LETTER     -->
 <!-- ========================================== -->
+<style>
+    @media print {
+        body * {
+            visibility: hidden;
+        }
+        #letterViewModal, #letterViewModal * {
+            visibility: visible;
+        }
+        #letterViewModal {
+            position: absolute;
+            left: 0;
+            top: 0;
+            margin: 0;
+            padding: 0;
+            background: none !important;
+            width: 100%;
+        }
+        #letterViewModal .modal-container {
+            box-shadow: none !important;
+            border: none !important;
+            background: none !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            width: 100% !important;
+            max-width: 100% !important;
+        }
+        #letterViewModal .modal-header, 
+        #letterViewModal .modal-close, 
+        #letterViewModal .btn-submit, 
+        #letterViewModal .btn-cancel,
+        #letterViewModal .modal-footer {
+            display: none !important;
+        }
+        #letterViewModal .modal-body {
+            max-height: none !important;
+            overflow: visible !important;
+            padding: 0 !important;
+        }
+        #letterViewModal .letter-paper {
+            box-shadow: none !important;
+            border: none !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            max-width: 100% !important;
+        }
+    }
+</style>
 <div id="letterViewModal" class="modal-overlay">
     <div class="modal-container" style="max-width: 650px;">
         <div class="modal-header">
             <h3><i class="fa-solid fa-file-contract"></i> Internship Recommendation Letter</h3>
             <span class="modal-close" onclick="closeModal('letterViewModal')">&times;</span>
         </div>
-        <div class="modal-body">
-            <div class="letter-paper">
-                <div
-                    style="text-align: center; border-bottom: 2px solid #26294d; padding-bottom: 10px; margin-bottom: 15px;">
-                    <h2 style="font-size: 18px; color: #26294d; text-transform: uppercase; margin: 0;">University of
-                        Haripur</h2>
-                    <p style="font-size: 12px; color: #666; margin-top: 2px;">Department of <span
-                            id="let_student_dept"></span></p>
+        <div class="modal-body" style="max-height: 75vh; overflow-y: auto;">
+            <div class="letter-paper" style="padding: 40px; font-family: 'Times New Roman', Times, serif; color: #000; background: #fff; max-width: 800px; margin: 0 auto; line-height: 1.6;">
+                <div style="display: flex; align-items: center; margin-bottom: 20px;">
+                    <div style="flex-shrink: 0; width: 140px; text-align: left;">
+                        <img src="assets/img/university_of_haripur_logo.svg" alt="UoH Logo" style="width: 120px; height: auto;">
+                    </div>
+                    <div style="flex-grow: 1; text-align: center; margin-left: -50px;">
+                        <h2 style="font-size: 16px; color: #000; text-transform: uppercase; margin: 0; font-family: 'Times New Roman', Times, serif; font-weight: bold; text-decoration: underline;">DEPARTMENT OF INFORMATION TECHNOLOGY</h2>
+                        <p style="font-size: 15px; color: #000; margin: 2px 0; font-family: 'Times New Roman', Times, serif; font-weight: bold;">The University of Haripur, Khyber Pakhtunkhwa</p>
+                        <p style="font-size: 14px; margin: 0; font-family: 'Times New Roman', Times, serif;"><a href="http://www.uoh.edu.pk" style="color: blue; text-decoration: underline;">www.uoh.edu.pk</a></p>
+                    </div>
                 </div>
 
-                <p style="text-align: right; font-size: 12px; color: #555; margin-bottom: 15px;">Date: <strong
-                        id="let_date"></strong></p>
+                <div style="display: flex; justify-content: space-between; font-size: 14px; color: #000; margin-bottom: 30px;">
+                    <div><span style="text-decoration: underline;">F. No. UoH/IT/</span> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</div>
+                    <div><span style="text-decoration: underline;">Dated: <span id="let_date"></span></span></div>
+                </div>
 
-                <p style="font-weight: bold; margin-bottom: 10px; font-size: 13px;">To Whom It May Concern,</p>
+                <h3 style="text-align: center; font-weight: bold; font-size: 18px; margin-bottom: 25px; font-family: 'Times New Roman', Times, serif;">To Whom It May Concern,</h3>
 
-                <p style="font-size: 13px; line-height: 1.6; color: #333; margin-bottom: 12px;">
-                    This is to certify that <strong><span id="let_student_name"></span></strong>, Son/Daughter of
-                    <strong><span id="let_student_fname"></span></strong> bearing Roll No: <strong><span
-                            id="let_student_rollno"></span></strong>, is a bona fide student of Session <strong><span
-                            id="let_student_session"></span></strong> at our institution.
+                <p style="font-size: 15px; color: #000; margin-bottom: 15px; text-align: justify;">
+                    This is to certify that <strong><span id="let_student_name"></span></strong>, bearing Student ID <strong><span id="let_student_rollno"></span></strong>, is currently enrolled in the <strong><span id="let_student_program"></span></strong> program at University of Haripur.
                 </p>
 
-                <p style="font-size: 13px; line-height: 1.6; color: #333; margin-bottom: 15px;">
-                    As part of our degree program requirements, the student is required to complete an internship to
-                    gain practical industry exposure. We highly recommend them for an internship position at your
-                    esteemed organization.
+                <p style="font-size: 15px; color: #000; margin-bottom: 15px; text-align: justify;">
+                    As part of the degree requirements of the <span id="let_student_program_short" style="font-weight: bold;"></span> program, students are required to complete an industry internship. This internship is intended to provide practical exposure and hands-on experience related to their field of study, helping them bridge the gap between theoretical knowledge and real-world applications.
                 </p>
 
-                <div
-                    style="margin-top: 30px; display: flex; justify-content: space-between; font-size: 12px; color: #444;">
-                    <div>
-                        <p>_______________________</p>
-                        <p><strong>Department Focal Person</strong></p>
-                    </div>
-                    <div style="text-align: right;">
-                        <p>_______________________</p>
-                        <p><strong>Head of Department</strong></p>
-                    </div>
+                <p style="font-size: 15px; color: #000; margin-bottom: 15px; text-align: justify;">
+                    We kindly request your organization to consider <strong><span id="let_student_name2"></span></strong> for an internship opportunity in your esteemed organization. The duration of the internship is <strong>6-8 weeks</strong>, and it is expected to be conducted during the <strong><span id="let_student_session"></span></strong> session of the academic calendar. Upon completion, students are required to submit an internship report and obtain an evaluation from the host organization.
+                </p>
+
+                <p style="font-size: 15px; color: #000; margin-bottom: 15px; text-align: justify;">
+                    We would greatly appreciate your support in providing internship to <strong><span id="let_student_name3"></span></strong> with an opportunity to gain valuable experience in the professional field.
+                </p>
+
+                <p style="font-size: 15px; color: #000; margin-bottom: 40px; text-align: left;">
+                    If you require any further information, please feel free to contact us.
+                </p>
+
+                <div style="font-size: 15px; color: #000; text-align: left;">
+                    <p style="margin-bottom: 60px;">Sincerely,</p>
+                    <p style="margin: 0;"><span id="let_fp_designation"></span></p>
+                    <p style="margin: 0;"><span id="let_fp_name"></span></p>
+                    <p style="margin: 0;">Department of <span id="let_fp_dept"></span></p>
+                    <p style="margin: 0;">Email: <span id="let_fp_email"></span></p>
                 </div>
             </div>
 
@@ -1279,11 +1334,36 @@ foreach ($students as $stud) {
     // Populate and show the recommendation letter
     function viewStudentLetter(name, fname, rollno, session, department, program) {
         document.getElementById('let_student_name').innerText = name || '[Student Name]';
-        document.getElementById('let_student_fname').innerText = fname || '[Father Name]';
+        document.getElementById('let_student_name2').innerText = name || '[Student Name]';
+        document.getElementById('let_student_name3').innerText = name || '[Student Name]';
         document.getElementById('let_student_rollno').innerText = rollno || '[Roll No]';
-        document.getElementById('let_student_session').innerText = session || '[Session]';
-        document.getElementById('let_student_dept').innerText = department || 'Information Technology / Computer Science';
-        document.getElementById('let_date').innerText = new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+        
+        let sessionParts = (session || 'Summer / Fall / Spring').split(' ');
+        let sessionName = sessionParts[0]; // e.g. "Fall" from "Fall 2026"
+        if (!sessionName) sessionName = 'Summer / Fall / Spring';
+        document.getElementById('let_student_session').innerText = sessionName;
+        
+        document.getElementById('let_student_program').innerText = program || 'Bachelor of Science in Artificial Intelligence';
+        
+        let shortProg = 'BS Artificial Intelligence';
+        if (program) {
+            shortProg = program.replace('Bachelor of Science in ', 'BS ').replace('Bachelor of Science ', 'BS ');
+        }
+        document.getElementById('let_student_program_short').innerText = shortProg;
+        
+        // Inject Focal Person details
+        document.getElementById('let_fp_name').innerText = '<?php echo addslashes($focalPerson["full_name"] ?? "Focal Person"); ?>';
+        document.getElementById('let_fp_designation').innerText = '<?php echo addslashes($focalPerson["designation"] ?? "Internship Focal Person"); ?>';
+        document.getElementById('let_fp_email').innerText = '<?php echo addslashes($focalPerson["email"] ?? "focal@uoh.edu.pk"); ?>';
+        let deptVal = department || '';
+        document.getElementById('let_fp_dept').innerText = (deptVal.toLowerCase().indexOf('computer science') !== -1) ? 'CS' : 'IT';
+
+        let today = new Date();
+        let dd = String(today.getDate()).padStart(2, '0');
+        let mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
+        let yyyy = today.getFullYear();
+        document.getElementById('let_date').innerText = dd + '/' + mm + '/' + yyyy;
+        
         openModal('letterViewModal');
     }
 

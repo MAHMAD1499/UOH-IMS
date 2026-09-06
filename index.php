@@ -723,6 +723,33 @@ if ($role === 'STD') {
         }
         mysqli_stmt_close($a2Stmt);
     }
+    // ── Fetch Focal Person for the student based on Department ───────────────────────────
+    $studentFocalPerson = [
+        'full_name' => 'Dr. Muhammad Faizan Khan',
+        'email' => 'khanmuhammadfaizan@uoh.edu.pk',
+        'designation' => 'Internship Focal Person'
+    ];
+    $deptString = $semesterDetail['department'] ?? '';
+    if (stripos($deptString, 'Information Technology') !== false || stripos($deptString, 'IT') !== false) {
+        $fpQueryStr = '%IT%';
+    } elseif (stripos($deptString, 'Computer Science') !== false || stripos($deptString, 'CS') !== false) {
+        $fpQueryStr = '%CS%';
+    } else {
+        $fpQueryStr = '%IT%'; // Default fallback
+    }
+    
+    $fpStmt = mysqli_prepare($conn, "SELECT full_name, email, phone, designation FROM users WHERE role = 'focal_person' AND full_name LIKE ? LIMIT 1");
+    if ($fpStmt) {
+        mysqli_stmt_bind_param($fpStmt, "s", $fpQueryStr);
+        mysqli_stmt_execute($fpStmt);
+        $fpRes = mysqli_stmt_get_result($fpStmt);
+        if ($fpRes && ($row = mysqli_fetch_assoc($fpRes))) {
+            $studentFocalPerson['full_name'] = $row['full_name'];
+            $studentFocalPerson['email'] = $row['email'];
+            $studentFocalPerson['designation'] = $row['designation'] ?: 'Internship Focal Person';
+        }
+        mysqli_stmt_close($fpStmt);
+    }
 }
 ?>
 
