@@ -519,6 +519,27 @@
 <!-- TAB 2: INTERNSHIP REPORTS                  -->
 <!-- ========================================== -->
 <div id="student-reports" class="tab-content">
+    <?php
+    $allReportsFilled = true;
+    $reportStatus = [];
+    for ($i = 1; $i <= 4; $i++) {
+        $hasData = false;
+        foreach ($activityLogs as $log) {
+            if ((int)$log['week_number'] === $i) {
+                $act = trim($log['activities'] ?? '');
+                $actClean = str_replace(["1.", "2.", "3.", "\n", "\r", " "], "", $act);
+                if (!empty($actClean)) {
+                    $hasData = true;
+                }
+                break;
+            }
+        }
+        $reportStatus[$i] = $hasData;
+        if (!$hasData) {
+            $allReportsFilled = false;
+        }
+    }
+    ?>
     <div class="table-header-bar" style="flex-wrap: wrap; gap: 10px;">
         <button class="btn-primary-action" onclick="openModal('annexure2Modal')" id="btn-annexure2"
             style="background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%);">
@@ -528,10 +549,39 @@
             style="background: linear-gradient(135deg, #b45309 0%, #92400e 100%);">
             <i class="fa-solid fa-table-list"></i> Annexure-3 (Activity Log)
         </button>
+        <?php if ($allReportsFilled): ?>
         <a href="report_download.php" target="_blank" class="btn-primary-action" id="btn-download-report"
             style="background: linear-gradient(135deg, #065f46 0%, #047857 100%); text-decoration: none;">
             <i class="fa-solid fa-file-arrow-down"></i> Download Full Report
         </a>
+        <?php endif; ?>
+    </div>
+
+    <!-- Reports Completion Checklist -->
+    <div class="card" style="margin-top: 5px; margin-bottom: 20px;">
+        <div class="card-header" style="background-color: #f8fafc; color: #334155; border-bottom: 1px solid #e2e8f0;">
+            <i class="fa-solid fa-list-check" style="margin-right: 6px;"></i> Reports Completion Checklist
+        </div>
+        <div class="card-body" style="padding: 15px;">
+            <ul style="list-style: none; padding: 0; margin: 0; display: flex; flex-wrap: wrap; gap: 15px;">
+                <?php for ($i = 1; $i <= 4; $i++): ?>
+                    <li style="display: flex; align-items: center; gap: 8px;">
+                        <?php if ($reportStatus[$i]): ?>
+                            <div style="width: 24px; height: 24px; background-color: #16a34a; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                                <i class="fa-solid fa-check" style="font-size: 11px;"></i>
+                            </div>
+                            <span style="font-size: 14px; font-weight: 600; color: #334155; text-decoration: line-through; opacity: 0.7;">Biweekly Report <?php echo $i; ?> (Weeks <?php echo ($i * 2) - 1; ?> & <?php echo $i * 2; ?>)</span>
+                        <?php else: ?>
+                            <div style="width: 24px; height: 24px; background-color: #f1f5f9; border: 1px solid #cbd5e1; color: #94a3b8; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                                <i class="fa-solid fa-spinner" style="font-size: 11px;"></i>
+                            </div>
+                            <span style="font-size: 14px; font-weight: 600; color: #1e293b;">Biweekly Report <?php echo $i; ?> (Weeks <?php echo ($i * 2) - 1; ?> & <?php echo $i * 2; ?>)</span>
+                            <span style="font-size: 11px; background-color: #fef3c7; color: #d97706; padding: 2px 6px; border-radius: 4px; font-weight: 600;">Pending</span>
+                        <?php endif; ?>
+                    </li>
+                <?php endfor; ?>
+            </ul>
+        </div>
     </div>
 
     <!-- Activity Log Summary (Annexure-3 preview) -->

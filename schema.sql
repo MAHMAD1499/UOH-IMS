@@ -222,6 +222,9 @@ CREATE TABLE `internship_activity_log` (
   `date_range` VARCHAR(100) DEFAULT NULL,
   `activities` TEXT DEFAULT NULL,
   `outcome` TEXT DEFAULT NULL,
+  `status` VARCHAR(50) DEFAULT 'submitted',
+  `faculty_remarks` TEXT DEFAULT NULL,
+  `revision_count` INT DEFAULT 0,
   `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 

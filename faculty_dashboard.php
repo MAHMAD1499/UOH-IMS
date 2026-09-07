@@ -57,9 +57,16 @@ if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST') {
         $newStatus = trim($_POST['report_status'] ?? 'submitted');
         $facultyRemarks = trim($_POST['faculty_remarks'] ?? '');
 
-        $validStatuses = ['submitted', 'approved', 'rejected', 'needs_improvement'];
+        $validStatuses = ['approved', 'rejected', 'needs_improvement'];
         if (!in_array($newStatus, $validStatuses, true)) {
-            $_SESSION['flash_message'] = 'Invalid status selected.';
+            $_SESSION['flash_message'] = 'Please select a valid decision status (Approved, Rejected, or Needs Improvement).';
+            $_SESSION['flash_type'] = 'error';
+            header('Location: index.php');
+            exit;
+        }
+
+        if (empty($facultyRemarks)) {
+            $_SESSION['flash_message'] = 'Faculty remarks are mandatory for all review decisions.';
             $_SESSION['flash_type'] = 'error';
             header('Location: index.php');
             exit;
@@ -73,11 +80,10 @@ if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST') {
         }
 
         // Fetch current report details and verify supervisor ownership
-        $checkSql = "SELECT wr.report_id, wr.revision_count, wr.status, s.faculty_supervisor_id 
-                     FROM weekly_reports wr
-                     JOIN internships i ON wr.internship_id = i.internship_id
-                     JOIN students s ON i.student_id = s.student_id
-                     WHERE wr.report_id = ? AND s.faculty_supervisor_id = ? LIMIT 1";
+        $checkSql = "SELECT al.log_id AS report_id, al.revision_count, al.status, s.faculty_supervisor_id 
+                     FROM internship_activity_log al
+                     JOIN students s ON al.rollno = s.roll_no
+                     WHERE al.log_id = ? AND s.faculty_supervisor_id = ? LIMIT 1";
         $checkStmt = mysqli_prepare($conn, $checkSql);
         mysqli_stmt_bind_param($checkStmt, 'ii', $reportId, $fspUserId);
         mysqli_stmt_execute($checkStmt);
@@ -104,9 +110,9 @@ if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST') {
             $currentRevisionCount++;
         }
 
-        $updateSql = "UPDATE weekly_reports 
+        $updateSql = "UPDATE internship_activity_log 
                       SET faculty_remarks = ?, status = ?, revision_count = ? 
-                      WHERE report_id = ?";
+                      WHERE log_id = ?";
         $updateStmt = mysqli_prepare($conn, $updateSql);
         mysqli_stmt_bind_param($updateStmt, 'ssii', $facultyRemarks, $newStatus, $currentRevisionCount, $reportId);
         if (mysqli_stmt_execute($updateStmt)) {
@@ -216,9 +222,9 @@ $studentsQuery = "
         m.total_marks,
         m.obtained_marks,
         m.evaluated_at,
-        (SELECT COUNT(*) FROM weekly_reports wr WHERE wr.internship_id = i.internship_id) AS total_reports,
-        (SELECT COUNT(*) FROM weekly_reports wr WHERE wr.internship_id = i.internship_id AND wr.status = 'approved') AS approved_reports,
-        (SELECT COUNT(*) FROM weekly_reports wr WHERE wr.internship_id = i.internship_id AND wr.status = 'submitted') AS pending_reports
+        (SELECT COUNT(*) FROM internship_activity_log al WHERE al.rollno = s.roll_no) AS total_reports,
+        (SELECT COUNT(*) FROM internship_activity_log al WHERE al.rollno = s.roll_no AND al.status = 'approved') AS approved_reports,
+        (SELECT COUNT(*) FROM internship_activity_log al WHERE al.rollno = s.roll_no AND al.status = 'submitted') AS pending_reports
     FROM students s
     JOIN users u ON s.user_id = u.user_id
     LEFT JOIN internships i ON s.student_id = i.student_id
@@ -253,29 +259,31 @@ mysqli_stmt_close($stmtStd);
 // 2. Weekly Reports List for Assigned Students
 $reportsQuery = "
     SELECT 
-        wr.report_id,
-        wr.internship_id,
-        wr.week_number,
-        wr.task_description,
-        wr.weekly_targets,
-        wr.fp_remarks,
-        wr.faculty_remarks,
-        wr.revision_count,
-        wr.status,
-        wr.submitted_at,
+        al.log_id AS report_id,
+        al.week_number,
+        al.activities AS task_description,
+        al.outcome AS weekly_targets,
+        a2.tasks_performed,
+        a2.learning_experience,
+        a2.challenges_faced,
+        al.faculty_remarks,
+        al.revision_count,
+        al.status,
+        al.created_at AS submitted_at,
         s.student_id,
         s.roll_no,
         s.session,
         u.full_name AS student_name,
         i.internship_title,
         o.org_name
-    FROM weekly_reports wr
-    JOIN internships i ON wr.internship_id = i.internship_id
-    JOIN students s ON i.student_id = s.student_id
+    FROM internship_activity_log al
+    LEFT JOIN internship_annexure2 a2 ON al.rollno = a2.rollno AND al.week_number = a2.report_number
+    JOIN students s ON al.rollno = s.roll_no
     JOIN users u ON s.user_id = u.user_id
+    LEFT JOIN internships i ON s.student_id = i.student_id
     LEFT JOIN organizations o ON i.org_id = o.org_id
     WHERE s.faculty_supervisor_id = ?
-    ORDER BY wr.submitted_at DESC, wr.week_number DESC
+    ORDER BY al.created_at DESC, al.week_number DESC
 ";
 $stmtRep = mysqli_prepare($conn, $reportsQuery);
 mysqli_stmt_bind_param($stmtRep, 'i', $fspUserId);
@@ -712,11 +720,20 @@ foreach ($assignedStudents as $student) {
 <div id="faculty-reports" class="tab-content">
     <div class="card">
         <div class="card-header">
-            <span><i class="fa-solid fa-file-signature"></i> Student Weekly Internship Reports Review Desk</span>
+            <span><i class="fa-solid fa-file-signature"></i> Student Biweekly Reports Review Desk</span>
             <span style="font-size: 13px; opacity: 0.9;"><i class="fa-solid fa-rotate"></i> Max 3 Revisions
                 Enforced</span>
         </div>
         <div class="card-body">
+
+            <!-- Week Selection Containers -->
+            <div class="fsp-week-containers" style="display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap;">
+                <button type="button" class="btn-week-filter active" onclick="filterReportsByWeek('ALL')" style="padding: 8px 16px; border-radius: 4px; border: 1px solid #3b82f6; background: #3b82f6; color: white; cursor: pointer; font-weight: 600; font-size: 14px;">All Reports</button>
+                <button type="button" class="btn-week-filter" onclick="filterReportsByWeek('1')" style="padding: 8px 16px; border-radius: 4px; border: 1px solid #cbd5e1; background: #f8fafc; color: #334155; cursor: pointer; font-weight: 600; font-size: 14px;">Biweekly 1 (Weeks 1-2)</button>
+                <button type="button" class="btn-week-filter" onclick="filterReportsByWeek('2')" style="padding: 8px 16px; border-radius: 4px; border: 1px solid #cbd5e1; background: #f8fafc; color: #334155; cursor: pointer; font-weight: 600; font-size: 14px;">Biweekly 2 (Weeks 3-4)</button>
+                <button type="button" class="btn-week-filter" onclick="filterReportsByWeek('3')" style="padding: 8px 16px; border-radius: 4px; border: 1px solid #cbd5e1; background: #f8fafc; color: #334155; cursor: pointer; font-weight: 600; font-size: 14px;">Biweekly 3 (Weeks 5-6)</button>
+                <button type="button" class="btn-week-filter" onclick="filterReportsByWeek('4')" style="padding: 8px 16px; border-radius: 4px; border: 1px solid #cbd5e1; background: #f8fafc; color: #334155; cursor: pointer; font-weight: 600; font-size: 14px;">Biweekly 4 (Weeks 7-8)</button>
+            </div>
 
             <!-- Filter Controls for Reports -->
             <div class="fsp-filter-bar">
@@ -744,8 +761,8 @@ foreach ($assignedStudents as $student) {
                     <thead>
                         <tr>
                             <th>Student (Roll No)</th>
-                            <th>Week #</th>
-                            <th>Task & Objectives Draft</th>
+                            <th>Biweekly #</th>
+                            <th>Annexure 2 & 3 Draft</th>
                             <th>Status</th>
                             <th>Revisions</th>
                             <th>Faculty Remarks</th>
@@ -763,26 +780,27 @@ foreach ($assignedStudents as $student) {
                             </tr>
                         <?php else: ?>
                             <?php foreach ($weeklyReports as $rep): ?>
-                                <tr data-status="<?php echo htmlspecialchars($rep['status']); ?>"
+                                <tr data-week="<?php echo (int) $rep['week_number']; ?>"
+                                    data-status="<?php echo htmlspecialchars($rep['status']); ?>"
                                     data-rollno="<?php echo htmlspecialchars($rep['roll_no']); ?>"
-                                    data-search="<?php echo htmlspecialchars(strtolower($rep['roll_no'] . ' ' . $rep['student_name'] . ' ' . $rep['task_description'] . ' ' . ($rep['weekly_targets'] ?? ''))); ?>">
+                                    data-search="<?php echo htmlspecialchars(strtolower($rep['roll_no'] . ' ' . $rep['student_name'] . ' ' . ($rep['task_description'] ?? '') . ' ' . ($rep['weekly_targets'] ?? ''))); ?>">
                                     <td>
                                         <strong><?php echo htmlspecialchars($rep['roll_no']); ?></strong>
                                         <div style="font-size: 12px; color: #64748b;">
                                             <?php echo htmlspecialchars($rep['student_name']); ?></div>
                                     </td>
                                     <td style="text-align: center;">
-                                        <span class="revision-badge" style="font-weight: 700;">Week
+                                        <span class="revision-badge" style="font-weight: 700; background: #3b82f6; color: white;">Biweekly
                                             <?php echo (int) $rep['week_number']; ?></span>
                                     </td>
                                     <td style="max-width: 320px;">
                                         <div style="font-weight: 600; color: #1e293b; font-size: 13px; margin-bottom: 3px;">
-                                            <?php echo htmlspecialchars(mb_strimwidth($rep['task_description'], 0, 85, '...')); ?>
+                                            <?php echo htmlspecialchars(mb_strimwidth($rep['task_description'] ?? '', 0, 85, '...')); ?>
                                         </div>
-                                        <?php if (!empty($rep['weekly_targets'])): ?>
+                                        <?php if (!empty($rep['tasks_performed'])): ?>
                                             <div style="font-size: 11px; color: #64748b;">
-                                                <i class="fa-solid fa-bullseye"></i> Targets:
-                                                <?php echo htmlspecialchars(mb_strimwidth($rep['weekly_targets'], 0, 60, '...')); ?>
+                                                <i class="fa-solid fa-list-check"></i> Tasks:
+                                                <?php echo htmlspecialchars(mb_strimwidth($rep['tasks_performed'], 0, 60, '...')); ?>
                                             </div>
                                         <?php endif; ?>
                                     </td>
@@ -824,16 +842,18 @@ foreach ($assignedStudents as $student) {
                                     <td>
                                         <button type="button" class="action-btn-sm btn-fsp-primary" onclick="openReportReviewModal(
                                                     <?php echo (int) $rep['report_id']; ?>,
-                                                    '<?php echo htmlspecialchars(addslashes($rep['roll_no'])); ?>',
-                                                    '<?php echo htmlspecialchars(addslashes($rep['student_name'])); ?>',
+                                                    <?php echo htmlspecialchars(json_encode($rep['roll_no'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>,
+                                                    <?php echo htmlspecialchars(json_encode($rep['student_name'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>,
                                                     <?php echo (int) $rep['week_number']; ?>,
-                                                    '<?php echo htmlspecialchars(addslashes($rep['task_description'])); ?>',
-                                                    '<?php echo htmlspecialchars(addslashes($rep['weekly_targets'] ?? '')); ?>',
-                                                    '<?php echo htmlspecialchars(addslashes($rep['fp_remarks'] ?? '')); ?>',
-                                                    '<?php echo htmlspecialchars(addslashes($rep['faculty_remarks'] ?? '')); ?>',
-                                                    '<?php echo htmlspecialchars(addslashes($rep['status'])); ?>',
+                                                    <?php echo htmlspecialchars(json_encode($rep['task_description'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>,
+                                                    <?php echo htmlspecialchars(json_encode($rep['weekly_targets'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>,
+                                                    <?php echo htmlspecialchars(json_encode($rep['tasks_performed'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>,
+                                                    <?php echo htmlspecialchars(json_encode($rep['learning_experience'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>,
+                                                    <?php echo htmlspecialchars(json_encode($rep['challenges_faced'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>,
+                                                    <?php echo htmlspecialchars(json_encode($rep['faculty_remarks'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>,
+                                                    <?php echo htmlspecialchars(json_encode($rep['status'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>,
                                                     <?php echo (int) $rep['revision_count']; ?>,
-                                                    '<?php echo htmlspecialchars(addslashes($rep['org_name'] ?? '')); ?>'
+                                                    <?php echo htmlspecialchars(json_encode($rep['org_name'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>
                                                 )">
                                             <i class="fa-solid fa-pen-to-square"></i> Review
                                         </button>
@@ -1069,31 +1089,23 @@ foreach ($assignedStudents as $student) {
                     </div>
                 </div>
 
-                <!-- Student Draft Task Description -->
-                <div class="report-callout">
-                    <div class="report-callout-title">
-                        <i class="fa-solid fa-clipboard-list text-primary"></i> Student Task Description Draft:
+                <!-- Student Activity Log (Annexure-3) -->
+                <div class="report-callout" style="border-left-color: #16a34a; margin-bottom: 15px;">
+                    <div class="report-callout-title" style="color: #16a34a;">
+                        <i class="fa-solid fa-clipboard-list"></i> Activity Log (Annexure-3): Activities & Outcomes
                     </div>
-                    <div id="modal_task_description" style="white-space: pre-wrap; font-size: 13px; color: #1e293b;">
-                    </div>
+                    <div style="font-size: 13px; color: #1e293b; margin-bottom: 8px;"><strong>Activities:</strong> <span id="modal_task_description" style="white-space: pre-wrap;"></span></div>
+                    <div style="font-size: 13px; color: #1e293b;"><strong>Outcome:</strong> <span id="modal_weekly_targets" style="white-space: pre-wrap;"></span></div>
                 </div>
 
-                <!-- Student Weekly Targets -->
+                <!-- Student Self Evaluation (Annexure-2) -->
                 <div class="report-callout" style="border-left-color: #0284c7;">
                     <div class="report-callout-title" style="color: #0284c7;">
-                        <i class="fa-solid fa-bullseye"></i> Weekly Objectives & Target Milestones:
+                        <i class="fa-solid fa-bullseye"></i> Self Evaluation (Annexure-2): Tasks, Learning & Challenges
                     </div>
-                    <div id="modal_weekly_targets" style="white-space: pre-wrap; font-size: 13px; color: #1e293b;">
-                    </div>
-                </div>
-
-                <!-- Focal Person Remarks (if any) -->
-                <div id="modal_fp_remarks_container" class="report-callout"
-                    style="border-left-color: #f59e0b; display: none;">
-                    <div class="report-callout-title" style="color: #b45309;">
-                        <i class="fa-solid fa-comment-dots"></i> Focal Person Remarks:
-                    </div>
-                    <div id="modal_fp_remarks" style="font-size: 13px; color: #1e293b;"></div>
+                    <div style="font-size: 13px; color: #1e293b; margin-bottom: 8px;"><strong>Tasks Performed:</strong> <span id="modal_tasks_performed" style="white-space: pre-wrap;"></span></div>
+                    <div style="font-size: 13px; color: #1e293b; margin-bottom: 8px;"><strong>Learning Experience:</strong> <span id="modal_learning_experience" style="white-space: pre-wrap;"></span></div>
+                    <div style="font-size: 13px; color: #1e293b;"><strong>Challenges Faced:</strong> <span id="modal_challenges_faced" style="white-space: pre-wrap;"></span></div>
                 </div>
 
                 <!-- Revision Limit Notice (Max 3 Revisions) -->
@@ -1108,14 +1120,14 @@ foreach ($assignedStudents as $student) {
                     <label for="modal_faculty_remarks"><i class="fa-solid fa-comment-medical"></i> Faculty Supervisor
                         Remarks & Feedback:</label>
                     <textarea id="modal_faculty_remarks" name="faculty_remarks" rows="3" class="fsp-input"
-                        placeholder="Provide constructive feedback, corrections, or approval notes..."></textarea>
+                        placeholder="Provide constructive feedback, corrections, or approval notes..." required></textarea>
                 </div>
 
                 <!-- Status Update Dropdown -->
                 <div class="form-group" style="margin-bottom: 20px;">
                     <label for="modal_report_status"><i class="fa-solid fa-traffic-light"></i> Decision Status:</label>
                     <select id="modal_report_status" name="report_status" class="fsp-select" required>
-                        <option value="submitted">Submitted (Keep in Review)</option>
+                        <option value="" disabled selected>Select Decision...</option>
                         <option value="approved">Approved</option>
                         <option value="needs_improvement" id="opt_needs_improvement">Needs Improvement (Request Revision
                             & Resubmission)</option>
@@ -1293,20 +1305,45 @@ foreach ($assignedStudents as $student) {
         });
     }
 
+    window.currentWeekFilter = 'ALL';
+
+    function filterReportsByWeek(week) {
+        window.currentWeekFilter = week;
+        // Update active class
+        const btns = document.querySelectorAll('.btn-week-filter');
+        btns.forEach(btn => {
+            btn.classList.remove('active');
+            btn.style.background = '#f8fafc';
+            btn.style.color = '#334155';
+            btn.style.border = '1px solid #cbd5e1';
+        });
+        const activeBtn = Array.from(btns).find(btn => btn.getAttribute('onclick').includes(week));
+        if (activeBtn) {
+            activeBtn.classList.add('active');
+            activeBtn.style.background = '#3b82f6';
+            activeBtn.style.color = 'white';
+            activeBtn.style.border = '1px solid #3b82f6';
+        }
+        filterReportsList();
+    }
+
     // Filter Reports by Status & Search
     function filterReportsList() {
         const status = document.getElementById('reportStatusFilter').value;
         const search = document.getElementById('reportSearchInput').value.toLowerCase().trim();
+        const week = window.currentWeekFilter;
         const rows = document.querySelectorAll('#weeklyReportsTable tbody tr');
 
         rows.forEach(row => {
             const rowStatus = row.getAttribute('data-status');
             const rowSearch = row.getAttribute('data-search') || '';
+            const rowWeek = row.getAttribute('data-week') || '';
 
             const matchesStatus = (status === 'ALL' || rowStatus === status);
             const matchesSearch = (search === '' || rowSearch.includes(search));
+            const matchesWeek = (week === 'ALL' || rowWeek === week);
 
-            if (matchesStatus && matchesSearch) {
+            if (matchesStatus && matchesSearch && matchesWeek) {
                 row.style.display = '';
             } else {
                 row.style.display = 'none';
@@ -1348,29 +1385,24 @@ foreach ($assignedStudents as $student) {
     }
 
     // Modal Handlers for Report Review
-    function openReportReviewModal(reportId, rollNo, studentName, weekNumber, taskDesc, weeklyTargets, fpRemarks, facultyRemarks, status, revisionCount, orgName) {
+    function openReportReviewModal(reportId, rollNo, studentName, weekNumber, taskDesc, weeklyTargets, tasksPerformed, learningExp, challenges, facultyRemarks, status, revisionCount, orgName) {
         document.getElementById('modal_report_id').value = reportId;
         document.getElementById('modal_student_info').textContent = studentName + ' (' + rollNo + ')';
         document.getElementById('modal_org_info').textContent = orgName ? 'Placement: ' + orgName : '';
-        document.getElementById('modal_week_badge').textContent = 'Week ' + weekNumber;
+        document.getElementById('modal_week_badge').textContent = 'Biweekly ' + weekNumber;
 
         const revSpan = document.getElementById('modal_revision_status');
         revSpan.textContent = 'Revisions Used: ' + revisionCount + ' / 3';
         revSpan.style.color = (revisionCount >= 3) ? '#dc2626' : '#475569';
 
-        document.getElementById('modal_task_description').textContent = taskDesc || 'No description provided.';
-        document.getElementById('modal_weekly_targets').textContent = weeklyTargets || 'No targets specified.';
-
-        const fpContainer = document.getElementById('modal_fp_remarks_container');
-        if (fpRemarks && fpRemarks.trim() !== '') {
-            document.getElementById('modal_fp_remarks').textContent = fpRemarks;
-            fpContainer.style.display = 'block';
-        } else {
-            fpContainer.style.display = 'none';
-        }
+        document.getElementById('modal_task_description').textContent = taskDesc || 'Not provided.';
+        document.getElementById('modal_weekly_targets').textContent = weeklyTargets || 'Not provided.';
+        document.getElementById('modal_tasks_performed').textContent = tasksPerformed || 'Not provided.';
+        document.getElementById('modal_learning_experience').textContent = learningExp || 'Not provided.';
+        document.getElementById('modal_challenges_faced').textContent = challenges || 'Not provided.';
 
         document.getElementById('modal_faculty_remarks').value = facultyRemarks || '';
-        document.getElementById('modal_report_status').value = status;
+        document.getElementById('modal_report_status').value = (status === 'submitted') ? '' : status;
 
         // Enforce 3 revision limit
         const optImprovement = document.getElementById('opt_needs_improvement');
