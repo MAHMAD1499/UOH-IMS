@@ -6,7 +6,7 @@ if (session_status() === PHP_SESSION_NONE) {
 require_once __DIR__ . '/includes/db.php';
 
 // Fetch Focal Person details from users table
-$fpUserId = (int)($_SESSION['user_id'] ?? 21);
+$fpUserId = (int) ($_SESSION['user_id'] ?? 21);
 $fpStmt = mysqli_prepare($conn, "SELECT user_id, full_name, email, phone, designation FROM users WHERE user_id = ? LIMIT 1");
 mysqli_stmt_bind_param($fpStmt, 'i', $fpUserId);
 mysqli_stmt_execute($fpStmt);
@@ -47,7 +47,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $title = trim($_POST['title'] ?? '');
         $content = trim($_POST['content'] ?? '');
         $createdBy = $_SESSION['username'] ?? 'Focal Person';
-        
+
         if ($title !== '' && $content !== '') {
             $stmt = mysqli_prepare($conn, "INSERT INTO announcements (title, content, created_by) VALUES (?, ?, ?)");
             mysqli_stmt_bind_param($stmt, 'sss', $title, $content, $createdBy);
@@ -65,7 +65,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     // Delete Announcement Action
     if (isset($_POST['delete_announcement'])) {
-        $announcementId = (int)($_POST['announcement_id'] ?? 0);
+        $announcementId = (int) ($_POST['announcement_id'] ?? 0);
         if ($announcementId > 0) {
             $stmt = mysqli_prepare($conn, "DELETE FROM announcements WHERE id = ?");
             mysqli_stmt_bind_param($stmt, 'i', $announcementId);
@@ -232,14 +232,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($_POST['bulk_assign_supervisor'])) {
         $supervisorId = (int) ($_POST['supervisor_id'] ?? 0);
         $rollnos = $_POST['rollnos'] ?? [];
-        
+
         if ($supervisorId <= 0 || empty($rollnos)) {
             $_SESSION['flash_message'] = 'Invalid selection. Supervisor and at least one student are required.';
             $_SESSION['flash_type'] = 'error';
             header('Location: index.php');
             exit;
         }
-        
+
         if (count($rollnos) > 30) {
             $_SESSION['flash_message'] = 'You can only assign up to 30 students at a time.';
             $_SESSION['flash_type'] = 'error';
@@ -250,7 +250,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $assignedCount = 0;
         foreach ($rollnos as $rollno) {
             $rollno = trim($rollno);
-            if ($rollno === '') continue;
+            if ($rollno === '')
+                continue;
 
             $checkAssign = mysqli_prepare($conn, 'SELECT a_f_s_id FROM assign_faculty_supervisor WHERE rollno = ? LIMIT 1');
             mysqli_stmt_bind_param($checkAssign, 's', $rollno);
@@ -457,27 +458,36 @@ foreach ($students as $stud) {
 
     <div class="welcome-banner">
         <h2>Welcome back, <?php echo htmlspecialchars($focalPerson['full_name'] ?: 'Focal Person'); ?>!</h2>
-        <p>Designation: <strong><?php echo htmlspecialchars($focalPerson['designation'] ?: 'Internship Focal Person'); ?></strong> | Email: <strong><?php echo htmlspecialchars($focalPerson['email'] ?: 'focal@uoh.edu.pk'); ?></strong></p>
+        <p>Designation:
+            <strong><?php echo htmlspecialchars($focalPerson['designation'] ?: 'Internship Focal Person'); ?></strong> |
+            Email: <strong><?php echo htmlspecialchars($focalPerson['email'] ?: 'focal@uoh.edu.pk'); ?></strong></p>
     </div>
 
     <!-- KPI Summary Metrics for FP -->
-    <div class="fsp-kpi-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; margin-bottom: 24px;">
-        <div class="fsp-kpi-card" style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 6px; padding: 20px; display: flex; align-items: center; gap: 16px; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
-            <div class="fsp-kpi-icon kpi-blue" style="width: 50px; height: 50px; background: rgba(59, 130, 246, 0.1); color: #3b82f6; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px;">
+    <div class="fsp-kpi-grid"
+        style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; margin-bottom: 24px;">
+        <div class="fsp-kpi-card"
+            style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 6px; padding: 20px; display: flex; align-items: center; gap: 16px; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
+            <div class="fsp-kpi-icon kpi-blue"
+                style="width: 50px; height: 50px; background: rgba(59, 130, 246, 0.1); color: #3b82f6; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px;">
                 <i class="fa-solid fa-user-graduate"></i>
             </div>
             <div class="fsp-kpi-info">
-                <h4 style="font-size: 20px; font-weight: 700; color: #1e293b; margin: 0;"><?php echo $totalRegisteredCandidates; ?></h4>
+                <h4 style="font-size: 20px; font-weight: 700; color: #1e293b; margin: 0;">
+                    <?php echo $totalRegisteredCandidates; ?></h4>
                 <p style="font-size: 13px; color: #64748b; margin: 2px 0 0 0;">Total Registered Candidates</p>
             </div>
         </div>
-        
-        <div class="fsp-kpi-card" style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 6px; padding: 20px; display: flex; align-items: center; gap: 16px; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
-            <div class="fsp-kpi-icon kpi-amber" style="width: 50px; height: 50px; background: rgba(245, 158, 11, 0.1); color: #f59e0b; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px;">
+
+        <div class="fsp-kpi-card"
+            style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 6px; padding: 20px; display: flex; align-items: center; gap: 16px; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
+            <div class="fsp-kpi-icon kpi-amber"
+                style="width: 50px; height: 50px; background: rgba(245, 158, 11, 0.1); color: #f59e0b; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px;">
                 <i class="fa-solid fa-user-slash"></i>
             </div>
             <div class="fsp-kpi-info">
-                <h4 style="font-size: 20px; font-weight: 700; color: #1e293b; margin: 0;"><?php echo $unassignedStudentsCount; ?></h4>
+                <h4 style="font-size: 20px; font-weight: 700; color: #1e293b; margin: 0;">
+                    <?php echo $unassignedStudentsCount; ?></h4>
                 <p style="font-size: 13px; color: #64748b; margin: 2px 0 0 0;">Unassigned Students</p>
             </div>
         </div>
@@ -486,14 +496,15 @@ foreach ($students as $stud) {
     <h3 style="font-size: 16px; font-weight: 600; color: #1e293b; margin-bottom: 15px;">Quick Actions</h3>
     <div class="action-boxes-container">
         <!-- Action 1: Registered Students List -->
-        <div class="action-box" onclick="switchTab('focal-dashboard', document.getElementById('nav-item-focal-dashboard'))">
+        <div class="action-box"
+            onclick="switchTab('focal-dashboard', document.getElementById('nav-item-focal-dashboard'))">
             <div class="action-icon-wrapper">
                 <i class="fa-solid fa-list-check"></i>
             </div>
             <h3>Registered Students List</h3>
             <p>View registered student profiles, filter by session, and assign faculty supervisors.</p>
         </div>
-        
+
         <!-- Action 2: Add Student -->
         <div class="action-box" onclick="openModal('addStudentModal')">
             <div class="action-icon-wrapper">
@@ -518,25 +529,36 @@ foreach ($students as $stud) {
         <!-- Left Side: Active Announcements -->
         <div>
             <div class="card" style="margin: 0; height: 100%;">
-                <div class="card-header" style="background: #2e6652; color: #ffffff; padding: 12px 20px; font-size: 15px; font-weight: 600; display: flex; align-items: center; gap: 8px;">
+                <div class="card-header"
+                    style="background: #2e6652; color: #ffffff; padding: 12px 20px; font-size: 15px; font-weight: 600; display: flex; align-items: center; gap: 8px;">
                     <i class="fa-solid fa-bullhorn"></i> Active Announcements & Circulars
                 </div>
                 <div class="card-body" style="padding: 20px; max-height: 450px; overflow-y: auto;">
                     <?php if (empty($announcements)): ?>
-                        <p style="font-size: 13.5px; color: #64748b; text-align: center; padding: 20px 0;">No active announcements. Use the panel on the right to broadcast one.</p>
+                        <p style="font-size: 13.5px; color: #64748b; text-align: center; padding: 20px 0;">No active
+                            announcements. Use the panel on the right to broadcast one.</p>
                     <?php else: ?>
                         <?php foreach ($announcements as $ann): ?>
-                            <div style="padding-bottom: 15px; margin-bottom: 15px; border-bottom: 1px solid #e2e8f0; position: relative;">
-                                <div style="display: flex; justify-content: space-between; font-size: 12px; color: #64748b; margin-bottom: 6px;">
-                                    <span><i class="fa-solid fa-user-tie"></i> <?php echo htmlspecialchars($ann['created_by']); ?></span>
+                            <div
+                                style="padding-bottom: 15px; margin-bottom: 15px; border-bottom: 1px solid #e2e8f0; position: relative;">
+                                <div
+                                    style="display: flex; justify-content: space-between; font-size: 12px; color: #64748b; margin-bottom: 6px;">
+                                    <span><i class="fa-solid fa-user-tie"></i>
+                                        <?php echo htmlspecialchars($ann['created_by']); ?></span>
                                     <span><?php echo date('M d, Y', strtotime($ann['created_at'])); ?></span>
                                 </div>
-                                <h4 style="font-size: 15px; font-weight: 600; color: #1e293b; margin-bottom: 4px; padding-right: 30px;"><?php echo htmlspecialchars($ann['title']); ?></h4>
-                                <p style="font-size: 13.5px; color: #334155; line-height: 1.5; margin-bottom: 8px;"><?php echo nl2br(htmlspecialchars($ann['content'])); ?></p>
-                                
-                                <form action="" method="POST" style="position: absolute; right: 0; top: 0;" onsubmit="return confirm('Are you sure you want to delete this announcement?');">
+                                <h4
+                                    style="font-size: 15px; font-weight: 600; color: #1e293b; margin-bottom: 4px; padding-right: 30px;">
+                                    <?php echo htmlspecialchars($ann['title']); ?></h4>
+                                <p style="font-size: 13.5px; color: #334155; line-height: 1.5; margin-bottom: 8px;">
+                                    <?php echo nl2br(htmlspecialchars($ann['content'])); ?></p>
+
+                                <form action="" method="POST" style="position: absolute; right: 0; top: 0;"
+                                    onsubmit="return confirm('Are you sure you want to delete this announcement?');">
                                     <input type="hidden" name="announcement_id" value="<?php echo $ann['id']; ?>">
-                                    <button type="submit" name="delete_announcement" style="background: none; border: none; color: #ef4444; cursor: pointer; font-size: 14px;" title="Delete Announcement">
+                                    <button type="submit" name="delete_announcement"
+                                        style="background: none; border: none; color: #ef4444; cursor: pointer; font-size: 14px;"
+                                        title="Delete Announcement">
                                         <i class="fa-solid fa-trash-can"></i>
                                     </button>
                                 </form>
@@ -550,20 +572,30 @@ foreach ($students as $stud) {
         <!-- Right Side: Broadcast Form -->
         <div>
             <div class="card" style="margin: 0;">
-                <div class="card-header" style="background: #26294d; color: #ffffff; padding: 12px 20px; font-size: 15px; font-weight: 600;">
+                <div class="card-header"
+                    style="background: #26294d; color: #ffffff; padding: 12px 20px; font-size: 15px; font-weight: 600;">
                     <i class="fa-solid fa-paper-plane"></i> Broadcast Circular
                 </div>
                 <div class="card-body" style="padding: 20px;">
                     <form action="" method="POST">
                         <div style="margin-bottom: 14px;">
-                            <label style="display: block; font-size: 13px; font-weight: 600; color: #475569; margin-bottom: 6px;">Announcement Title</label>
-                            <input type="text" name="title" required placeholder="e.g. Internship Report Deadline Extended" style="width: 100%; padding: 8px 12px; font-size: 13px; border: 1px solid #cbd5e1; border-radius: 4px; outline: none; box-sizing: border-box;">
+                            <label
+                                style="display: block; font-size: 13px; font-weight: 600; color: #475569; margin-bottom: 6px;">Announcement
+                                Title</label>
+                            <input type="text" name="title" required
+                                placeholder="e.g. Internship Report Deadline Extended"
+                                style="width: 100%; padding: 8px 12px; font-size: 13px; border: 1px solid #cbd5e1; border-radius: 4px; outline: none; box-sizing: border-box;">
                         </div>
                         <div style="margin-bottom: 16px;">
-                            <label style="display: block; font-size: 13px; font-weight: 600; color: #475569; margin-bottom: 6px;">Announcement Details</label>
-                            <textarea name="content" required rows="5" placeholder="Write guidelines, deadlines, or templates links here..." style="width: 100%; padding: 8px 12px; font-size: 13px; border: 1px solid #cbd5e1; border-radius: 4px; outline: none; resize: vertical; box-sizing: border-box;"></textarea>
+                            <label
+                                style="display: block; font-size: 13px; font-weight: 600; color: #475569; margin-bottom: 6px;">Announcement
+                                Details</label>
+                            <textarea name="content" required rows="5"
+                                placeholder="Write guidelines, deadlines, or templates links here..."
+                                style="width: 100%; padding: 8px 12px; font-size: 13px; border: 1px solid #cbd5e1; border-radius: 4px; outline: none; resize: vertical; box-sizing: border-box;"></textarea>
                         </div>
-                        <button type="submit" name="add_announcement" class="btn-primary-action" style="width: 100%; margin: 0; padding: 10px; font-size: 13px; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                        <button type="submit" name="add_announcement" class="btn-primary-action"
+                            style="width: 100%; margin: 0; padding: 10px; font-size: 13px; display: flex; align-items: center; justify-content: center; gap: 8px;">
                             <i class="fa-solid fa-broadcast-tower"></i> Broadcast Announcement
                         </button>
                     </form>
@@ -588,7 +620,8 @@ foreach ($students as $stud) {
 
     <!-- Section 2 — Session-wise Student Table & Assignment -->
     <div class="card">
-        <div class="card-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+        <div class="card-header"
+            style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
             <span style="white-space: nowrap;"><i class="fa-solid fa-users"></i> Registered Students List</span>
             <div style="display: flex; align-items: center; flex-wrap: wrap; gap: 12px;">
                 <!-- Bulk Assign and Session Filter -->
@@ -603,7 +636,8 @@ foreach ($students as $stud) {
                         style="display: none; padding: 6px 12px; font-size: 13px; margin: 0; background: linear-gradient(135deg, #10b981 0%, #059669 100%); opacity: 0.6; cursor: not-allowed; align-items: center; gap: 4px;">
                         <i class="fa-solid fa-users"></i> Assign Selected (<span id="bulkCount">0</span>/30)
                     </button>
-                    <label for="session-filter-dropdown" style="font-size: 13px; font-weight: bold; color: #fff; white-space: nowrap;">Session:</label>
+                    <label for="session-filter-dropdown"
+                        style="font-size: 13px; font-weight: bold; color: #fff; white-space: nowrap;">Session:</label>
                     <select id="session-filter-dropdown" onchange="filterSession(this.value);"
                         style="padding: 4px 8px; font-size: 13px; border-radius: 4px; border: 1px solid #cbd5e1; outline: none; color: #333; transition: all 0.25s ease;"
                         onmouseover="this.style.borderColor='#10b981'; this.style.backgroundColor='#f8fafc';"
@@ -621,7 +655,8 @@ foreach ($students as $stud) {
                         ?>
                     </select>
 
-                    <label id="supervisor-filter-label" for="supervisor-filter-dropdown" style="font-size: 13px; font-weight: bold; color: #fff; white-space: nowrap; margin-left: 6px;">Supervisor:</label>
+                    <label id="supervisor-filter-label" for="supervisor-filter-dropdown"
+                        style="font-size: 13px; font-weight: bold; color: #fff; white-space: nowrap; margin-left: 6px;">Supervisor:</label>
                     <select id="supervisor-filter-dropdown" onchange="filterBySupervisor(this.value);"
                         style="padding: 4px 8px; font-size: 13px; border-radius: 4px; border: 1px solid #cbd5e1; outline: none; color: #333; transition: all 0.25s ease; max-width: 180px;"
                         onmouseover="this.style.borderColor='#10b981'; this.style.backgroundColor='#f8fafc';"
@@ -630,9 +665,9 @@ foreach ($students as $stud) {
                         onblur="this.style.borderColor='#cbd5e1'; this.style.boxShadow='none';">
                         <option value="all">All Supervisors</option>
                         <?php foreach ($supervisors as $sup): ?>
-                            <?php 
-                                $c = $supervisorCounts[$sup['u_id']] ?? 0;
-                                $display = htmlspecialchars($sup['name'] ?: $sup['u_name']) . " ($c/65)";
+                            <?php
+                            $c = $supervisorCounts[$sup['u_id']] ?? 0;
+                            $display = htmlspecialchars($sup['name'] ?: $sup['u_name']) . " ($c/65)";
                             ?>
                             <option value="<?php echo $sup['u_id']; ?>"><?php echo $display; ?></option>
                         <?php endforeach; ?>
@@ -644,7 +679,8 @@ foreach ($students as $stud) {
             <table class="custom-table">
                 <thead>
                     <tr>
-                        <th class="bulk-select-col" style="width: 40px; text-align: center; display: none;"><input type="checkbox" id="selectAllCheckbox"></th>
+                        <th class="bulk-select-col" style="width: 40px; text-align: center; display: none;"><input
+                                type="checkbox" id="selectAllCheckbox"></th>
                         <th>Roll No</th>
                         <th>Name</th>
                         <th>Father Name</th>
@@ -665,8 +701,12 @@ foreach ($students as $stud) {
                         </tr>
                     <?php else: ?>
                         <?php foreach ($students as $student): ?>
-                            <tr data-session="<?php echo htmlspecialchars($student['student_session'] ?? ''); ?>" data-assigned="<?php echo !empty($student['supervisor_id']) ? '1' : '0'; ?>" data-supervisor-id="<?php echo htmlspecialchars($student['supervisor_id'] ?? ''); ?>">
-                                <td class="bulk-select-col" style="text-align: center; display: none;"><input type="checkbox" class="student-checkbox" value="<?php echo htmlspecialchars($student['student_rollno']); ?>"></td>
+                            <tr data-session="<?php echo htmlspecialchars($student['student_session'] ?? ''); ?>"
+                                data-assigned="<?php echo !empty($student['supervisor_id']) ? '1' : '0'; ?>"
+                                data-supervisor-id="<?php echo htmlspecialchars($student['supervisor_id'] ?? ''); ?>">
+                                <td class="bulk-select-col" style="text-align: center; display: none;"><input type="checkbox"
+                                        class="student-checkbox"
+                                        value="<?php echo htmlspecialchars($student['student_rollno']); ?>"></td>
                                 <td><strong><?php echo htmlspecialchars($student['student_rollno']); ?></strong></td>
                                 <td><?php echo htmlspecialchars($student['student_name'] ?? 'N/A'); ?></td>
                                 <td><?php echo htmlspecialchars($student['student_fname'] ?? 'N/A'); ?></td>
@@ -679,15 +719,17 @@ foreach ($students as $stud) {
                                         <div style="font-weight: 600; color: #1e293b; font-size: 13px;">
                                             <?php echo htmlspecialchars($student['org_name']); ?>
                                             <?php if (!empty($student['duration_weeks'])): ?>
-                                                (<?php echo (int)$student['duration_weeks']; ?> W)
+                                                (<?php echo (int) $student['duration_weeks']; ?> W)
                                             <?php endif; ?>
                                         </div>
                                         <?php if (!empty($student['site_supervisor_name'])): ?>
                                             <div style="font-size: 11px; color: #64748b; margin-top: 2px;">
-                                                <i class="fa-solid fa-user-tie"></i> SS: <?php echo htmlspecialchars($student['site_supervisor_name']); ?>
+                                                <i class="fa-solid fa-user-tie"></i> SS:
+                                                <?php echo htmlspecialchars($student['site_supervisor_name']); ?>
                                             </div>
                                         <?php endif; ?>
-                                        <button type="button" class="btn-table-action" style="margin-top: 5px; padding: 4px 8px; font-size: 11px; background: #26294d; color: #ffffff; border: none; border-radius: 4px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 4px;"
+                                        <button type="button" class="btn-table-action"
+                                            style="margin-top: 5px; padding: 4px 8px; font-size: 11px; background: #26294d; color: #ffffff; border: none; border-radius: 4px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 4px;"
                                             onclick="openSupervisorModal(
                                                 '<?php echo htmlspecialchars(addslashes($student['student_name'] ?? 'Student')); ?>',
                                                 '<?php echo htmlspecialchars(addslashes($student['student_rollno'])); ?>',
@@ -946,25 +988,32 @@ foreach ($students as $stud) {
             <span class="modal-close" onclick="closeModal('bulkAssignSupervisorModal')">&times;</span>
         </div>
         <div class="modal-body">
-            <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 4px; padding: 12px; margin-bottom: 15px;">
-                <p style="font-size: 14px; margin-bottom: 0;"><strong>Selected Students:</strong> <span id="modal_bulk_count">0</span></p>
+            <div
+                style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 4px; padding: 12px; margin-bottom: 15px;">
+                <p style="font-size: 14px; margin-bottom: 0;"><strong>Selected Students:</strong> <span
+                        id="modal_bulk_count">0</span></p>
             </div>
             <form action="" method="POST" id="bulkAssignForm">
                 <div id="bulk_hidden_inputs"></div>
                 <div class="form-group">
-                    <label for="modal_bulk_supervisor_select">Select Faculty Supervisor <span style="color: red;">*</span></label>
-                    <select id="modal_bulk_supervisor_select" name="supervisor_id" required style="width: 100%; margin-top: 5px;">
+                    <label for="modal_bulk_supervisor_select">Select Faculty Supervisor <span
+                            style="color: red;">*</span></label>
+                    <select id="modal_bulk_supervisor_select" name="supervisor_id" required
+                        style="width: 100%; margin-top: 5px;">
                         <option value="">-- Select Supervisor --</option>
                         <?php foreach ($supervisors as $supervisor): ?>
                             <option value="<?php echo $supervisor['u_id']; ?>">
-                                <?php echo htmlspecialchars($supervisor['name'] ?: $supervisor['u_name']); ?> (Faculty Supervisor)
+                                <?php echo htmlspecialchars($supervisor['name'] ?: $supervisor['u_name']); ?> (Faculty
+                                Supervisor)
                             </option>
                         <?php endforeach; ?>
                     </select>
                 </div>
                 <div style="margin-top: 20px; text-align: right;">
-                    <button type="button" class="btn-cancel" onclick="closeModal('bulkAssignSupervisorModal')">Cancel</button>
-                    <button type="submit" name="bulk_assign_supervisor" class="btn-submit" style="margin-top: 0;">Assign Supervisor</button>
+                    <button type="button" class="btn-cancel"
+                        onclick="closeModal('bulkAssignSupervisorModal')">Cancel</button>
+                    <button type="submit" name="bulk_assign_supervisor" class="btn-submit" style="margin-top: 0;">Assign
+                        Supervisor</button>
                 </div>
             </form>
         </div>
@@ -974,53 +1023,7 @@ foreach ($students as $stud) {
 <!-- ========================================== -->
 <!-- MODAL: INTERNSHIP RECOMMENDATION LETTER     -->
 <!-- ========================================== -->
-<style>
-    @media print {
-        body * {
-            visibility: hidden;
-        }
-        #letterViewModal, #letterViewModal * {
-            visibility: visible;
-        }
-        #letterViewModal {
-            position: absolute;
-            left: 0;
-            top: 0;
-            margin: 0;
-            padding: 0;
-            background: none !important;
-            width: 100%;
-        }
-        #letterViewModal .modal-container {
-            box-shadow: none !important;
-            border: none !important;
-            background: none !important;
-            margin: 0 !important;
-            padding: 0 !important;
-            width: 100% !important;
-            max-width: 100% !important;
-        }
-        #letterViewModal .modal-header, 
-        #letterViewModal .modal-close, 
-        #letterViewModal .btn-submit, 
-        #letterViewModal .btn-cancel,
-        #letterViewModal .modal-footer {
-            display: none !important;
-        }
-        #letterViewModal .modal-body {
-            max-height: none !important;
-            overflow: visible !important;
-            padding: 0 !important;
-        }
-        #letterViewModal .letter-paper {
-            box-shadow: none !important;
-            border: none !important;
-            margin: 0 !important;
-            padding: 0 !important;
-            max-width: 100% !important;
-        }
-    }
-</style>
+
 <div id="letterViewModal" class="modal-overlay">
     <div class="modal-container" style="max-width: 650px;">
         <div class="modal-header">
@@ -1028,39 +1031,64 @@ foreach ($students as $stud) {
             <span class="modal-close" onclick="closeModal('letterViewModal')">&times;</span>
         </div>
         <div class="modal-body" style="max-height: 75vh; overflow-y: auto;">
-            <div class="letter-paper" style="padding: 40px; font-family: 'Times New Roman', Times, serif; color: #000; background: #fff; max-width: 800px; margin: 0 auto; line-height: 1.6;">
+            <div class="letter-paper"
+                style="padding: 40px; font-family: 'Times New Roman', Times, serif; color: #000; background: #fff; max-width: 800px; margin: 0 auto; line-height: 1.6;">
                 <div style="display: flex; align-items: center; margin-bottom: 20px;">
                     <div style="flex-shrink: 0; width: 140px; text-align: left;">
-                        <img src="assets/img/university_of_haripur_logo.svg" alt="UoH Logo" style="width: 120px; height: auto;">
+                        <img src="assets/img/uoh%20logo%202.svg" alt="UoH Logo"
+                            style="width: 80px; height: 80px; object-fit: contain;">
                     </div>
                     <div style="flex-grow: 1; text-align: center; margin-left: -50px;">
-                        <h2 style="font-size: 16px; color: #000; text-transform: uppercase; margin: 0; font-family: 'Times New Roman', Times, serif; font-weight: bold; text-decoration: underline;">DEPARTMENT OF INFORMATION TECHNOLOGY</h2>
-                        <p style="font-size: 15px; color: #000; margin: 2px 0; font-family: 'Times New Roman', Times, serif; font-weight: bold;">The University of Haripur, Khyber Pakhtunkhwa</p>
-                        <p style="font-size: 14px; margin: 0; font-family: 'Times New Roman', Times, serif;"><a href="http://www.uoh.edu.pk" style="color: blue; text-decoration: underline;">www.uoh.edu.pk</a></p>
+                        <h2
+                            style="font-size: 16px; color: #000; text-transform: uppercase; margin: 0; font-family: 'Times New Roman', Times, serif; font-weight: bold; text-decoration: underline;">
+                            DEPARTMENT OF INFORMATION TECHNOLOGY</h2>
+                        <p
+                            style="font-size: 15px; color: #000; margin: 2px 0; font-family: 'Times New Roman', Times, serif; font-weight: bold;">
+                            The University of Haripur, Khyber Pakhtunkhwa</p>
+                        <p style="font-size: 14px; margin: 0; font-family: 'Times New Roman', Times, serif;"><a
+                                href="http://www.uoh.edu.pk"
+                                style="color: blue; text-decoration: underline;">www.uoh.edu.pk</a></p>
                     </div>
                 </div>
 
-                <div style="display: flex; justify-content: space-between; font-size: 14px; color: #000; margin-bottom: 30px;">
-                    <div><span style="text-decoration: underline;">F. No. UoH/IT/</span> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</div>
+                <div
+                    style="display: flex; justify-content: space-between; font-size: 14px; color: #000; margin-bottom: 30px;">
+                    <div><span style="text-decoration: underline;">F. No. UoH/IT/</span>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</div>
                     <div><span style="text-decoration: underline;">Dated: <span id="let_date"></span></span></div>
                 </div>
 
-                <h3 style="text-align: center; font-weight: bold; font-size: 18px; margin-bottom: 25px; font-family: 'Times New Roman', Times, serif;">To Whom It May Concern,</h3>
+                <h3
+                    style="text-align: center; font-weight: bold; font-size: 18px; margin-bottom: 25px; font-family: 'Times New Roman', Times, serif;">
+                    To Whom It May Concern,</h3>
 
                 <p style="font-size: 15px; color: #000; margin-bottom: 15px; text-align: justify;">
-                    This is to certify that <strong><span id="let_student_name"></span></strong>, bearing Student ID <strong><span id="let_student_rollno"></span></strong>, is currently enrolled in the <strong><span id="let_student_program"></span></strong> program at University of Haripur.
+                    This is to certify that <strong><span id="let_student_name"></span></strong>, bearing Student ID
+                    <strong><span id="let_student_rollno"></span></strong>, is currently enrolled in the <strong><span
+                            id="let_student_program"></span></strong> program at University of Haripur.
                 </p>
 
                 <p style="font-size: 15px; color: #000; margin-bottom: 15px; text-align: justify;">
-                    As part of the degree requirements of the <span id="let_student_program_short" style="font-weight: bold;"></span> program, students are required to complete an industry internship. This internship is intended to provide practical exposure and hands-on experience related to their field of study, helping them bridge the gap between theoretical knowledge and real-world applications.
+                    As part of the degree requirements of the <span id="let_student_program_short"
+                        style="font-weight: bold;"></span> program, students are required to complete an industry
+                    internship. This internship is intended to provide practical exposure and hands-on experience
+                    related to their field of study, helping them bridge the gap between theoretical knowledge and
+                    real-world applications.
                 </p>
 
                 <p style="font-size: 15px; color: #000; margin-bottom: 15px; text-align: justify;">
-                    We kindly request your organization to consider <strong><span id="let_student_name2"></span></strong> for an internship opportunity in your esteemed organization. The duration of the internship is <strong>6-8 weeks</strong>, and it is expected to be conducted during the <strong><span id="let_student_session"></span></strong> session of the academic calendar. Upon completion, students are required to submit an internship report and obtain an evaluation from the host organization.
+                    We kindly request your organization to consider <strong><span
+                            id="let_student_name2"></span></strong> for an internship opportunity in your esteemed
+                    organization. The duration of the internship is <strong>6-8 weeks</strong>, and it is expected to be
+                    conducted during the <strong><span id="let_student_session"></span></strong> session of the academic
+                    calendar. Upon completion, students are required to submit an internship report and obtain an
+                    evaluation from the host organization.
                 </p>
 
                 <p style="font-size: 15px; color: #000; margin-bottom: 15px; text-align: justify;">
-                    We would greatly appreciate your support in providing internship to <strong><span id="let_student_name3"></span></strong> with an opportunity to gain valuable experience in the professional field.
+                    We would greatly appreciate your support in providing internship to <strong><span
+                            id="let_student_name3"></span></strong> with an opportunity to gain valuable experience in
+                    the professional field.
                 </p>
 
                 <p style="font-size: 15px; color: #000; margin-bottom: 40px; text-align: left;">
@@ -1089,15 +1117,21 @@ foreach ($students as $stud) {
 <!-- ========================================== -->
 <!-- MODAL: SITE SUPERVISOR DETAILS POPUP       -->
 <!-- ========================================== -->
-<div id="supervisorDetailsModal" class="modal-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); z-index: 1000; align-items: center; justify-content: center;">
-    <div class="modal-container" style="background: #fff; width: 90%; max-width: 700px; border-radius: 6px; box-shadow: 0 5px 15px rgba(0,0,0,0.3); overflow: hidden; position: relative;">
-        <div class="modal-header" style="background: #1e293b; color: #fff; padding: 14px 18px; display: flex; justify-content: space-between; align-items: center;">
-            <h3 style="margin: 0; font-size: 16px;"><i class="fa-solid fa-user-tie"></i> Placement & Site Supervisor Details</h3>
-            <span class="modal-close" onclick="closeSupervisorModal()" style="cursor: pointer; font-size: 22px; font-weight: bold;">&times;</span>
+<div id="supervisorDetailsModal" class="modal-overlay"
+    style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); z-index: 1000; align-items: center; justify-content: center;">
+    <div class="modal-container"
+        style="background: #fff; width: 90%; max-width: 700px; border-radius: 6px; box-shadow: 0 5px 15px rgba(0,0,0,0.3); overflow: hidden; position: relative;">
+        <div class="modal-header"
+            style="background: #1e293b; color: #fff; padding: 14px 18px; display: flex; justify-content: space-between; align-items: center;">
+            <h3 style="margin: 0; font-size: 16px;"><i class="fa-solid fa-user-tie"></i> Placement & Site Supervisor
+                Details</h3>
+            <span class="modal-close" onclick="closeSupervisorModal()"
+                style="cursor: pointer; font-size: 22px; font-weight: bold;">&times;</span>
         </div>
         <div class="modal-body" style="padding: 18px; max-height: calc(100vh - 200px); overflow-y: auto;">
-            
-            <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 4px; padding: 12px 15px; margin-bottom: 18px;">
+
+            <div
+                style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 4px; padding: 12px 15px; margin-bottom: 18px;">
                 <div style="font-weight: 700; color: #1e293b; font-size: 15px;" id="sv_student_name"></div>
                 <div style="font-size: 12px; color: #64748b; margin-top: 2px;">
                     Roll No: <span id="sv_student_roll" style="font-weight: 600; color: #334155;"></span>
@@ -1105,52 +1139,69 @@ foreach ($students as $stud) {
             </div>
 
             <!-- Organization Card -->
-            <div class="org-info-card" style="border: 1px solid #e2e8f0; border-radius: 6px; padding: 15px; background: #ffffff; margin-bottom: 15px;">
-                <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #f1f5f9; padding-bottom: 8px; margin-bottom: 10px;">
+            <div class="org-info-card"
+                style="border: 1px solid #e2e8f0; border-radius: 6px; padding: 15px; background: #ffffff; margin-bottom: 15px;">
+                <div
+                    style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #f1f5f9; padding-bottom: 8px; margin-bottom: 10px;">
                     <h4 style="font-size: 15px; font-weight: 700; color: #1e293b; margin: 0;">
-                        <i class="fa-solid fa-building text-success" style="margin-right: 5px;"></i> <span id="sv_org_name"></span>
+                        <i class="fa-solid fa-building text-success" style="margin-right: 5px;"></i> <span
+                            id="sv_org_name"></span>
                     </h4>
-                    <span id="sv_org_type_badge" class="status-pill" style="font-size: 10px; background-color: #3b82f6; color: white; padding: 2px 6px; border-radius: 10px;"></span>
+                    <span id="sv_org_type_badge" class="status-pill"
+                        style="font-size: 10px; background-color: #3b82f6; color: white; padding: 2px 6px; border-radius: 10px;"></span>
                 </div>
-                <p style="margin-bottom: 5px; font-size: 13px;"><strong>Category:</strong> <span id="sv_org_category"></span></p>
-                <p style="margin-bottom: 5px; font-size: 13px;"><strong>Address:</strong> <span id="sv_org_address"></span></p>
+                <p style="margin-bottom: 5px; font-size: 13px;"><strong>Category:</strong> <span
+                        id="sv_org_category"></span></p>
+                <p style="margin-bottom: 5px; font-size: 13px;"><strong>Address:</strong> <span
+                        id="sv_org_address"></span></p>
             </div>
 
-            <div class="org-details-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 14px; font-size: 13px;">
+            <div class="org-details-grid"
+                style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 14px; font-size: 13px;">
                 <!-- Organization Contact Person Block -->
-                <div class="org-detail-block" style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 4px; padding: 12px;">
-                    <h5 style="font-size: 11px; text-transform: uppercase; color: #64748b; margin-bottom: 8px; font-weight: 700; letter-spacing: 0.5px; border-bottom: 1px solid #e2e8f0; padding-bottom: 4px;">
+                <div class="org-detail-block"
+                    style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 4px; padding: 12px;">
+                    <h5
+                        style="font-size: 11px; text-transform: uppercase; color: #64748b; margin-bottom: 8px; font-weight: 700; letter-spacing: 0.5px; border-bottom: 1px solid #e2e8f0; padding-bottom: 4px;">
                         <i class="fa-solid fa-address-book"></i> Organization Contact Person
                     </h5>
                     <p style="margin-bottom: 4px;"><strong>Name:</strong> <span id="sv_cp_name"></span></p>
-                    <p style="margin-bottom: 4px;"><strong>Designation:</strong> <span id="sv_cp_designation"></span></p>
+                    <p style="margin-bottom: 4px;"><strong>Designation:</strong> <span id="sv_cp_designation"></span>
+                    </p>
                     <p style="margin-bottom: 4px;"><strong>Cell No:</strong> <span id="sv_cp_phone"></span></p>
                     <p style="margin-bottom: 4px;"><strong>Email:</strong> <span id="sv_cp_email"></span></p>
                 </div>
 
                 <!-- Site Supervisor Block -->
-                <div class="org-detail-block" style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 4px; padding: 12px;">
-                    <h5 style="font-size: 11px; text-transform: uppercase; color: #64748b; margin-bottom: 8px; font-weight: 700; letter-spacing: 0.5px; border-bottom: 1px solid #e2e8f0; padding-bottom: 4px;">
+                <div class="org-detail-block"
+                    style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 4px; padding: 12px;">
+                    <h5
+                        style="font-size: 11px; text-transform: uppercase; color: #64748b; margin-bottom: 8px; font-weight: 700; letter-spacing: 0.5px; border-bottom: 1px solid #e2e8f0; padding-bottom: 4px;">
                         <i class="fa-solid fa-user-tie"></i> Assigned Site Supervisor
                     </h5>
                     <p style="margin-bottom: 4px;"><strong>Name:</strong> <span id="sv_ss_name"></span></p>
-                    <p style="margin-bottom: 4px;"><strong>Designation:</strong> <span id="sv_ss_designation"></span></p>
+                    <p style="margin-bottom: 4px;"><strong>Designation:</strong> <span id="sv_ss_designation"></span>
+                    </p>
                     <p style="margin-bottom: 4px;"><strong>Cell No:</strong> <span id="sv_ss_phone"></span></p>
                     <p style="margin-bottom: 4px;"><strong>Email:</strong> <span id="sv_ss_email"></span></p>
                 </div>
             </div>
 
             <!-- Project Placement Block -->
-            <div class="org-detail-block" style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 4px; padding: 12px; margin-top: 15px;">
-                <h5 style="font-size: 11px; text-transform: uppercase; color: #64748b; margin-bottom: 8px; font-weight: 700; letter-spacing: 0.5px; border-bottom: 1px solid #e2e8f0; padding-bottom: 4px;">
+            <div class="org-detail-block"
+                style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 4px; padding: 12px; margin-top: 15px;">
+                <h5
+                    style="font-size: 11px; text-transform: uppercase; color: #64748b; margin-bottom: 8px; font-weight: 700; letter-spacing: 0.5px; border-bottom: 1px solid #e2e8f0; padding-bottom: 4px;">
                     <i class="fa-solid fa-briefcase"></i> Placed Student & Project
                 </h5>
                 <p style="margin-bottom: 4px;"><strong>Project Title:</strong> <span id="sv_project_title"></span></p>
-                <p style="margin-bottom: 4px;"><strong>Duration:</strong> <span id="sv_project_duration"></span> Weeks</p>
+                <p style="margin-bottom: 4px;"><strong>Duration:</strong> <span id="sv_project_duration"></span> Weeks
+                </p>
             </div>
 
             <div style="margin-top: 18px; text-align: right;">
-                <button type="button" class="btn-cancel" onclick="closeSupervisorModal()" style="padding: 6px 14px; margin-top: 0;">Close</button>
+                <button type="button" class="btn-cancel" onclick="closeSupervisorModal()"
+                    style="padding: 6px 14px; margin-top: 0;">Close</button>
             </div>
         </div>
     </div>
@@ -1206,7 +1257,7 @@ foreach ($students as $stud) {
     function setAssignmentFilter(filterType) {
         currentAssignmentFilter = filterType;
         const sessionVal = document.getElementById('session-filter-dropdown') ? document.getElementById('session-filter-dropdown').value : 'all';
-        
+
         const supDropdown = document.getElementById('supervisor-filter-dropdown');
         const supLabel = document.getElementById('supervisor-filter-label');
         if (supDropdown && supLabel) {
@@ -1220,7 +1271,7 @@ foreach ($students as $stud) {
                 supLabel.style.display = 'inline-block';
             }
         }
-        
+
         applyFilters(sessionVal, currentAssignmentFilter, currentSupervisorFilter);
 
         const toggleBtn = document.getElementById('toggleBulkSelectionBtn');
@@ -1251,15 +1302,15 @@ foreach ($students as $stud) {
     function applyFilters(sessionValue, assignmentFilter, supervisorFilter) {
         const tbody = document.getElementById('student-table-body');
         if (!tbody) return;
-        
+
         const rows = tbody.querySelectorAll('tr:not(.empty-message-row)');
-        
+
         // Remove existing empty message row if any
         const existingEmptyRow = document.querySelector('.empty-message-row');
         if (existingEmptyRow) {
             existingEmptyRow.remove();
         }
-        
+
         const legacyEmptyRow = document.getElementById('filter-empty-row');
         if (legacyEmptyRow) legacyEmptyRow.remove();
 
@@ -1267,7 +1318,7 @@ foreach ($students as $stud) {
         rows.forEach(row => {
             const rowSession = row.getAttribute('data-session');
             const rowAssigned = row.getAttribute('data-assigned');
-            
+
             // Structural empty row or other row without data-session
             if (!rowSession && row.textContent.indexOf('No student records') !== -1) {
                 // If it's the "No student records found" row, hide it because we inject our own
@@ -1322,7 +1373,7 @@ foreach ($students as $stud) {
             emptyTr.innerHTML = '<td colspan="11" style="text-align: center; color: #64748b; padding: 25px;">' + msg + '</td>';
             tbody.appendChild(emptyTr);
         }
-        
+
         // Uncheck all when filtering
         const selectAllCb = document.getElementById('selectAllCheckbox');
         if (selectAllCb) selectAllCb.checked = false;
@@ -1337,20 +1388,20 @@ foreach ($students as $stud) {
         document.getElementById('let_student_name2').innerText = name || '[Student Name]';
         document.getElementById('let_student_name3').innerText = name || '[Student Name]';
         document.getElementById('let_student_rollno').innerText = rollno || '[Roll No]';
-        
+
         let sessionParts = (session || 'Summer / Fall / Spring').split(' ');
         let sessionName = sessionParts[0]; // e.g. "Fall" from "Fall 2026"
         if (!sessionName) sessionName = 'Summer / Fall / Spring';
         document.getElementById('let_student_session').innerText = sessionName;
-        
+
         document.getElementById('let_student_program').innerText = program || 'Bachelor of Science in Artificial Intelligence';
-        
+
         let shortProg = 'BS Artificial Intelligence';
         if (program) {
             shortProg = program.replace('Bachelor of Science in ', 'BS ').replace('Bachelor of Science ', 'BS ');
         }
         document.getElementById('let_student_program_short').innerText = shortProg;
-        
+
         // Inject Focal Person details
         document.getElementById('let_fp_name').innerText = '<?php echo addslashes($focalPerson["full_name"] ?? "Focal Person"); ?>';
         document.getElementById('let_fp_designation').innerText = '<?php echo addslashes($focalPerson["designation"] ?? "Internship Focal Person"); ?>';
@@ -1363,7 +1414,7 @@ foreach ($students as $stud) {
         let mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
         let yyyy = today.getFullYear();
         document.getElementById('let_date').innerText = dd + '/' + mm + '/' + yyyy;
-        
+
         openModal('letterViewModal');
     }
 
@@ -1381,7 +1432,7 @@ foreach ($students as $stud) {
         document.getElementById('sv_org_address').textContent = orgAddress;
         document.getElementById('sv_org_category').textContent = orgCategory;
         document.getElementById('sv_org_type_badge').textContent = orgType;
-        
+
         document.getElementById('sv_cp_name').textContent = cpName;
         document.getElementById('sv_cp_designation').textContent = cpDesignation;
         document.getElementById('sv_cp_phone').textContent = cpPhone;
@@ -1402,7 +1453,7 @@ foreach ($students as $stud) {
         document.getElementById('supervisorDetailsModal').style.display = 'none';
     }
 
-    document.addEventListener("DOMContentLoaded", function() {
+    document.addEventListener("DOMContentLoaded", function () {
         const sessionFilter = document.getElementById('session-filter-dropdown');
         if (sessionFilter) {
             // Filter by selected value (which defaults to 'Fall 2026')
@@ -1424,13 +1475,13 @@ foreach ($students as $stud) {
             bulkAssignBtn.style.cursor = (checkedCount > 0 && checkedCount <= MAX_SELECTION) ? 'pointer' : 'not-allowed';
         }
 
-        window.toggleBulkSelectionMode = function() {
+        window.toggleBulkSelectionMode = function () {
             const toggleBtn = document.getElementById('toggleBulkSelectionBtn');
             const assignBtn = document.getElementById('bulkAssignBtn');
             const cols = document.querySelectorAll('.bulk-select-col');
-            
+
             const isCurrentlyActive = toggleBtn.getAttribute('data-active') === 'true';
-            
+
             if (!isCurrentlyActive) {
                 toggleBtn.setAttribute('data-active', 'true');
                 toggleBtn.innerHTML = '<i class="fa-solid fa-xmark"></i> Cancel Bulk Selection';
@@ -1443,7 +1494,7 @@ foreach ($students as $stud) {
                 toggleBtn.style.background = 'linear-gradient(135deg, #475569 0%, #334155 100%)';
                 assignBtn.style.display = 'none';
                 cols.forEach(col => col.style.display = 'none');
-                
+
                 document.getElementById('selectAllCheckbox').checked = false;
                 document.querySelectorAll('.student-checkbox').forEach(cb => cb.checked = false);
                 updateBulkButtonState();
@@ -1451,10 +1502,10 @@ foreach ($students as $stud) {
         };
 
         if (selectAllCheckbox) {
-            selectAllCheckbox.addEventListener('change', function() {
+            selectAllCheckbox.addEventListener('change', function () {
                 let checkedCount = document.querySelectorAll('.student-checkbox:checked').length;
                 const isChecked = this.checked;
-                
+
                 studentCheckboxes.forEach(checkbox => {
                     // Only modify checkboxes in visible rows
                     const row = checkbox.closest('tr');
@@ -1478,14 +1529,14 @@ foreach ($students as $stud) {
         }
 
         studentCheckboxes.forEach(checkbox => {
-            checkbox.addEventListener('change', function() {
+            checkbox.addEventListener('change', function () {
                 const checkedCount = document.querySelectorAll('.student-checkbox:checked').length;
                 if (this.checked && checkedCount > MAX_SELECTION) {
                     this.checked = false;
                     alert('You can only select up to 30 students at a time.');
                 }
                 updateBulkButtonState();
-                
+
                 // Update 'select all' checkbox state
                 const visibleCheckboxes = Array.from(studentCheckboxes).filter(cb => {
                     const row = cb.closest('tr');
@@ -1500,12 +1551,12 @@ foreach ($students as $stud) {
     function openBulkAssignModal() {
         const checkedCheckboxes = document.querySelectorAll('.student-checkbox:checked');
         if (checkedCheckboxes.length === 0) return;
-        
+
         document.getElementById('modal_bulk_count').textContent = checkedCheckboxes.length;
-        
+
         const hiddenInputsContainer = document.getElementById('bulk_hidden_inputs');
         hiddenInputsContainer.innerHTML = '';
-        
+
         checkedCheckboxes.forEach(cb => {
             const input = document.createElement('input');
             input.type = 'hidden';
@@ -1513,7 +1564,7 @@ foreach ($students as $stud) {
             input.value = cb.value;
             hiddenInputsContainer.appendChild(input);
         });
-        
+
         openModal('bulkAssignSupervisorModal');
     }
 </script>

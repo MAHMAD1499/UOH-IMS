@@ -15,7 +15,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $password = $_POST['password'] ?? '';
     $userType = trim($_POST['user_type'] ?? 'STD');
 
-    if ($username === '' || $password === '' || $userType === '') {
+    $recaptchaResponse = $_POST['g-recaptcha-response'] ?? '';
+    
+    // Verify reCAPTCHA
+    $secretKey = '6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe'; // Google Test Secret Key
+    $verifyResponse = @file_get_contents('https://www.google.com/recaptcha/api/siteverify?secret=' . $secretKey . '&response=' . $recaptchaResponse);
+    $responseData = json_decode($verifyResponse);
+
+    if (empty($recaptchaResponse) || !$responseData || !$responseData->success) {
+        $loginError = 'Please complete the CAPTCHA verification.';
+    } elseif ($username === '' || $password === '' || $userType === '') {
         $loginError = 'Please fill in all fields.';
     } else {
         $isValid = true;
@@ -73,6 +82,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <!-- FontAwesome for Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="assets/css/login.css">
+    <!-- Google reCAPTCHA v2 API -->
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 </head>
 
 <body>
@@ -134,6 +145,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         </div>
                     </div>
 
+                    <!-- Google reCAPTCHA Widget (Test Keys) -->
+                    <div class="input-container" style="display: flex; justify-content: center; margin-bottom: 15px;">
+                        <div class="g-recaptcha" data-sitekey="6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI"></div>
+                    </div>
+
                     <!-- Submit Button -->
                     <button type="submit" class="btn-login">Login</button>
 
@@ -180,6 +196,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             errorDiv.style.display = 'flex';
             return false;
         }
+
+        // Validate reCAPTCHA
+        const recaptchaResponse = grecaptcha.getResponse();
+        if (recaptchaResponse.length === 0) {
+            errorText.textContent = "Please complete the CAPTCHA verification.";
+            errorDiv.style.display = 'flex';
+            return false;
+        }
+
         return true;
     }
     </script>

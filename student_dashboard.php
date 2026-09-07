@@ -21,6 +21,32 @@
         </p>
     </div>
 
+    <?php
+    $stdAnnQuery = mysqli_query($conn, "SELECT * FROM announcements ORDER BY created_at DESC LIMIT 5");
+    $stdAnnouncements = [];
+    if ($stdAnnQuery) {
+        while ($row = mysqli_fetch_assoc($stdAnnQuery)) {
+            $stdAnnouncements[] = $row;
+        }
+    }
+    if (!empty($stdAnnouncements)):
+        ?>
+
+        <div class="ticker-wrap">
+            <div class="ticker-label"><i class="fa-solid fa-bullhorn"></i> Important Announcements</div>
+            <div class="ticker-move">
+                <?php foreach ($stdAnnouncements as $ann): ?>
+                    <div class="ticker-item">
+                        <span class="ticker-item-date">[<?php echo date('M d, Y', strtotime($ann['created_at'])); ?>]</span>
+                        <strong style="color: #60a5fa;"><?php echo htmlspecialchars($ann['title']); ?>:</strong>
+                        <span
+                            style="color: #f8fafc; margin-left: 4px;"><?php echo htmlspecialchars(mb_strimwidth($ann['content'], 0, 150, '...')); ?></span>
+                    </div>
+                <?php endforeach; ?>
+            </div>
+        </div>
+    <?php endif; ?>
+
     <div class="dashboard-grid">
         <div class="dashboard-left">
             <h3 style="font-size: 16px; font-weight: 600; color: #1e293b; margin-bottom: 15px;">Quick Actions</h3>
@@ -192,41 +218,6 @@
                 </div>
             <?php endif; ?>
 
-            <!-- Announcements Card -->
-            <div class="announcements-card">
-                <div class="announcements-header">
-                    <i class="fa-solid fa-bullhorn"></i> Important Announcements
-                </div>
-                <div class="announcements-body">
-                    <?php
-                    $stdAnnQuery = mysqli_query($conn, "SELECT * FROM announcements ORDER BY created_at DESC LIMIT 5");
-                    $stdAnnouncements = [];
-                    if ($stdAnnQuery) {
-                        while ($row = mysqli_fetch_assoc($stdAnnQuery)) {
-                            $stdAnnouncements[] = $row;
-                        }
-                    }
-                    if (empty($stdAnnouncements)):
-                        ?>
-                        <p style="font-size: 13px; color: #64748b; text-align: center; padding: 10px 0;">No active
-                            announcements from the department.</p>
-                    <?php else: ?>
-                        <?php foreach ($stdAnnouncements as $ann): ?>
-                            <div class="announcement-item">
-                                <div class="announcement-meta">
-                                    <span><i class="fa-solid fa-user-tie"></i>
-                                        <?php echo htmlspecialchars($ann['created_by']); ?></span>
-                                    <span><?php echo date('M d, Y', strtotime($ann['created_at'])); ?></span>
-                                </div>
-                                <div class="announcement-title"><?php echo htmlspecialchars($ann['title']); ?></div>
-                                <div class="announcement-content">
-                                    <?php echo nl2br(htmlspecialchars($ann['content'])); ?>
-                                </div>
-                            </div>
-                        <?php endforeach; ?>
-                    <?php endif; ?>
-                </div>
-            </div>
         </div>
     </div>
 </div>
@@ -525,7 +516,7 @@
     for ($i = 1; $i <= 4; $i++) {
         $hasData = false;
         foreach ($activityLogs as $log) {
-            if ((int)$log['week_number'] === $i) {
+            if ((int) $log['week_number'] === $i) {
                 $act = trim($log['activities'] ?? '');
                 $actClean = str_replace(["1.", "2.", "3.", "\n", "\r", " "], "", $act);
                 if (!empty($actClean)) {
@@ -550,10 +541,10 @@
             <i class="fa-solid fa-table-list"></i> Annexure-3 (Activity Log)
         </button>
         <?php if ($allReportsFilled): ?>
-        <a href="report_download.php" target="_blank" class="btn-primary-action" id="btn-download-report"
-            style="background: linear-gradient(135deg, #065f46 0%, #047857 100%); text-decoration: none;">
-            <i class="fa-solid fa-file-arrow-down"></i> Download Full Report
-        </a>
+            <a href="report_download.php" target="_blank" class="btn-primary-action" id="btn-download-report"
+                style="background: linear-gradient(135deg, #065f46 0%, #047857 100%); text-decoration: none;">
+                <i class="fa-solid fa-file-arrow-down"></i> Download Full Report
+            </a>
         <?php endif; ?>
     </div>
 
@@ -567,16 +558,22 @@
                 <?php for ($i = 1; $i <= 4; $i++): ?>
                     <li style="display: flex; align-items: center; gap: 8px;">
                         <?php if ($reportStatus[$i]): ?>
-                            <div style="width: 24px; height: 24px; background-color: #16a34a; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                            <div
+                                style="width: 24px; height: 24px; background-color: #16a34a; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
                                 <i class="fa-solid fa-check" style="font-size: 11px;"></i>
                             </div>
-                            <span style="font-size: 14px; font-weight: 600; color: #334155; text-decoration: line-through; opacity: 0.7;">Biweekly Report <?php echo $i; ?> (Weeks <?php echo ($i * 2) - 1; ?> & <?php echo $i * 2; ?>)</span>
+                            <span
+                                style="font-size: 14px; font-weight: 600; color: #334155; text-decoration: line-through; opacity: 0.7;">Biweekly
+                                Report <?php echo $i; ?> (Weeks <?php echo ($i * 2) - 1; ?> & <?php echo $i * 2; ?>)</span>
                         <?php else: ?>
-                            <div style="width: 24px; height: 24px; background-color: #f1f5f9; border: 1px solid #cbd5e1; color: #94a3b8; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                            <div
+                                style="width: 24px; height: 24px; background-color: #f1f5f9; border: 1px solid #cbd5e1; color: #94a3b8; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
                                 <i class="fa-solid fa-spinner" style="font-size: 11px;"></i>
                             </div>
-                            <span style="font-size: 14px; font-weight: 600; color: #1e293b;">Biweekly Report <?php echo $i; ?> (Weeks <?php echo ($i * 2) - 1; ?> & <?php echo $i * 2; ?>)</span>
-                            <span style="font-size: 11px; background-color: #fef3c7; color: #d97706; padding: 2px 6px; border-radius: 4px; font-weight: 600;">Pending</span>
+                            <span style="font-size: 14px; font-weight: 600; color: #1e293b;">Biweekly Report <?php echo $i; ?>
+                                (Weeks <?php echo ($i * 2) - 1; ?> & <?php echo $i * 2; ?>)</span>
+                            <span
+                                style="font-size: 11px; background-color: #fef3c7; color: #d97706; padding: 2px 6px; border-radius: 4px; font-weight: 600;">Pending</span>
                         <?php endif; ?>
                     </li>
                 <?php endfor; ?>
@@ -1196,53 +1193,7 @@
 <!-- ========================================== -->
 <!-- MODAL 2: INTERNSHIP LETTER DRAFT POPUP    -->
 <!-- ========================================== -->
-<style>
-    @media print {
-        body * {
-            visibility: hidden;
-        }
-        #letterModal, #letterModal * {
-            visibility: visible;
-        }
-        #letterModal {
-            position: absolute;
-            left: 0;
-            top: 0;
-            margin: 0;
-            padding: 0;
-            background: none !important;
-            width: 100%;
-        }
-        #letterModal .modal-container {
-            box-shadow: none !important;
-            border: none !important;
-            background: none !important;
-            margin: 0 !important;
-            padding: 0 !important;
-            width: 100% !important;
-            max-width: 100% !important;
-        }
-        #letterModal .modal-header, 
-        #letterModal .modal-close, 
-        #letterModal .btn-submit, 
-        #letterModal .btn-cancel,
-        #letterModal .modal-footer {
-            display: none !important;
-        }
-        #letterModal .modal-body {
-            max-height: none !important;
-            overflow: visible !important;
-            padding: 0 !important;
-        }
-        #letterModal .letter-paper {
-            box-shadow: none !important;
-            border: none !important;
-            margin: 0 !important;
-            padding: 0 !important;
-            max-width: 100% !important;
-        }
-    }
-</style>
+
 <div id="letterModal" class="modal-overlay">
     <div class="modal-container" style="max-width: 650px;">
         <div class="modal-header">
@@ -1254,8 +1205,8 @@
                 style="padding: 40px; font-family: 'Times New Roman', Times, serif; color: #000; background: #fff; max-width: 800px; margin: 0 auto; line-height: 1.6;">
                 <div style="display: flex; align-items: center; margin-bottom: 20px;">
                     <div style="flex-shrink: 0; width: 140px; text-align: left;">
-                        <img src="assets/img/university_of_haripur_logo.svg" alt="UoH Logo"
-                            style="width: 80px; height: auto;">
+                        <img src="assets/img/uoh%20logo%202.svg" alt="UoH Logo"
+                            style="width: 80px; height: 80px; object-fit: contain;">
                     </div>
                     <div style="flex-grow: 1; text-align: center; margin-left: -50px;">
                         <h2
