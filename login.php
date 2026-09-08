@@ -14,23 +14,40 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $username = trim($_POST['username'] ?? '');
     $password = $_POST['password'] ?? '';
     $userType = trim($_POST['user_type'] ?? 'STD');
-
-    // CAPTCHA Code Starts From Here
     $recaptchaResponse = $_POST['g-recaptcha-response'] ?? '';
 
-    // Verify reCAPTCHA
-    $secretKey = '6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe'; // Google Test Secret Key
-    // CAPTCHA BYPASSED FOR OFFLINE MODE
-    // $verifyResponse = @file_get_contents('https://www.google.com/recaptcha/api/siteverify?secret=' . $secretKey . '&response=' . $recaptchaResponse);
-    // $responseData = json_decode($verifyResponse);
-
-    //if-elseif Statements for CAPTCHA With Queries Related To (STD/FP/FSP)
-    // if (empty($recaptchaResponse) || !$responseData || !$responseData->success) {
-    //     $loginError = 'Please complete the CAPTCHA verification.';
-    // } elseif ($username === '' || $password === '' || $userType === '') {
-    if ($username === '' || $password === '' || $userType === '') {
-        $loginError = 'Please fill in all fields.';
+    if ($recaptchaResponse === '') {
+        $loginError = 'Please complete the CAPTCHA verification.';
     } else {
+        $secretKey = '6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe';
+        $verifyContext = stream_context_create([
+            'http' => [
+                'method' => 'POST',
+                'header' => "Content-Type: application/x-www-form-urlencoded\r\n",
+                'content' => http_build_query([
+                    'secret' => $secretKey,
+                    'response' => $recaptchaResponse,
+                    'remoteip' => $_SERVER['REMOTE_ADDR'] ?? '',
+                ]),
+                'timeout' => 10,
+                'ignore_errors' => true,
+            ],
+        ]);
+        $verifyResponse = @file_get_contents(
+            'https://www.google.com/recaptcha/api/siteverify',
+            false,
+            $verifyContext
+        );
+        $responseData = json_decode($verifyResponse ?: '', true);
+
+        if (!is_array($responseData) || empty($responseData['success'])) {
+            $loginError = 'CAPTCHA verification failed. Please try again.';
+        }
+    }
+
+    if ($loginError === '' && ($username === '' || $password === '' || $userType === '')) {
+        $loginError = 'Please fill in all fields.';
+    } elseif ($loginError === '') {
         $isValid = true;
         if ($userType === 'STD' && !preg_match('/^[sS]\d{2}-\d{4}$/', $username)) {
             $isValid = false;
@@ -87,7 +104,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="assets/css/login.css">
     <!-- Google reCAPTCHA v2 API -->
-    <!-- <script src="https://www.google.com/recaptcha/api.js" async defer></script> -->
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 </head>
 
 <body>
@@ -151,11 +168,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                     <!-- Google reCAPTCHA Widget (Test Keys) -->
                     <!-- Bypassed for offline mode -->
-                    <!--
-                    <div class="input-container" style="display: flex; justify-content: center; margin-bottom: 15px;">
+                    
+                    <div class="input-container" style="display: flex; justify-content: center; margin-bottom: 10px;">
                         <div class="g-recaptcha" data-sitekey="6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI"></div>
                     </div>
-                    -->
+                    
 
                     <!-- Submit Button -->
                     <button type="submit" class="btn-login">Login</button>
@@ -205,15 +222,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 return false;
             }
 
-            // Validate reCAPTCHA (Bypassed for offline mode)
-            /*
-            const recaptchaResponse = grecaptcha.getResponse();
+            // Validate reCAPTCHA
+            
+            const recaptchaResponse = typeof grecaptcha !== 'undefined' ? grecaptcha.getResponse() : '';
             if (recaptchaResponse.length === 0) {
                 errorText.textContent = "Please complete the CAPTCHA verification.";
                 errorDiv.style.display = 'flex';
                 return false;
             }
-            */
+            
 
             return true;
         }
