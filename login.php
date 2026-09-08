@@ -15,16 +15,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $password = $_POST['password'] ?? '';
     $userType = trim($_POST['user_type'] ?? 'STD');
 
+    // CAPTCHA Code Starts From Here
     $recaptchaResponse = $_POST['g-recaptcha-response'] ?? '';
-    
+
     // Verify reCAPTCHA
     $secretKey = '6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe'; // Google Test Secret Key
-    $verifyResponse = @file_get_contents('https://www.google.com/recaptcha/api/siteverify?secret=' . $secretKey . '&response=' . $recaptchaResponse);
-    $responseData = json_decode($verifyResponse);
+    // CAPTCHA BYPASSED FOR OFFLINE MODE
+    // $verifyResponse = @file_get_contents('https://www.google.com/recaptcha/api/siteverify?secret=' . $secretKey . '&response=' . $recaptchaResponse);
+    // $responseData = json_decode($verifyResponse);
 
-    if (empty($recaptchaResponse) || !$responseData || !$responseData->success) {
-        $loginError = 'Please complete the CAPTCHA verification.';
-    } elseif ($username === '' || $password === '' || $userType === '') {
+    //if-elseif Statements for CAPTCHA With Queries Related To (STD/FP/FSP)
+    // if (empty($recaptchaResponse) || !$responseData || !$responseData->success) {
+    //     $loginError = 'Please complete the CAPTCHA verification.';
+    // } elseif ($username === '' || $password === '' || $userType === '') {
+    if ($username === '' || $password === '' || $userType === '') {
         $loginError = 'Please fill in all fields.';
     } else {
         $isValid = true;
@@ -83,7 +87,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="assets/css/login.css">
     <!-- Google reCAPTCHA v2 API -->
-    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+    <!-- <script src="https://www.google.com/recaptcha/api.js" async defer></script> -->
 </head>
 
 <body>
@@ -146,9 +150,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     </div>
 
                     <!-- Google reCAPTCHA Widget (Test Keys) -->
+                    <!-- Bypassed for offline mode -->
+                    <!--
                     <div class="input-container" style="display: flex; justify-content: center; margin-bottom: 15px;">
                         <div class="g-recaptcha" data-sitekey="6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI"></div>
                     </div>
+                    -->
 
                     <!-- Submit Button -->
                     <button type="submit" class="btn-login">Login</button>
@@ -159,54 +166,57 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </div>
 
     <script>
-    function validateLoginForm() {
-        const userType = document.getElementById('user_type').value;
-        const username = document.getElementById('username').value.trim();
-        const errorDiv = document.getElementById('client-error');
-        const errorText = document.getElementById('client-error-text');
-        
-        // Hide previous errors
-        errorDiv.style.display = 'none';
-        
-        let isValid = true;
-        let errorMessage = '';
-        
-        if (userType === 'STD') {
-            const stdRegex = /^[sS]\d{2}-\d{4}$/;
-            if (!stdRegex.test(username)) {
-                isValid = false;
-                errorMessage = 'Student Username must match the format: S23-1234';
-            }
-        } else if (userType === 'FP') {
-            const fpRegex = /^[fF][pP]-\d{4}$/;
-            if (!fpRegex.test(username)) {
-                isValid = false;
-                errorMessage = 'Focal Person Username must match the format: FP-0001';
-            }
-        } else if (userType === 'FSP') {
-            const fspRegex = /^[fF][sS][pP]-\d{4}$/;
-            if (!fspRegex.test(username)) {
-                isValid = false;
-                errorMessage = 'Faculty Supervisor Username must match the format: FSP-0001';
-            }
-        }
-        
-        if (!isValid) {
-            errorText.textContent = errorMessage;
-            errorDiv.style.display = 'flex';
-            return false;
-        }
+        function validateLoginForm() {
+            const userType = document.getElementById('user_type').value;
+            const username = document.getElementById('username').value.trim();
+            const errorDiv = document.getElementById('client-error');
+            const errorText = document.getElementById('client-error-text');
 
-        // Validate reCAPTCHA
-        const recaptchaResponse = grecaptcha.getResponse();
-        if (recaptchaResponse.length === 0) {
-            errorText.textContent = "Please complete the CAPTCHA verification.";
-            errorDiv.style.display = 'flex';
-            return false;
-        }
+            // Hide previous errors
+            errorDiv.style.display = 'none';
 
-        return true;
-    }
+            let isValid = true;
+            let errorMessage = '';
+
+            // Instructions Regarding User's Format
+            if (userType === 'STD') {
+                const stdRegex = /^[sS]\d{2}-\d{4}$/;
+                if (!stdRegex.test(username)) {
+                    isValid = false;
+                    errorMessage = 'Student Username must match the format: S23-1234';
+                }
+            } else if (userType === 'FP') {
+                const fpRegex = /^[fF][pP]-\d{4}$/;
+                if (!fpRegex.test(username)) {
+                    isValid = false;
+                    errorMessage = 'Focal Person Username must match the format: FP-0001';
+                }
+            } else if (userType === 'FSP') {
+                const fspRegex = /^[fF][sS][pP]-\d{4}$/;
+                if (!fspRegex.test(username)) {
+                    isValid = false;
+                    errorMessage = 'Faculty Supervisor Username must match the format: FSP-0001';
+                }
+            }
+
+            if (!isValid) {
+                errorText.textContent = errorMessage;
+                errorDiv.style.display = 'flex';
+                return false;
+            }
+
+            // Validate reCAPTCHA (Bypassed for offline mode)
+            /*
+            const recaptchaResponse = grecaptcha.getResponse();
+            if (recaptchaResponse.length === 0) {
+                errorText.textContent = "Please complete the CAPTCHA verification.";
+                errorDiv.style.display = 'flex';
+                return false;
+            }
+            */
+
+            return true;
+        }
     </script>
 </body>
 
