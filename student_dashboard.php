@@ -1,3 +1,63 @@
+<?php if (isset($_SESSION['must_change_password']) && $_SESSION['must_change_password'] === true): ?>
+    <div style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(15, 23, 42, 0.85); z-index: 99999; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(8px);">
+        <div style="background: #ffffff; padding: 40px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); width: 100%; max-width: 480px;">
+            <h2 style="color: #1e293b; font-size: 24px; margin-bottom: 12px; font-weight: 700; display: flex; align-items: center; gap: 10px;">
+                <i class="fa-solid fa-shield-halved" style="color: #3b82f6;"></i> Security Requirement
+            </h2>
+            <p style="font-size: 14px; color: #475569; margin-bottom: 24px; line-height: 1.6;">
+                Welcome to the student portal! For your security, you must change your default password before proceeding. You will be logged out and asked to sign in again after updating.
+            </p>
+            
+            <?php if (!empty($flashMessage)): ?>
+                <div style="padding: 12px; margin-bottom: 20px; border-radius: 6px; background: #fef2f2; color: #991b1b; border: 1px solid #fecaca; font-size: 13.5px;">
+                    <?php echo htmlspecialchars($flashMessage); ?>
+                </div>
+                <?php unset($flashMessage); ?>
+            <?php endif; ?>
+
+            <form action="" method="POST" id="force-change-password-form">
+                <div style="margin-bottom: 16px;">
+                    <label style="display:block; font-weight: 600; margin-bottom: 6px; color: #334155; font-size: 13.5px;">Old Password (Roll No)</label>
+                    <input type="password" name="old_password" required placeholder="Enter current password" style="width: 100%; padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 6px; outline: none; font-size: 14px; box-sizing: border-box;">
+                </div>
+                
+                <div style="margin-bottom: 16px;">
+                    <label style="display:block; font-weight: 600; margin-bottom: 6px; color: #334155; font-size: 13.5px;">New Password</label>
+                    <input type="password" name="new_password" id="force_new_password" required placeholder="Enter new password" style="width: 100%; padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 6px; outline: none; font-size: 14px; box-sizing: border-box;">
+                    <div style="font-size: 12px; color: #64748b; margin-top: 6px;">
+                        Must contain at least 6 characters, 1 uppercase letter, and 1 number.
+                    </div>
+                </div>
+                
+                <div style="margin-bottom: 28px;">
+                    <label style="display:block; font-weight: 600; margin-bottom: 6px; color: #334155; font-size: 13.5px;">Confirm New Password</label>
+                    <input type="password" name="confirm_password" id="force_confirm_password" required placeholder="Re-enter new password" style="width: 100%; padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 6px; outline: none; font-size: 14px; box-sizing: border-box;">
+                </div>
+                
+                <button type="submit" name="change_student_password" style="width: 100%; background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); color: #fff; padding: 12px; border: none; border-radius: 6px; font-size: 15px; font-weight: 600; cursor: pointer; transition: all 0.2s ease;">
+                    <i class="fa-solid fa-key" style="margin-right: 6px;"></i> Update Password
+                </button>
+            </form>
+            <script>
+                document.getElementById('force-change-password-form').addEventListener('submit', function (e) {
+                    const newPass = document.getElementById('force_new_password').value;
+                    const confirmPass = document.getElementById('force_confirm_password').value;
+                    if (newPass.length < 6 || !/[A-Z]/.test(newPass) || !/[0-9]/.test(newPass)) {
+                        e.preventDefault();
+                        alert('Please ensure your new password satisfies all validation criteria (6+ chars, 1 uppercase, 1 number).');
+                        return;
+                    }
+                    if (newPass !== confirmPass) {
+                        e.preventDefault();
+                        alert('New password and confirm password do not match.');
+                        return;
+                    }
+                });
+            </script>
+        </div>
+    </div>
+<?php endif; ?>
+
 <!-- FLASH MESSAGES -->
 <?php if (!empty($flashMessage)): ?>
     <div class="card"
@@ -1205,7 +1265,7 @@
                 style="padding: 40px; font-family: 'Times New Roman', Times, serif; color: #000; background: #fff; max-width: 800px; margin: 0 auto; line-height: 1.6;">
                 <div style="display: flex; align-items: center; margin-bottom: 20px;">
                     <div style="flex-shrink: 0; width: 140px; text-align: left;">
-                        <img src="assets/img/uoh%20logo%202.svg" alt="UoH Logo"
+                        <img src="assets/img/uoh%20logo%203.png" alt="UoH Logo"
                             style="width: 80px; height: 80px; object-fit: contain;">
                     </div>
                     <div style="flex-grow: 1; text-align: center; margin-left: -50px;">

@@ -1328,6 +1328,13 @@ body {
 
 /* Modal Print Styles */
 @media print {
+    @page {
+        margin: 0;
+    }
+    body {
+        margin: 1cm;
+    }
+    
     body * {
         visibility: hidden;
     }

@@ -170,7 +170,12 @@ if ($role === 'STD') {
                             mysqli_stmt_bind_param($updatePassQuery, 'si', $hashedPass, $userId);
                             mysqli_stmt_execute($updatePassQuery);
                             mysqli_stmt_close($updatePassQuery);
-                            redirectWithFlash('Password updated successfully.');
+                            session_destroy();
+                            session_start();
+                            $_SESSION['flash_message'] = 'Password updated successfully. Please login again with your new password.';
+                            $_SESSION['flash_type'] = 'success';
+                            header('Location: login.php');
+                            exit;
                         } else {
                             redirectWithFlash('Database error while updating password.', 'error');
                         }

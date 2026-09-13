@@ -626,6 +626,7 @@ foreach ($students as $stud) {
             <div style="display: flex; align-items: center; flex-wrap: wrap; gap: 12px;">
                 <!-- Bulk Assign and Session Filter -->
                 <div style="display: flex; align-items: center; flex-wrap: wrap; gap: 8px;">
+                    <input type="text" id="rollno-search" placeholder="Search by Roll No..." onkeyup="filterByRollNo(this.value);" style="padding: 4px 8px; font-size: 13px; border-radius: 4px; border: 1px solid #cbd5e1; outline: none; margin-right: 10px; width: 160px;">
                     <button type="button" id="toggleBulkSelectionBtn" class="btn-primary-action" data-active="false"
                         onclick="toggleBulkSelectionMode()"
                         style="display: none; padding: 6px 12px; font-size: 13px; margin: 0; background: linear-gradient(135deg, #475569 0%, #334155 100%); cursor: pointer;">
@@ -789,8 +790,9 @@ foreach ($students as $stud) {
 <!-- ========================================== -->
 <div id="focal-letters" class="tab-content">
     <div class="card">
-        <div class="card-header">
+        <div class="card-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
             <span><i class="fa-solid fa-envelope-open-text"></i> Student Internship Letters Report</span>
+            <input type="text" id="letters-rollno-search" placeholder="Search by Roll No..." onkeyup="filterLettersByRollNo(this.value);" style="padding: 4px 8px; font-size: 13px; border-radius: 4px; border: 1px solid #cbd5e1; outline: none; width: 160px; color: #333;">
         </div>
         <div class="card-body" style="padding: 0; overflow-x: auto;">
             <table class="custom-table">
@@ -805,7 +807,7 @@ foreach ($students as $stud) {
                         <th>Action</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody id="letters-table-body">
                     <?php if (empty($students)): ?>
                         <tr>
                             <td colspan="7" style="text-align: center; color: #64748b; padding: 20px;">No student records
@@ -867,6 +869,42 @@ foreach ($students as $stud) {
             </table>
         </div>
     </div>
+    <script>
+        function filterLettersByRollNo(query) {
+            query = query.toLowerCase().trim();
+            const tbody = document.getElementById('letters-table-body');
+            if (!tbody) return;
+            const rows = tbody.querySelectorAll('tr:not(.letters-empty-message)');
+            
+            const existingEmpty = document.querySelector('.letters-empty-message');
+            if (existingEmpty) existingEmpty.remove();
+
+            let anyVisible = false;
+            rows.forEach(row => {
+                if (row.textContent.indexOf('No student records') !== -1) {
+                    row.style.display = 'none';
+                    return;
+                }
+                const rollTd = row.querySelector('td:nth-child(3)');
+                if (rollTd) {
+                    const text = rollTd.textContent.toLowerCase();
+                    if (text.includes(query)) {
+                        row.style.display = '';
+                        anyVisible = true;
+                    } else {
+                        row.style.display = 'none';
+                    }
+                }
+            });
+
+            if (!anyVisible && rows.length > 0) {
+                const tr = document.createElement('tr');
+                tr.className = 'letters-empty-message';
+                tr.innerHTML = '<td colspan="7" style="text-align: center; color: #64748b; padding: 25px;">No matching records found.</td>';
+                tbody.appendChild(tr);
+            }
+        }
+    </script>
 </div>
 
 <!-- ========================================== -->
@@ -1253,6 +1291,13 @@ foreach ($students as $stud) {
 
     let currentAssignmentFilter = 'all';
     let currentSupervisorFilter = 'all';
+    let currentSearchQuery = '';
+
+    function filterByRollNo(query) {
+        currentSearchQuery = query.toLowerCase().trim();
+        const sessionVal = document.getElementById('session-filter-dropdown') ? document.getElementById('session-filter-dropdown').value : 'all';
+        applyFilters(sessionVal, currentAssignmentFilter, currentSupervisorFilter);
+    }
 
     function setAssignmentFilter(filterType) {
         currentAssignmentFilter = filterType;
@@ -1321,7 +1366,6 @@ foreach ($students as $stud) {
 
             // Structural empty row or other row without data-session
             if (!rowSession && row.textContent.indexOf('No student records') !== -1) {
-                // If it's the "No student records found" row, hide it because we inject our own
                 row.style.display = 'none';
                 return;
             }
@@ -1357,7 +1401,16 @@ foreach ($students as $stud) {
                 supervisorMatch = true;
             }
 
-            if (sessionMatch && assignmentMatch && supervisorMatch) {
+            // Search match (Check rollno which is in 2nd td, but we can just check the whole row text for robustness)
+            let searchMatch = true;
+            if (currentSearchQuery !== '') {
+                const rowText = row.textContent.toLowerCase();
+                if (!rowText.includes(currentSearchQuery)) {
+                    searchMatch = false;
+                }
+            }
+
+            if (sessionMatch && assignmentMatch && supervisorMatch && searchMatch) {
                 row.style.display = '';
                 anyVisible = true;
             } else {

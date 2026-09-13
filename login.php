@@ -79,6 +79,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         $_SESSION['username'] = $user['u_name'];
                         $_SESSION['user_type'] = $user['u_type'];
 
+                        if ($user['u_type'] === 'STD') {
+                            if (password_verify($user['u_name'], $storedPassword) || hash_equals($storedPassword, $user['u_name'])) {
+                                $_SESSION['must_change_password'] = true;
+                            }
+                        }
+
                         header('Location: index.php');
                         exit;
                     }
