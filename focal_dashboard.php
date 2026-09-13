@@ -495,6 +495,15 @@ foreach ($students as $stud) {
 
     <h3 style="font-size: 16px; font-weight: 600; color: #1e293b; margin-bottom: 15px;">Quick Actions</h3>
     <div class="action-boxes-container">
+        <!-- Action 0: Profile Settings -->
+        <div class="action-box" onclick="switchTab('focal-profile', document.getElementById('nav-item-focal-profile'))">
+            <div class="action-icon-wrapper">
+                <i class="fa-solid fa-user-gear"></i>
+            </div>
+            <h3>My Profile</h3>
+            <p>View your profile details including designation and contact information.</p>
+        </div>
+
         <!-- Action 1: Registered Students List -->
         <div class="action-box"
             onclick="switchTab('focal-dashboard', document.getElementById('nav-item-focal-dashboard'))">
@@ -600,6 +609,170 @@ foreach ($students as $stud) {
                         </button>
                     </form>
                 </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ========================================== -->
+<!-- TAB PROFILE: FOCAL PERSON PROFILE          -->
+<!-- ========================================== -->
+<div id="focal-profile" class="tab-content">
+    <div class="student-profile-wrapper">
+        <!-- LEFT COLUMN: Profile Sidebar -->
+        <div class="student-profile-sidebar">
+            <div class="profile-pic-frame">
+                <?php if (!empty($accountDetails['profile_image'])): ?>
+                    <img src="<?php echo htmlspecialchars($accountDetails['profile_image']); ?>" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">
+                <?php else: ?>
+                    <i class="fa-solid fa-user-tie"></i>
+                <?php endif; ?>
+            </div>
+
+            <div class="student-name-title"><?php echo htmlspecialchars($focalPerson['full_name'] ?: 'Focal Person'); ?></div>
+            <div class="student-dept-subtitle">
+                <?php echo htmlspecialchars($focalPerson['designation'] ?: 'Internship Focal Person'); ?>
+            </div>
+
+            <hr class="profile-divider">
+            <div class="sidebar-info-text">Department of IT / CS</div>
+
+            <hr class="profile-divider">
+            <div class="sidebar-info-text"><?php echo htmlspecialchars($_SESSION['username'] ?? 'FP-0001'); ?></div>
+
+            <hr class="profile-divider">
+            <div class="cred-label">Official Email</div>
+            <div class="cred-val">
+                <?php echo htmlspecialchars($focalPerson['email'] ?: 'focal@uoh.edu.pk'); ?>
+            </div>
+        </div>
+
+        <!-- RIGHT COLUMN: Information Card / Form -->
+        <div class="student-profile-main">
+            <div class="info-card-header">Profile Information</div>
+            <div class="info-card-body">
+                <form action="" method="POST" enctype="multipart/form-data">
+                    <div class="info-row">
+                        <label class="info-label" for="profile_image">Profile Picture</label>
+                        <div class="info-value">
+                            <input type="file" id="profile_image" name="profile_image" accept="image/*" class="info-input-field" style="background-color: #ffffff;">
+                        </div>
+                    </div>
+
+                    <div class="info-row">
+                        <label class="info-label" for="full_name">Full Name & Title</label>
+                        <div class="info-value">
+                            <input type="text" id="full_name" name="full_name" value="<?php echo htmlspecialchars($focalPerson['full_name'] ?? ''); ?>" class="info-input-field" style="background-color: #ffffff;">
+                        </div>
+                    </div>
+
+                    <div class="info-row">
+                        <label class="info-label" for="designation">Designation</label>
+                        <div class="info-value">
+                            <input type="text" id="designation" name="designation" value="<?php echo htmlspecialchars($focalPerson['designation'] ?? ''); ?>" class="info-input-field" style="background-color: #ffffff;">
+                        </div>
+                    </div>
+
+                    <div class="info-row">
+                        <label class="info-label">Department/Division</label>
+                        <div class="info-value">
+                            <input type="text" value="Department of IT / CS" readonly class="info-input-field">
+                        </div>
+                    </div>
+
+                    <div class="info-row">
+                        <label class="info-label" for="email">Email Address</label>
+                        <div class="info-value">
+                            <input type="email" id="email" name="email" value="<?php echo htmlspecialchars($focalPerson['email'] ?? ''); ?>" class="info-input-field" style="background-color: #ffffff;">
+                        </div>
+                    </div>
+
+                    <div class="info-row">
+                        <label class="info-label" for="phone">Phone Number</label>
+                        <div class="info-value">
+                            <input type="text" id="phone" name="phone" value="<?php echo htmlspecialchars($focalPerson['phone'] ?? ''); ?>" class="info-input-field" style="background-color: #ffffff;">
+                        </div>
+                    </div>
+                    
+                    <div class="info-row">
+                        <label class="info-label">Office Location</label>
+                        <div class="info-value">
+                            <input type="text" value="Office # 101, Academic Block" readonly class="info-input-field">
+                        </div>
+                    </div>
+
+                    <div style="text-align: right; margin-top: 20px;">
+                        <button type="submit" name="save_fp_profile" class="btn-save-info" style="background: linear-gradient(135deg, #2e6652 0%, #26294d 100%);">Save Changes</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ========================================== -->
+<!-- TAB: CHANGE PASSWORD (FOCAL PERSON)        -->
+<!-- ========================================== -->
+<div id="focal-change-password" class="tab-content" style="background-color: #e3efea; padding: 20px; border-radius: 6px;">
+    <h2 style="font-size: 22px; font-weight: 600; color: #1e293b; margin-bottom: 20px;">Reset Password</h2>
+
+    <div class="student-profile-wrapper" style="margin-top: 0;">
+        <!-- LEFT COLUMN: Profile Sidebar -->
+        <div class="student-profile-sidebar" style="border: 1px solid #c2dbd0;">
+            <div class="profile-pic-frame"
+                style="border-color: #2e6652; background: linear-gradient(135deg, #2e6652 0%, #26294d 100%);">
+                <?php if (!empty($accountDetails['profile_image'])): ?>
+                    <img src="<?php echo htmlspecialchars($accountDetails['profile_image']); ?>" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">
+                <?php else: ?>
+                    <i class="fa-solid fa-user-tie"></i>
+                <?php endif; ?>
+            </div>
+
+            <div class="student-name-title" style="color: #2e6652;">
+                <?php echo htmlspecialchars($focalPerson['full_name'] ?: 'Focal Person'); ?>
+            </div>
+            <div class="student-dept-subtitle" style="color: #2e6652; font-weight: 600;">
+                <?php echo htmlspecialchars($focalPerson['designation'] ?: 'Internship Focal Person'); ?>
+            </div>
+
+            <hr class="profile-divider">
+            <div class="sidebar-info-text">Department of IT / CS</div>
+
+            <hr class="profile-divider">
+            <div class="sidebar-info-text"><?php echo htmlspecialchars($_SESSION['username'] ?? 'FP-0001'); ?></div>
+        </div>
+
+        <!-- RIGHT COLUMN: Reset Password Card -->
+        <div class="student-profile-main" style="border: 1px solid #c2dbd0;">
+            <div class="info-card-header" style="background: linear-gradient(135deg, #2e6652 0%, #26294d 100%); padding: 14px 20px;">Reset Password</div>
+            <div class="info-card-body" style="padding: 25px 20px;">
+                <form action="" method="POST">
+
+                    <div class="info-row" style="margin-bottom: 20px;">
+                        <label class="info-label" style="width: 25%; font-weight: bold; color: #2e6652;" for="old_password">Old Password</label>
+                        <div class="info-value" style="width: 75%;">
+                            <input type="password" id="old_password" name="old_password" required class="info-input-field" style="background-color: #ffffff; border: 1px solid #cbd5e1; width: 100%;" placeholder="Old Password">
+                        </div>
+                    </div>
+
+                    <div class="info-row" style="margin-bottom: 20px;">
+                        <label class="info-label" style="width: 25%; font-weight: bold; color: #2e6652;" for="new_password">New Password</label>
+                        <div class="info-value" style="width: 75%;">
+                            <input type="password" id="new_password" name="new_password" required class="info-input-field" style="background-color: #ffffff; border: 1px solid #cbd5e1; width: 100%;" placeholder="New Password">
+                        </div>
+                    </div>
+
+                    <div class="info-row" style="margin-bottom: 20px;">
+                        <label class="info-label" style="width: 25%; font-weight: bold; color: #2e6652;" for="confirm_password">Confirm Password</label>
+                        <div class="info-value" style="width: 75%;">
+                            <input type="password" id="confirm_password" name="confirm_password" required class="info-input-field" style="background-color: #ffffff; border: 1px solid #cbd5e1; width: 100%;" placeholder="Confirm Password">
+                        </div>
+                    </div>
+
+                    <div style="display: flex; justify-content: flex-end; margin-top: 30px;">
+                        <button type="submit" name="change_password" class="btn-submit" style="background: linear-gradient(135deg, #2e6652 0%, #26294d 100%); padding: 12px 25px; font-size: 15px;">Update Password</button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>

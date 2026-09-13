@@ -330,8 +330,11 @@
         <!-- LEFT COLUMN: Profile Sidebar -->
         <div class="student-profile-sidebar">
             <div class="profile-pic-frame">
-                <!-- Fallback user icon with styling similar to screenshot -->
-                <i class="fa-solid fa-user"></i>
+                <?php if (!empty($accountDetails['profile_image'])): ?>
+                    <img src="<?php echo htmlspecialchars($accountDetails['profile_image']); ?>" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">
+                <?php else: ?>
+                    <i class="fa-solid fa-user"></i>
+                <?php endif; ?>
             </div>
 
             <div class="student-name-title"><?php echo htmlspecialchars($profile['name'] ?: 'Student Name'); ?></div>
@@ -374,7 +377,13 @@
         <div class="student-profile-main">
             <div class="info-card-header">Information</div>
             <div class="info-card-body">
-                <form action="" method="POST">
+                <form action="" method="POST" enctype="multipart/form-data">
+                    <div class="info-row edit-only-row" style="display: none;">
+                        <label class="info-label" for="profile_image">Profile Picture</label>
+                        <div class="info-value">
+                            <input type="file" id="profile_image" name="profile_image" accept="image/*" class="info-input-field">
+                        </div>
+                    </div>
                     <div class="info-row">
                         <label class="info-label" for="name">Name</label>
                         <div class="info-value">
@@ -551,17 +560,31 @@
             });
             document.getElementById('edit-btn-container').style.display = 'none';
             document.getElementById('save-btn-container').style.display = 'flex';
+            document.querySelectorAll('.edit-only-row').forEach(row => {
+                row.style.display = 'flex';
+            });
         }
 
-        function disableEditMode() {
-            document.querySelectorAll('.info-input-field').forEach(input => {
-                input.setAttribute('readonly', 'true');
+        function cancelEditMode() {
+            const inputs = document.querySelectorAll('.info-input-field');
+            inputs.forEach(input => {
+                // Restore original values
                 if (input.hasAttribute('data-original')) {
                     input.value = input.getAttribute('data-original');
                 }
+                if (input.type === 'file') {
+                    input.value = '';
+                }
+                input.setAttribute('readonly', 'true');
+                input.style.backgroundColor = '#f8fafc';
             });
+
             document.getElementById('edit-btn-container').style.display = 'block';
             document.getElementById('save-btn-container').style.display = 'none';
+            
+            document.querySelectorAll('.edit-only-row').forEach(row => {
+                row.style.display = 'none';
+            });
         }
     </script>
 </div>
@@ -930,7 +953,11 @@
         <div class="student-profile-sidebar" style="border: 1px solid #c2dbd0;">
             <div class="profile-pic-frame"
                 style="border-color: #2e6652; background: linear-gradient(135deg, #2e6652 0%, #26294d 100%);">
-                <i class="fa-solid fa-user"></i>
+                <?php if (!empty($accountDetails['profile_image'])): ?>
+                    <img src="<?php echo htmlspecialchars($accountDetails['profile_image']); ?>" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">
+                <?php else: ?>
+                    <i class="fa-solid fa-user"></i>
+                <?php endif; ?>
             </div>
 
             <div class="student-name-title" style="color: #2e6652;">

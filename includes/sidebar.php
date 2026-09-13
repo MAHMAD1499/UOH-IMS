@@ -43,6 +43,20 @@
         <?php endif; ?>
 
         <?php if (isset($_SESSION['user_type']) && $_SESSION['user_type'] === 'FP'): ?>
+            <li class="nav-item nav-item-dropdown-toggle" id="nav-item-focal-profile-toggle" onclick="toggleSidebarDropdown('focal-profile-dropdown')">
+                <div>
+                    <i class="fa-solid fa-id-card"></i> <span style="margin-left: 12px;">Profile</span>
+                </div>
+                <i class="fa-solid fa-chevron-down dropdown-chevron"></i>
+            </li>
+            <ul class="nav-dropdown" id="focal-profile-dropdown">
+                <li class="nav-subitem" id="nav-item-focal-profile" onclick="switchTab('focal-profile', this)">
+                    <i class="fa-solid fa-chevron-right"></i> <span>View Profile</span>
+                </li>
+                <li class="nav-subitem" id="nav-item-focal-change-password" onclick="switchTab('focal-change-password', this)">
+                    <i class="fa-solid fa-chevron-right"></i> <span>Change Password</span>
+                </li>
+            </ul>
             <li class="nav-item active" id="nav-item-focal-dashboard-welcome" onclick="switchTab('focal-welcome-dashboard', this)">
                 <i class="fa-solid fa-gauge"></i> <span>Dashboard</span>
             </li>
@@ -69,6 +83,20 @@
         <?php endif; ?>
 
         <?php if (isset($_SESSION['user_type']) && $_SESSION['user_type'] === 'FSP'): ?>
+            <li class="nav-item nav-item-dropdown-toggle" id="nav-item-faculty-profile-toggle" onclick="toggleSidebarDropdown('faculty-profile-dropdown')">
+                <div>
+                    <i class="fa-solid fa-id-card"></i> <span style="margin-left: 12px;">Profile</span>
+                </div>
+                <i class="fa-solid fa-chevron-down dropdown-chevron"></i>
+            </li>
+            <ul class="nav-dropdown" id="faculty-profile-dropdown">
+                <li class="nav-subitem" id="nav-item-faculty-profile" onclick="switchTab('faculty-profile', this)">
+                    <i class="fa-solid fa-chevron-right"></i> <span>View Profile</span>
+                </li>
+                <li class="nav-subitem" id="nav-item-faculty-change-password" onclick="switchTab('faculty-change-password', this)">
+                    <i class="fa-solid fa-chevron-right"></i> <span>Change Password</span>
+                </li>
+            </ul>
             <li class="nav-item active" id="nav-item-faculty-dashboard-welcome" onclick="switchTab('faculty-welcome-dashboard', this)">
                 <i class="fa-solid fa-gauge"></i> <span>Dashboard</span>
             </li>

@@ -50,12 +50,121 @@ $latestMarks = [
     'total_marks' => '',
 ];
 
+// Fetch user account details including profile image
+$accountDetails = ['profile_image' => ''];
+$accStmt = mysqli_prepare($conn, 'SELECT profile_image FROM user WHERE u_id = ? LIMIT 1');
+if ($accStmt) {
+    mysqli_stmt_bind_param($accStmt, 'i', $userId);
+    mysqli_stmt_execute($accStmt);
+    $accRes = mysqli_stmt_get_result($accStmt);
+    if ($accRow = mysqli_fetch_assoc($accRes)) {
+        $accountDetails['profile_image'] = $accRow['profile_image'] ?? '';
+    }
+    mysqli_stmt_close($accStmt);
+}
+
 function redirectWithFlash(string $message, string $type = 'success'): void
 {
     $_SESSION['flash_message'] = $message;
     $_SESSION['flash_type'] = $type;
     header('Location: index.php');
     exit;
+}
+
+function handleProfileImageUpload(array $file): ?string {
+    if (!isset($file['error']) || $file['error'] !== UPLOAD_ERR_OK) return null;
+    $ext = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
+    $allowed = ['jpg', 'jpeg', 'png', 'gif'];
+    if (!in_array($ext, $allowed)) return null;
+    $filename = uniqid('profile_', true) . '.' . $ext;
+    $dest = __DIR__ . '/uploads/profile_pictures/' . $filename;
+    if (move_uploaded_file($file['tmp_name'], $dest)) {
+        return 'uploads/profile_pictures/' . $filename;
+    }
+    return null;
+}
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (isset($_POST['save_fp_profile']) || isset($_POST['save_fsp_profile'])) {
+        $fullName = trim($_POST['full_name'] ?? '');
+        $email = trim($_POST['email'] ?? '');
+        $phone = trim($_POST['phone'] ?? '');
+        $designation = trim($_POST['designation'] ?? '');
+        
+        $updStmt = mysqli_prepare($conn, 'UPDATE users SET full_name = ?, email = ?, phone = ?, designation = ? WHERE user_id = ?');
+        if ($updStmt) {
+            mysqli_stmt_bind_param($updStmt, 'ssssi', $fullName, $email, $phone, $designation, $userId);
+            mysqli_stmt_execute($updStmt);
+            mysqli_stmt_close($updStmt);
+        }
+        
+        $profileImagePath = handleProfileImageUpload($_FILES['profile_image'] ?? []);
+        if ($profileImagePath !== null) {
+            $imgStmt = mysqli_prepare($conn, 'UPDATE user SET profile_image = ? WHERE u_id = ?');
+            if ($imgStmt) {
+                mysqli_stmt_bind_param($imgStmt, 'si', $profileImagePath, $userId);
+                mysqli_stmt_execute($imgStmt);
+                mysqli_stmt_close($imgStmt);
+            }
+        }
+        
+        redirectWithFlash('Profile updated successfully.');
+    }
+}
+
+if (isset($_POST['change_password'])) {
+    $oldPassword = $_POST['old_password'] ?? '';
+    $newPassword = $_POST['new_password'] ?? '';
+    $confirmPassword = $_POST['confirm_password'] ?? '';
+
+    if ($oldPassword === '' || $newPassword === '' || $confirmPassword === '') {
+        redirectWithFlash('All password fields are required.', 'error');
+    }
+
+    if ($newPassword !== $confirmPassword) {
+        redirectWithFlash('New password and confirm password do not match.', 'error');
+    }
+
+    if (strlen($newPassword) < 6 || !preg_match('/[A-Z]/', $newPassword) || !preg_match('/[0-9]/', $newPassword)) {
+        redirectWithFlash('Password does not meet requirements.', 'error');
+    }
+
+    $userQuery = mysqli_prepare($conn, 'SELECT u_pass FROM user WHERE u_id = ? LIMIT 1');
+    if ($userQuery) {
+        mysqli_stmt_bind_param($userQuery, 'i', $userId);
+        mysqli_stmt_execute($userQuery);
+        $res = mysqli_stmt_get_result($userQuery);
+        $userRow = $res ? mysqli_fetch_assoc($res) : null;
+        mysqli_stmt_close($userQuery);
+
+        if ($userRow) {
+            $storedPassword = (string)$userRow['u_pass'];
+            $verified = password_verify($oldPassword, $storedPassword) || hash_equals($storedPassword, $oldPassword);
+            if ($verified) {
+                $hashedPass = password_hash($newPassword, PASSWORD_BCRYPT);
+                $updatePassQuery = mysqli_prepare($conn, 'UPDATE user SET u_pass = ? WHERE u_id = ?');
+                if ($updatePassQuery) {
+                    mysqli_stmt_bind_param($updatePassQuery, 'si', $hashedPass, $userId);
+                    mysqli_stmt_execute($updatePassQuery);
+                    mysqli_stmt_close($updatePassQuery);
+                    session_destroy();
+                    session_start();
+                    $_SESSION['flash_message'] = 'Password updated successfully. Please login again with your new password.';
+                    $_SESSION['flash_type'] = 'success';
+                    header('Location: login.php');
+                    exit;
+                } else {
+                    redirectWithFlash('Database error while updating password.', 'error');
+                }
+            } else {
+                redirectWithFlash('Incorrect old password.', 'error');
+            }
+        } else {
+            redirectWithFlash('User not found.', 'error');
+        }
+    } else {
+        redirectWithFlash('Database error occurred.', 'error');
+    }
 }
 
 if ($role === 'STD') {
@@ -79,6 +188,16 @@ if ($role === 'STD') {
 
             if ($rollno === '' || $name === '') {
                 redirectWithFlash('Roll number and Name are required.', 'error');
+            }
+
+            $profileImagePath = handleProfileImageUpload($_FILES['profile_image'] ?? []);
+            if ($profileImagePath !== null) {
+                $imgStmt = mysqli_prepare($conn, 'UPDATE user SET profile_image = ? WHERE u_id = ?');
+                if ($imgStmt) {
+                    mysqli_stmt_bind_param($imgStmt, 'si', $profileImagePath, $userId);
+                    mysqli_stmt_execute($imgStmt);
+                    mysqli_stmt_close($imgStmt);
+                }
             }
 
             // Update user_profile
@@ -135,60 +254,6 @@ if ($role === 'STD') {
             redirectWithFlash('Information updated successfully.');
         }
 
-        if (isset($_POST['change_student_password'])) {
-            $oldPassword = $_POST['old_password'] ?? '';
-            $newPassword = $_POST['new_password'] ?? '';
-            $confirmPassword = $_POST['confirm_password'] ?? '';
-
-            if ($oldPassword === '' || $newPassword === '' || $confirmPassword === '') {
-                redirectWithFlash('All password fields are required.', 'error');
-            }
-
-            if ($newPassword !== $confirmPassword) {
-                redirectWithFlash('New password and confirm password do not match.', 'error');
-            }
-
-            if (strlen($newPassword) < 6 || !preg_match('/[A-Z]/', $newPassword) || !preg_match('/[0-9]/', $newPassword)) {
-                redirectWithFlash('Password does not meet requirements.', 'error');
-            }
-
-            $userQuery = mysqli_prepare($conn, 'SELECT u_pass FROM user WHERE u_id = ? LIMIT 1');
-            if ($userQuery) {
-                mysqli_stmt_bind_param($userQuery, 'i', $userId);
-                mysqli_stmt_execute($userQuery);
-                $res = mysqli_stmt_get_result($userQuery);
-                $userRow = $res ? mysqli_fetch_assoc($res) : null;
-                mysqli_stmt_close($userQuery);
-
-                if ($userRow) {
-                    $storedPassword = (string)$userRow['u_pass'];
-                    $verified = password_verify($oldPassword, $storedPassword) || hash_equals($storedPassword, $oldPassword);
-                    if ($verified) {
-                        $hashedPass = password_hash($newPassword, PASSWORD_BCRYPT);
-                        $updatePassQuery = mysqli_prepare($conn, 'UPDATE user SET u_pass = ? WHERE u_id = ?');
-                        if ($updatePassQuery) {
-                            mysqli_stmt_bind_param($updatePassQuery, 'si', $hashedPass, $userId);
-                            mysqli_stmt_execute($updatePassQuery);
-                            mysqli_stmt_close($updatePassQuery);
-                            session_destroy();
-                            session_start();
-                            $_SESSION['flash_message'] = 'Password updated successfully. Please login again with your new password.';
-                            $_SESSION['flash_type'] = 'success';
-                            header('Location: login.php');
-                            exit;
-                        } else {
-                            redirectWithFlash('Database error while updating password.', 'error');
-                        }
-                    } else {
-                        redirectWithFlash('Incorrect old password.', 'error');
-                    }
-                } else {
-                    redirectWithFlash('User not found.', 'error');
-                }
-            } else {
-                redirectWithFlash('Database error occurred.', 'error');
-            }
-        }
 
         if (isset($_POST['save_placement_details'])) {
             $orgName = trim($_POST['org_name'] ?? '');

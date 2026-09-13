@@ -77,12 +77,32 @@
         const navSubitems = document.querySelectorAll('.nav-subitem');
         navSubitems.forEach(item => item.classList.remove('active'));
 
-        const studentDashboard = document.getElementById('student-dashboard');
-        if (studentDashboard) {
-            studentDashboard.classList.add('active');
-            localStorage.setItem('activeTab', 'student-dashboard');
+        let targetTabId = null;
+        let viewProfileSubitemId = null;
+        let profileDropdownId = null;
 
-            const viewProfileSubitem = document.getElementById('nav-subitem-view-profile');
+        if (document.getElementById('student-dashboard')) {
+            targetTabId = 'student-dashboard';
+            viewProfileSubitemId = 'nav-subitem-view-profile';
+            profileDropdownId = 'profile-dropdown';
+        } else if (document.getElementById('focal-profile')) {
+            targetTabId = 'focal-profile';
+            viewProfileSubitemId = 'nav-item-focal-profile';
+            profileDropdownId = 'focal-profile-dropdown';
+        } else if (document.getElementById('faculty-profile')) {
+            targetTabId = 'faculty-profile';
+            viewProfileSubitemId = 'nav-item-faculty-profile';
+            profileDropdownId = 'faculty-profile-dropdown';
+        }
+
+        if (targetTabId) {
+            const targetTab = document.getElementById(targetTabId);
+            if (targetTab) {
+                targetTab.classList.add('active');
+                localStorage.setItem('activeTab', targetTabId);
+            }
+
+            const viewProfileSubitem = document.getElementById(viewProfileSubitemId);
             if (viewProfileSubitem) {
                 viewProfileSubitem.classList.add('active');
                 const allClickables = [...navItems, ...navSubitems];
@@ -91,7 +111,7 @@
                 localStorage.setItem('activeNavIndex', -1);
             }
 
-            const profileDropdown = document.getElementById('profile-dropdown');
+            const profileDropdown = document.getElementById(profileDropdownId);
             if (profileDropdown) {
                 profileDropdown.classList.add('open');
                 const toggleBtn = profileDropdown.previousElementSibling;
