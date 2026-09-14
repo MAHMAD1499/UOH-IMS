@@ -202,7 +202,35 @@
             e.stopPropagation();
         });
     }
+
+    // PDF Download function using html2pdf
+    function downloadPDF(elementSelector, filename = 'Internship_Letter.pdf') {
+        const element = document.querySelector(elementSelector);
+        if (!element) return;
+        
+        // Options for html2pdf
+        const opt = {
+            margin:       15,
+            filename:     filename,
+            image:        { type: 'jpeg', quality: 0.98 },
+            html2canvas:  { scale: 2, useCORS: true, logging: false },
+            jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+        };
+        
+        // Temporarily adjust styles for better PDF rendering
+        const originalBoxShadow = element.style.boxShadow;
+        const originalBorder = element.style.border;
+        element.style.boxShadow = 'none';
+        
+        // Generate PDF
+        html2pdf().set(opt).from(element).save().then(() => {
+            // Restore styles
+            element.style.boxShadow = originalBoxShadow;
+        });
+    }
 </script>
+<!-- html2pdf.js for generating PDFs directly -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 </body>
 
 </html>

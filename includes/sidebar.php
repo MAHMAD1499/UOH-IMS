@@ -43,6 +43,9 @@
         <?php endif; ?>
 
         <?php if (isset($_SESSION['user_type']) && $_SESSION['user_type'] === 'FP'): ?>
+            <li class="nav-item active" id="nav-item-focal-dashboard-welcome" onclick="switchTab('focal-welcome-dashboard', this)">
+                <i class="fa-solid fa-gauge"></i> <span>Dashboard</span>
+            </li>
             <li class="nav-item nav-item-dropdown-toggle" id="nav-item-focal-profile-toggle" onclick="toggleSidebarDropdown('focal-profile-dropdown')">
                 <div>
                     <i class="fa-solid fa-id-card"></i> <span style="margin-left: 12px;">Profile</span>
@@ -57,9 +60,6 @@
                     <i class="fa-solid fa-chevron-right"></i> <span>Change Password</span>
                 </li>
             </ul>
-            <li class="nav-item active" id="nav-item-focal-dashboard-welcome" onclick="switchTab('focal-welcome-dashboard', this)">
-                <i class="fa-solid fa-gauge"></i> <span>Dashboard</span>
-            </li>
             <li class="nav-item nav-item-dropdown-toggle" id="nav-item-focal-students-toggle" onclick="toggleSidebarDropdown('focal-students-dropdown')">
                 <div>
                     <i class="fa-solid fa-list-check"></i> <span style="margin-left: 12px;">Registered Students</span>
@@ -83,6 +83,9 @@
         <?php endif; ?>
 
         <?php if (isset($_SESSION['user_type']) && $_SESSION['user_type'] === 'FSP'): ?>
+            <li class="nav-item active" id="nav-item-faculty-dashboard-welcome" onclick="switchTab('faculty-welcome-dashboard', this)">
+                <i class="fa-solid fa-gauge"></i> <span>Dashboard</span>
+            </li>
             <li class="nav-item nav-item-dropdown-toggle" id="nav-item-faculty-profile-toggle" onclick="toggleSidebarDropdown('faculty-profile-dropdown')">
                 <div>
                     <i class="fa-solid fa-id-card"></i> <span style="margin-left: 12px;">Profile</span>
@@ -97,9 +100,6 @@
                     <i class="fa-solid fa-chevron-right"></i> <span>Change Password</span>
                 </li>
             </ul>
-            <li class="nav-item active" id="nav-item-faculty-dashboard-welcome" onclick="switchTab('faculty-welcome-dashboard', this)">
-                <i class="fa-solid fa-gauge"></i> <span>Dashboard</span>
-            </li>
             <li class="nav-item" id="nav-item-faculty-dashboard" onclick="switchTab('faculty-dashboard', this)">
                 <i class="fa-solid fa-users-rectangle"></i> <span>Assigned Students</span>
             </li>

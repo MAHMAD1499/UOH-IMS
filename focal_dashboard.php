@@ -41,6 +41,7 @@ if ($announcementsResult) {
 }
 
 // Handle POST request processing for Focal Person actions
+// Handle Form Submissions: Adding students, approving letters, assigning faculty, etc.
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Add Announcement Action
     if (isset($_POST['add_announcement'])) {
@@ -96,8 +97,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             exit;
         }
 
-        if (!preg_match('/^[sS]\d{2}-\d{4}$/', $rollno)) {
-            $_SESSION['flash_message'] = 'Invalid Roll No format. Expected format: S23-1234';
+        if (!preg_match('/^[a-zA-Z]\d{2}-\d{4}$/', $rollno)) {
+            $_SESSION['flash_message'] = 'Invalid Roll No format. Expected format: e.g. S23-1234 or F26-0001';
             $_SESSION['flash_type'] = 'error';
             header('Location: index.php');
             exit;
@@ -1106,11 +1107,108 @@ foreach ($students as $stud) {
                     </div>
                     <div class="form-group">
                         <label for="student_depart">Department <span style="color: red;">*</span></label>
-                        <input type="text" id="student_depart" name="depart" required>
+                        <select id="student_depart" name="depart" required>
+                            <option value="">-- Select Department --</option>
+                            <optgroup label="Faculty of Information Technology & Numerical Sciences">
+                                <option value="Department of Information Technology / Computer Science">Department of Information Technology / Computer Science</option>
+                                <option value="Department of Pure & Applied Mathematics">Department of Pure & Applied Mathematics</option>
+                                <option value="Department of Physics">Department of Physics</option>
+                            </optgroup>
+                            <optgroup label="Faculty of Biological & Biomedical Sciences">
+                                <option value="Department of Biology (Botany & Zoology)">Department of Biology (Botany & Zoology)</option>
+                                <option value="Department of Medical Lab Sciences (MLT)">Department of Medical Lab Sciences (MLT)</option>
+                                <option value="Department of Microbiology">Department of Microbiology</option>
+                                <option value="Department of Public Health">Department of Public Health</option>
+                            </optgroup>
+                            <optgroup label="Faculty of Physical and Applied Sciences">
+                                <option value="Department of Agricultural Sciences">Department of Agricultural Sciences</option>
+                                <option value="Department of Food Science & Technology">Department of Food Science & Technology</option>
+                                <option value="Department of Environmental Sciences">Department of Environmental Sciences</option>
+                                <option value="Department of Earth Sciences / Geology">Department of Earth Sciences / Geology</option>
+                                <option value="Department of Forestry & Wildlife Management">Department of Forestry & Wildlife Management</option>
+                                <option value="Department of Chemistry">Department of Chemistry</option>
+                            </optgroup>
+                            <optgroup label="Faculty of Social & Administrative Sciences">
+                                <option value="Department of Management Sciences">Department of Management Sciences</option>
+                                <option value="Department of Economics">Department of Economics</option>
+                                <option value="Department of Education">Department of Education</option>
+                                <option value="Department of Psychology">Department of Psychology</option>
+                                <option value="Department of Islamic & Religious Studies">Department of Islamic & Religious Studies</option>
+                                <option value="Department of Linguistics & Literature">Department of Linguistics & Literature</option>
+                                <option value="Department of History & Politics">Department of History & Politics</option>
+                                <option value="Department of Law (Law College)">Department of Law (Law College)</option>
+                                <option value="Department of Sports Science & Physical Education">Department of Sports Science & Physical Education</option>
+                            </optgroup>
+                        </select>
                     </div>
                     <div class="form-group">
                         <label for="student_program">Program <span style="color: red;">*</span></label>
-                        <input type="text" id="student_program" name="program" required>
+                        <select id="student_program" name="program" required>
+                            <option value="">-- Select Program --</option>
+                            <optgroup label="Computing & Technology">
+                                <option value="BS Computer Science">BS Computer Science</option>
+                                <option value="BS Software Engineering">BS Software Engineering</option>
+                                <option value="BS Artificial Intelligence">BS Artificial Intelligence</option>
+                                <option value="BS Data Science">BS Data Science</option>
+                                <option value="BS Telecom & Networking">BS Telecom & Networking</option>
+                            </optgroup>
+                            <optgroup label="Medical, Life & Health Sciences">
+                                <option value="Doctor of Physical Therapy (DPT – 5 Years)">Doctor of Physical Therapy (DPT – 5 Years)</option>
+                                <option value="BS Medical Lab Technology (MLT)">BS Medical Lab Technology (MLT)</option>
+                                <option value="BS Microbiology">BS Microbiology</option>
+                                <option value="BS Public Health">BS Public Health</option>
+                                <option value="BS Biochemistry">BS Biochemistry</option>
+                                <option value="BS Botany">BS Botany</option>
+                                <option value="BS Zoology">BS Zoology</option>
+                            </optgroup>
+                            <optgroup label="Physical, Mathematical & Earth Sciences">
+                                <option value="BS Physics">BS Physics</option>
+                                <option value="BS Chemistry">BS Chemistry</option>
+                                <option value="BS Mathematics">BS Mathematics</option>
+                                <option value="BS Statistics">BS Statistics</option>
+                                <option value="BS Geology">BS Geology</option>
+                                <option value="BS Engineering Geology">BS Engineering Geology</option>
+                                <option value="BS Environmental Sciences">BS Environmental Sciences</option>
+                                <option value="BS Climate Change">BS Climate Change</option>
+                                <option value="BS Disaster Management">BS Disaster Management</option>
+                                <option value="BS Remote Sensing (RS) & Geographical Information System (GIS)">BS Remote Sensing (RS) & Geographical Information System (GIS)</option>
+                            </optgroup>
+                            <optgroup label="Agricultural Sciences, Forestry & Food">
+                                <option value="BS Agronomy">BS Agronomy</option>
+                                <option value="BS Horticulture">BS Horticulture</option>
+                                <option value="BS Entomology">BS Entomology</option>
+                                <option value="BS Plant Breeding & Genetics (PBG)">BS Plant Breeding & Genetics (PBG)</option>
+                                <option value="BS Soil Science">BS Soil Science</option>
+                                <option value="BS Agribusiness">BS Agribusiness</option>
+                                <option value="BS Agricultural Biotechnology">BS Agricultural Biotechnology</option>
+                                <option value="BS Food Science & Technology">BS Food Science & Technology</option>
+                                <option value="BS Forestry">BS Forestry</option>
+                                <option value="BS Wildlife Management">BS Wildlife Management</option>
+                            </optgroup>
+                            <optgroup label="Management & Business Studies">
+                                <option value="Bachelor of Business Administration (BBA)">Bachelor of Business Administration (BBA)</option>
+                                <option value="BS Accounting and Finance">BS Accounting and Finance</option>
+                                <option value="BS Business Analytics">BS Business Analytics</option>
+                                <option value="BS Public Administration & Governance">BS Public Administration & Governance</option>
+                                <option value="BS Tourism & Hospitality Management">BS Tourism & Hospitality Management</option>
+                            </optgroup>
+                            <optgroup label="Social Sciences, Humanities & Law">
+                                <option value="Bachelor of Laws (LLB – 5 Years)">Bachelor of Laws (LLB – 5 Years)</option>
+                                <option value="BS Economics">BS Economics</option>
+                                <option value="BS Psychology">BS Psychology</option>
+                                <option value="BS Sociology">BS Sociology</option>
+                                <option value="Bachelors of Education (B.Ed Hons – 4 Years)">Bachelors of Education (B.Ed Hons – 4 Years)</option>
+                                <option value="BS English">BS English</option>
+                                <option value="BS Urdu">BS Urdu</option>
+                                <option value="BS Arabic">BS Arabic</option>
+                                <option value="BS Islamic and Religious Studies">BS Islamic and Religious Studies</option>
+                                <option value="BS Political Science">BS Political Science</option>
+                                <option value="BS International Relations">BS International Relations</option>
+                                <option value="BS Pakistan Studies">BS Pakistan Studies</option>
+                                <option value="BS History">BS History</option>
+                                <option value="BS Sport Science & Physical Education">BS Sport Science & Physical Education</option>
+                            </optgroup>
+                        </select>
                     </div>
                     <div class="form-group">
                         <label for="student_sem">Semester <span style="color: red;">*</span></label>
@@ -1317,8 +1415,8 @@ foreach ($students as $stud) {
 
             <div style="margin-top: 20px; text-align: right; display: flex; gap: 10px; justify-content: flex-end;">
                 <button type="button" class="btn-cancel" onclick="closeModal('letterViewModal')">Close</button>
-                <button type="button" class="btn-submit" style="margin-top: 0;" onclick="window.print()">
-                    <i class="fa-solid fa-print"></i> Print / Download PDF
+                <button type="button" class="btn-submit" style="margin-top: 0;" onclick="downloadPDF('#letterViewModal .letter-paper')">
+                    <i class="fa-solid fa-download"></i> Print / Download PDF
                 </button>
             </div>
         </div>
@@ -1452,15 +1550,64 @@ foreach ($students as $stud) {
     function validateAddStudentForm() {
         const rollno = document.getElementById('student_rollno').value.trim();
 
-        // Roll number check: Format S23-1234
-        const rollRegex = /^[sS]\d{2}-\d{4}$/;
+        // Roll number check: Format e.g. S23-1234 or F26-0001
+        const rollRegex = /^[a-zA-Z]\d{2}-\d{4}$/;
         if (!rollRegex.test(rollno)) {
-            alert('Invalid Roll No format. Expected format: S23-1234');
+            alert('Invalid Roll No format. Expected format: e.g. S23-1234 or F26-0001');
             return false;
         }
 
         return true;
     }
+
+    // Dynamic Program Dropdown based on Department
+    document.addEventListener('DOMContentLoaded', function() {
+        const deptSelect = document.getElementById('student_depart');
+        const progSelect = document.getElementById('student_program');
+        if (!deptSelect || !progSelect) return;
+
+        // Store original optgroups
+        const allOptGroups = Array.from(progSelect.querySelectorAll('optgroup')).map(og => og.cloneNode(true));
+        
+        deptSelect.addEventListener('change', function() {
+            const selectedDept = this.value;
+            // Clear current programs
+            progSelect.innerHTML = '<option value="">-- Select Program --</option>';
+            
+            if (!selectedDept) {
+                // If no department selected, show all
+                allOptGroups.forEach(og => progSelect.appendChild(og.cloneNode(true)));
+                return;
+            }
+
+            // Determine faculty category based on department
+            let targetCategory = '';
+            
+            if (['Department of Information Technology / Computer Science'].includes(selectedDept)) {
+                targetCategory = 'Computing & Technology';
+            } else if (['Department of Pure & Applied Mathematics', 'Department of Physics', 'Department of Environmental Sciences', 'Department of Earth Sciences / Geology', 'Department of Chemistry'].includes(selectedDept)) {
+                targetCategory = 'Physical, Mathematical & Earth Sciences';
+            } else if (['Department of Biology (Botany & Zoology)', 'Department of Medical Lab Sciences (MLT)', 'Department of Microbiology', 'Department of Public Health'].includes(selectedDept)) {
+                targetCategory = 'Medical, Life & Health Sciences';
+            } else if (['Department of Agricultural Sciences', 'Department of Food Science & Technology', 'Department of Forestry & Wildlife Management'].includes(selectedDept)) {
+                targetCategory = 'Agricultural Sciences, Forestry & Food';
+            } else if (['Department of Management Sciences'].includes(selectedDept)) {
+                targetCategory = 'Management & Business Studies';
+            } else if (['Department of Economics', 'Department of Education', 'Department of Psychology', 'Department of Islamic & Religious Studies', 'Department of Linguistics & Literature', 'Department of History & Politics', 'Department of Law (Law College)', 'Department of Sports Science & Physical Education'].includes(selectedDept)) {
+                targetCategory = 'Social Sciences, Humanities & Law';
+            }
+
+            if (targetCategory) {
+                const matchingGroup = allOptGroups.find(og => og.label === targetCategory);
+                if (matchingGroup) {
+                    progSelect.appendChild(matchingGroup.cloneNode(true));
+                }
+            } else {
+                // Fallback, show all
+                allOptGroups.forEach(og => progSelect.appendChild(og.cloneNode(true)));
+            }
+        });
+    });
 
     let currentAssignmentFilter = 'all';
     let currentSupervisorFilter = 'all';

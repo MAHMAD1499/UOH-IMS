@@ -1,4 +1,10 @@
-<?php
+<?php
+/**
+ * Login Controller
+ * 
+ * Handles user authentication, reCAPTCHA verification, and role-based routing 
+ * for Students, Focal Persons, and Faculty Supervisors.
+ */
 session_start();
 
 require __DIR__ . '/includes/db.php';
@@ -16,6 +22,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $userType = trim($_POST['user_type'] ?? 'STD');
     $recaptchaResponse = $_POST['g-recaptcha-response'] ?? '';
 
+    // Validate Google reCAPTCHA v2 response via server-side request
     if ($recaptchaResponse === '') {
         $loginError = 'Please complete the CAPTCHA verification.';
     } else {
@@ -45,13 +52,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 
+    // Check if any required fields are empty
     if ($loginError === '' && ($username === '' || $password === '' || $userType === '')) {
         $loginError = 'Please fill in all fields.';
     } elseif ($loginError === '') {
         $isValid = true;
-        if ($userType === 'STD' && !preg_match('/^[sS]\d{2}-\d{4}$/', $username)) {
+        if ($userType === 'STD' && !preg_match('/^[a-zA-Z]\d{2}-\d{4}$/', $username)) {
             $isValid = false;
-            $loginError = 'Invalid username format for Student. Expected format: S23-1234';
+            $loginError = 'Invalid username format for Student. Expected format: e.g. S23-1234 or F26-0001';
         } elseif ($userType === 'FP' && !preg_match('/^[fF][pP]-\d{4}$/', $username)) {
             $isValid = false;
             $loginError = 'Invalid username format for Focal Person. Expected format: FP-0001';
@@ -99,6 +107,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 ?>
+<!-- 
+  Frontend HTML for Login Page
+  Includes role selection, format hints, and reCAPTCHA widget.
+-->
 <!DOCTYPE html>
 <html lang="en">
 
@@ -159,7 +171,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 value="<?php echo htmlspecialchars($_POST['username'] ?? ''); ?>"
                                 placeholder="Username / ID" required>
                         </div>
-                        <span class="input-hint">Format: S23-1234 / FP-0001 / FSP-0001</span>
+                        <span class="input-hint">Format: e.g. S23-1234 or F26-0001 / FP-0001 / FSP-0001</span>
                     </div>
 
                     <!-- Password Input -->
@@ -178,7 +190,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <div class="input-container" style="display: flex; justify-content: center; margin-bottom: 10px;">
                         <div class="g-recaptcha" data-sitekey="6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI"></div>
                     </div>
-                    
 
                     <!-- Submit Button -->
                     <button type="submit" class="btn-login">Login</button>
@@ -189,6 +200,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </div>
 
     <script>
+        /**
+         * Client-side form validation before submission
+         * Validates role-based username formats and checks if reCAPTCHA is completed.
+         */
         function validateLoginForm() {
             const userType = document.getElementById('user_type').value;
             const username = document.getElementById('username').value.trim();
@@ -203,10 +218,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             // Instructions Regarding User's Format
             if (userType === 'STD') {
-                const stdRegex = /^[sS]\d{2}-\d{4}$/;
+                const stdRegex = /^[a-zA-Z]\d{2}-\d{4}$/;
                 if (!stdRegex.test(username)) {
                     isValid = false;
-                    errorMessage = 'Student Username must match the format: S23-1234';
+                    errorMessage = 'Student Username must match the format: e.g. S23-1234 or F26-0001';
                 }
             } else if (userType === 'FP') {
                 const fpRegex = /^[fF][pP]-\d{4}$/;

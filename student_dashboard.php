@@ -1,8 +1,16 @@
+<?php
+/**
+ * Student Dashboard Controller & View
+ * 
+ * Handles the student interface for viewing academic details, downloading internship letters,
+ * submitting placement details, and uploading reports.
+ */
+?>
 <?php if (isset($_SESSION['must_change_password']) && $_SESSION['must_change_password'] === true): ?>
     <div style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(15, 23, 42, 0.85); z-index: 99999; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(8px);">
         <div style="background: #ffffff; padding: 40px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); width: 100%; max-width: 480px;">
             <h2 style="color: #1e293b; font-size: 24px; margin-bottom: 12px; font-weight: 700; display: flex; align-items: center; gap: 10px;">
-                <i class="fa-solid fa-shield-halved" style="color: #3b82f6;"></i> Security Requirement
+                <i class="fa-solid fa-shield-halved" style="color: #2e6652;"></i> Security Requirement
             </h2>
             <p style="font-size: 14px; color: #475569; margin-bottom: 24px; line-height: 1.6;">
                 Welcome to the student portal! For your security, you must change your default password before proceeding. You will be logged out and asked to sign in again after updating.
@@ -34,7 +42,7 @@
                     <input type="password" name="confirm_password" id="force_confirm_password" required placeholder="Re-enter new password" style="width: 100%; padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 6px; outline: none; font-size: 14px; box-sizing: border-box;">
                 </div>
                 
-                <button type="submit" name="change_student_password" style="width: 100%; background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); color: #fff; padding: 12px; border: none; border-radius: 6px; font-size: 15px; font-weight: 600; cursor: pointer; transition: all 0.2s ease;">
+                <button type="submit" name="change_password" style="width: 100%; background: linear-gradient(135deg, #2e6652 0%, #26294d 100%); color: #fff; padding: 12px; border: none; border-radius: 6px; font-size: 15px; font-weight: 600; cursor: pointer; transition: all 0.2s ease;">
                     <i class="fa-solid fa-key" style="margin-right: 6px;"></i> Update Password
                 </button>
             </form>
@@ -1047,7 +1055,7 @@
                     </div>
 
                     <div style="padding-left: 25%; text-align: left;">
-                        <button type="submit" name="change_student_password" class="btn-save-info"
+                        <button type="submit" name="change_password" class="btn-save-info"
                             style="background: linear-gradient(135deg, #2e6652 0%, #26294d 100%); padding: 12px 30px; font-size: 15px; border-radius: 4px;">Reset
                             Password</button>
                     </div>
@@ -1373,8 +1381,8 @@
 
             <div style="margin-top: 20px; text-align: right; display: flex; gap: 10px; justify-content: flex-end;">
                 <button type="button" class="btn-cancel" onclick="closeModal('letterModal')">Close</button>
-                <button type="button" class="btn-submit" style="margin-top: 0;" onclick="window.print()">
-                    <i class="fa-solid fa-print"></i> Print / Download PDF
+                <button type="button" class="btn-submit" style="margin-top: 0;" onclick="downloadPDF('#letterModal .letter-paper')">
+                    <i class="fa-solid fa-download"></i> Print / Download PDF
                 </button>
             </div>
         </div>
