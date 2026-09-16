@@ -1381,7 +1381,7 @@
 
             <div style="margin-top: 20px; text-align: right; display: flex; gap: 10px; justify-content: flex-end;">
                 <button type="button" class="btn-cancel" onclick="closeModal('letterModal')">Close</button>
-                <button type="button" class="btn-submit" style="margin-top: 0;" onclick="downloadPDF('#letterModal .letter-paper')">
+                <button type="button" class="btn-submit" style="margin-top: 0;" onclick="window.location.href='download_letter.php'">
                     <i class="fa-solid fa-download"></i> Print / Download PDF
                 </button>
             </div>

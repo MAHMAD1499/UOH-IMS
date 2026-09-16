@@ -1415,7 +1415,7 @@ foreach ($students as $stud) {
 
             <div style="margin-top: 20px; text-align: right; display: flex; gap: 10px; justify-content: flex-end;">
                 <button type="button" class="btn-cancel" onclick="closeModal('letterViewModal')">Close</button>
-                <button type="button" class="btn-submit" style="margin-top: 0;" onclick="downloadPDF('#letterViewModal .letter-paper')">
+                <button type="button" class="btn-submit" style="margin-top: 0;" onclick="window.location.href='download_letter.php?rollno=' + document.getElementById('let_student_rollno').innerText">
                     <i class="fa-solid fa-download"></i> Print / Download PDF
                 </button>
             </div>
