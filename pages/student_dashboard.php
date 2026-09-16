@@ -1,9 +1,31 @@
 <?php
 /**
- * Student Dashboard Controller & View
+ * Student Dashboard View (role = STD)
  * 
- * Handles the student interface for viewing academic details, downloading internship letters,
- * submitting placement details, and uploading reports.
+ * Renders the complete student-facing dashboard interface. This file is included
+ * by index.php (never accessed directly) and expects all data variables to be
+ * pre-loaded by the controller logic in index.php.
+ * 
+ * Tab sections rendered:
+ *   - TAB 0: Welcome Dashboard — quick actions, progress checklist, announcements
+ *   - TAB 1: Profile & Academic Info — personal details, semester, edit/save
+ *   - TAB 2: Internship Reports — Annexure-2 (Sec-A), Annexure-3 (Activity Log)
+ *   - TAB 3: Internship Letters — view/download approved recommendation letters
+ *   - TAB X: Faculty Supervisor — assigned supervisor contact details
+ *   - TAB Y: Site Supervisor — placement org & site supervisor details
+ *   - TAB Z: Change Password — password update form with validation
+ * 
+ * A forced password-change modal overlay is shown when $_SESSION['must_change_password']
+ * is set (i.e. the student hasn't changed their default password yet).
+ * 
+ * Expected globals (set by index.php):
+ *   $profile, $semesterDetail, $weeklyReports, $latestMarks, $placement,
+ *   $facultySupervisor, $activityLogs, $annexure2Logs, $fullReport,
+ *   $accountDetails, $flashMessage, $flashType, $rollno, $userId,
+ *   $studentFocalPerson, $conn
+ * 
+ * @file    student_dashboard.php
+ * @project Internship Management System (IMS) — University of Haripur
  */
 ?>
 <?php if (isset($_SESSION['must_change_password']) && $_SESSION['must_change_password'] === true): ?>
@@ -632,7 +654,7 @@
             <i class="fa-solid fa-table-list"></i> Annexure-3 (Activity Log)
         </button>
         <?php if ($allReportsFilled): ?>
-            <a href="report_download.php" target="_blank" class="btn-primary-action" id="btn-download-report"
+            <a href="downloads/report_download.php" target="_blank" class="btn-primary-action" id="btn-download-report"
                 style="background: linear-gradient(135deg, #065f46 0%, #047857 100%); text-decoration: none;">
                 <i class="fa-solid fa-file-arrow-down"></i> Download Full Report
             </a>
@@ -1300,7 +1322,7 @@
                 style="padding: 40px; font-family: 'Times New Roman', Times, serif; color: #000; background: #fff; max-width: 800px; margin: 0 auto; line-height: 1.6;">
                 <div style="display: flex; align-items: center; margin-bottom: 20px;">
                     <div style="flex-shrink: 0; width: 140px; text-align: left;">
-                        <img src="assets/img/uoh%20logo%203.png" alt="UoH Logo"
+                        <img src="assets/img/uoh_logo.png" alt="UoH Logo"
                             style="width: 80px; height: 80px; object-fit: contain;">
                     </div>
                     <div style="flex-grow: 1; text-align: center; margin-left: -50px;">
@@ -1381,8 +1403,8 @@
 
             <div style="margin-top: 20px; text-align: right; display: flex; gap: 10px; justify-content: flex-end;">
                 <button type="button" class="btn-cancel" onclick="closeModal('letterModal')">Close</button>
-                <button type="button" class="btn-submit" style="margin-top: 0;" onclick="window.location.href='download_letter.php'">
-                    <i class="fa-solid fa-download"></i> Print / Download PDF
+                <button type="button" class="btn-submit" style="margin-top: 0;" onclick="window.location.href='downloads/download_letter.php'">
+                    <i class="fa-solid fa-download"></i> Download PDF
                 </button>
             </div>
         </div>

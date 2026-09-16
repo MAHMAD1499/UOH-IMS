@@ -1,3 +1,38 @@
+/**
+ * Main Application Stylesheet
+ * 
+ * Core styles for all authenticated pages of the Internship Management System.
+ * Applied via includes/header.php to every dashboard view (student, focal, faculty).
+ * 
+ * Design system:
+ *   --color2 (#26294d) — Dark navy (primary brand colour, sidebar, headers)
+ *   --color3 (#2e6652) — Deep teal (accent colour, buttons, gradients)
+ * 
+ * Layout architecture:
+ *   .sidebar        — Fixed left-hand navigation (collapsible on desktop, overlay on mobile)
+ *   .main-wrapper   — Right-side content area that flexes around the sidebar
+ *   .top-navbar     — Sticky top bar with welcome text and logout
+ *   .content-area   — Scrollable container for dashboard tab content
+ * 
+ * Component styles:
+ *   .card / .card-header / .card-body — Reusable card containers
+ *   .custom-table                     — Styled data tables
+ *   .btn-primary-action / .btn-save-info — Action buttons with gradient backgrounds
+ *   .modal-overlay / .modal-content   — Centered modal dialogs
+ *   .badge-status                     — Coloured status badges (approved, pending, etc.)
+ *   .welcome-banner                   — Dashboard welcome hero section
+ *   .dashboard-grid                   — Two-column quick-actions layout
+ *   .ticker-wrap                      — Auto-scrolling announcements ticker
+ * 
+ * Responsive breakpoints:
+ *   ≤ 992px — Sidebar switches to mobile overlay mode
+ *   ≤ 768px — Tables, grids, and modals adapt to smaller screens
+ * 
+ * @file    assets/css/style.css
+ * @project Internship Management System (IMS) — University of Haripur
+ */
+
+/* ── CSS Custom Properties (Design Tokens) ──────────────────────────────── */
 :root {
     --color2: #26294d;
     --color3: #2e6652;

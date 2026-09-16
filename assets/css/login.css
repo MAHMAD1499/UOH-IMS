@@ -1,3 +1,29 @@
+/**
+ * Login Page Stylesheet
+ * 
+ * Styles for the login page of the Internship Management System.
+ * 
+ * Design system:
+ *   --color2 (#26294d)  — Dark navy (primary brand colour)
+ *   --color3 (#2e6652)  — Deep teal (accent colour)
+ *   --bg-gradient       — 45° gradient of the two brand colours (page background)
+ *   --btn-gradient      — Same gradient applied to the submit button
+ *   --input-border      — Slate border for input fields
+ *   --accent-color      — Teal accent used for focus rings
+ * 
+ * Layout:
+ *   .login-shell        — Outer card container (max-width: 450px, centred)
+ *   .login-card-header  — UOH logo and accent border strip
+ *   .login-card-body    — Form area with role selector, username, password, reCAPTCHA
+ *   .input-group        — Input field with a left-aligned icon prefix
+ *   .btn-login          — Full-width submit button with gradient background
+ *   .error-message      — Red alert box for validation / authentication errors
+ * 
+ * @file    assets/css/login.css
+ * @project Internship Management System (IMS) — University of Haripur
+ */
+
+/* ── CSS Custom Properties (Design Tokens) ──────────────────────────────── */
 :root {
     --color2: #26294d;
     --color3: #2e6652;

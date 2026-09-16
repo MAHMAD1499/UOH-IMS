@@ -1,20 +1,35 @@
 <?php
+/**
+ * Internship Report Download Page (Printable Annexures)
+ * 
+ * Renders a print-optimised view of the student's internship reports that can
+ * be printed or saved as a PDF from the browser. Contains two A4 pages:
+ *   - Page 1: Annexure-2 (Section A) — Comprehensive Student Internship Report Form
+ *   - Page 2: Annexure-3 — Student Internship Activity Log (4 biweekly entries)
+ * 
+ * Access: Students only (user_type = 'STD'). Redirects to login if not authenticated.
+ * 
+ * Uses a dedicated print stylesheet (assets/css/print_report.css) for A4 page layout.
+ * 
+ * @file    report_download.php
+ * @project Internship Management System (IMS) — University of Haripur
+ */
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-// Auth check
+/* ── Authentication & Role Guard ─────────────────────────────────────── */
 if (!isset($_SESSION['user_id']) || ($_SESSION['user_type'] ?? '') !== 'STD') {
-    header('Location: login.php');
+    header('Location: ../auth/login.php');
     exit;
 }
 
-require __DIR__ . '/includes/db.php';
+require __DIR__ . '/../config/db.php';
 
 $rollno = (string)($_SESSION['username'] ?? '');
 $userId = (int)($_SESSION['user_id'] ?? 0);
 
-// ── Fetch all student data ─────────────────────────────────────────────────
+/* ── Fetch all student data from multiple tables ────────────────────── */
 $profile = ['name' => '', 'fname' => '', 'cnic' => '', 'cell_no' => '', 'email' => '', 'address' => '', 'city' => '', 'dob' => ''];
 $stmt = mysqli_prepare($conn, 'SELECT * FROM user_profile WHERE u_id = ? LIMIT 1');
 if ($stmt) {
@@ -95,7 +110,7 @@ if ($stmt) {
     mysqli_stmt_close($stmt);
 }
 
-// Compute effective fields
+/* ── Compute effective display fields for the report ─────────────────── */
 $internshipTitle = $fullReport['internship_title_custom'] ?: $placement['internship_title'] ?: 'N/A';
 $internshipDuration = $fullReport['internship_duration_custom'] ?: ($placement['duration_weeks'] ? $placement['duration_weeks'] . ' Weeks' : 'N/A');
 $startDate = $fullReport['internship_start_date'] ? date('M d, Y', strtotime($fullReport['internship_start_date'])) : 'N/A';

@@ -1,9 +1,32 @@
 <?php
+/**
+ * Focal Person Dashboard View (role = FP)
+ * 
+ * Renders the Focal Person's management interface. This file is included by
+ * index.php (never accessed directly) and provides:
+ * 
+ * Features:
+ *   - Dashboard overview with student statistics and announcements
+ *   - Focal Person profile management (view/edit personal details)
+ *   - Registered students listing with assignment filters (all/assigned/unassigned)
+ *   - Faculty Supervisor assignment to students
+ *   - Internship letter approval and preview for students
+ *   - Student details modal with full profile, placement, and report info
+ *   - Password change functionality
+ *   - Announcement creation and management
+ * 
+ * Expected globals (set by index.php):
+ *   $conn, $_SESSION['user_id'], $_SESSION['user_type'], $_SESSION['username'],
+ *   $flashMessage, $flashType, $accountDetails
+ * 
+ * @file    focal_dashboard.php
+ * @project Internship Management System (IMS) — University of Haripur
+ */
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-require_once __DIR__ . '/includes/db.php';
+require_once __DIR__ . '/../config/db.php';
 
 // Fetch Focal Person details from users table
 $fpUserId = (int) ($_SESSION['user_id'] ?? 21);
@@ -552,26 +575,29 @@ foreach ($students as $stud) {
                             <div
                                 style="padding-bottom: 15px; margin-bottom: 15px; border-bottom: 1px solid #e2e8f0; position: relative;">
                                 <div
-                                    style="display: flex; justify-content: space-between; font-size: 12px; color: #64748b; margin-bottom: 6px;">
+                                    style="display: flex; justify-content: space-between; align-items: center; font-size: 12px; color: #64748b; margin-bottom: 6px;">
                                     <span><i class="fa-solid fa-user-tie"></i>
                                         <?php echo htmlspecialchars($ann['created_by']); ?></span>
-                                    <span><?php echo date('M d, Y', strtotime($ann['created_at'])); ?></span>
+                                    <div style="display: flex; align-items: center; gap: 12px;">
+                                        <span><?php echo date('M d, Y', strtotime($ann['created_at'])); ?></span>
+                                        <form action="" method="POST" style="margin: 0;"
+                                            onsubmit="return confirm('Are you sure you want to delete this announcement?');">
+                                            <input type="hidden" name="announcement_id" value="<?php echo $ann['id']; ?>">
+                                            <button type="submit" name="delete_announcement"
+                                                style="background: #fee2e2; border: 1px solid #fecaca; color: #ef4444; cursor: pointer; font-size: 12px; padding: 4px 8px; border-radius: 4px; display: inline-flex; align-items: center; gap: 4px; transition: all 0.2s ease;"
+                                                title="Delete Announcement"
+                                                onmouseover="this.style.background='#fecaca'; this.style.borderColor='#f87171'" 
+                                                onmouseout="this.style.background='#fee2e2'; this.style.borderColor='#fecaca'">
+                                                <i class="fa-solid fa-trash-can"></i> Delete
+                                            </button>
+                                        </form>
+                                    </div>
                                 </div>
                                 <h4
-                                    style="font-size: 15px; font-weight: 600; color: #1e293b; margin-bottom: 4px; padding-right: 30px;">
+                                    style="font-size: 15px; font-weight: 600; color: #1e293b; margin-bottom: 4px;">
                                     <?php echo htmlspecialchars($ann['title']); ?></h4>
                                 <p style="font-size: 13.5px; color: #334155; line-height: 1.5; margin-bottom: 8px;">
                                     <?php echo nl2br(htmlspecialchars($ann['content'])); ?></p>
-
-                                <form action="" method="POST" style="position: absolute; right: 0; top: 0;"
-                                    onsubmit="return confirm('Are you sure you want to delete this announcement?');">
-                                    <input type="hidden" name="announcement_id" value="<?php echo $ann['id']; ?>">
-                                    <button type="submit" name="delete_announcement"
-                                        style="background: none; border: none; color: #ef4444; cursor: pointer; font-size: 14px;"
-                                        title="Delete Announcement">
-                                        <i class="fa-solid fa-trash-can"></i>
-                                    </button>
-                                </form>
                             </div>
                         <?php endforeach; ?>
                     <?php endif; ?>
@@ -784,8 +810,18 @@ foreach ($students as $stud) {
 <!-- ========================================== -->
 <div id="focal-dashboard" class="tab-content">
 
-    <!-- Add Student Button top-right (unattached from Registered Students List tab/card) -->
-    <div style="display: flex; justify-content: flex-end; margin-bottom: 15px;">
+    <!-- Add Student and Bulk Actions Button top-right -->
+    <div style="display: flex; justify-content: flex-end; margin-bottom: 15px; gap: 10px; align-items: center;">
+        <button type="button" id="toggleBulkSelectionBtn" class="btn-primary-action" data-active="false"
+            onclick="toggleBulkSelectionMode()"
+            style="display: inline-flex; padding: 8px 16px; font-size: 13px; margin: 0; background: linear-gradient(135deg, #475569 0%, #334155 100%); cursor: pointer;">
+            <i class="fa-solid fa-list-check"></i> Bulk Selection
+        </button>
+        <button type="button" id="bulkAssignBtn" class="btn-primary-action" disabled
+            onclick="openBulkAssignModal()"
+            style="display: none; padding: 8px 16px; font-size: 13px; margin: 0; background: linear-gradient(135deg, #10b981 0%, #059669 100%); opacity: 0.6; cursor: not-allowed; align-items: center; gap: 4px;">
+            <i class="fa-solid fa-users"></i> Assign Selected (<span id="bulkCount">0</span>/30)
+        </button>
         <button class="btn-primary-action" onclick="openModal('addStudentModal');"
             style="padding: 8px 16px; font-size: 13px; margin: 0; background: linear-gradient(135deg, #10b981 0%, #059669 100%);">
             <i class="fa-solid fa-user-plus"></i> Add Student
@@ -798,19 +834,9 @@ foreach ($students as $stud) {
             style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
             <span style="white-space: nowrap;"><i class="fa-solid fa-users"></i> Registered Students List</span>
             <div style="display: flex; align-items: center; flex-wrap: wrap; gap: 12px;">
-                <!-- Bulk Assign and Session Filter -->
+                <!-- Session Filter and Search -->
                 <div style="display: flex; align-items: center; flex-wrap: wrap; gap: 8px;">
                     <input type="text" id="rollno-search" placeholder="Search by Roll No..." onkeyup="filterByRollNo(this.value);" style="padding: 4px 8px; font-size: 13px; border-radius: 4px; border: 1px solid #cbd5e1; outline: none; margin-right: 10px; width: 160px;">
-                    <button type="button" id="toggleBulkSelectionBtn" class="btn-primary-action" data-active="false"
-                        onclick="toggleBulkSelectionMode()"
-                        style="display: none; padding: 6px 12px; font-size: 13px; margin: 0; background: linear-gradient(135deg, #475569 0%, #334155 100%); cursor: pointer;">
-                        <i class="fa-solid fa-list-check"></i> Bulk Selection
-                    </button>
-                    <button type="button" id="bulkAssignBtn" class="btn-primary-action" disabled
-                        onclick="openBulkAssignModal()"
-                        style="display: none; padding: 6px 12px; font-size: 13px; margin: 0; background: linear-gradient(135deg, #10b981 0%, #059669 100%); opacity: 0.6; cursor: not-allowed; align-items: center; gap: 4px;">
-                        <i class="fa-solid fa-users"></i> Assign Selected (<span id="bulkCount">0</span>/30)
-                    </button>
                     <label for="session-filter-dropdown"
                         style="font-size: 13px; font-weight: bold; color: #fff; white-space: nowrap;">Session:</label>
                     <select id="session-filter-dropdown" onchange="filterSession(this.value);"
@@ -1269,9 +1295,13 @@ foreach ($students as $stud) {
                         style="width: 100%; margin-top: 5px;">
                         <option value="">-- Select Supervisor --</option>
                         <?php foreach ($supervisors as $supervisor): ?>
-                            <option value="<?php echo $supervisor['u_id']; ?>">
+                            <?php
+                            $supId = $supervisor['u_id'];
+                            $count = isset($supervisorCounts[$supId]) ? $supervisorCounts[$supId] : 0;
+                            ?>
+                            <option value="<?php echo $supId; ?>">
                                 <?php echo htmlspecialchars($supervisor['name'] ?: $supervisor['u_name']); ?> (Faculty
-                                Supervisor)
+                                Supervisor) [<?php echo $count; ?> Assigned]
                             </option>
                         <?php endforeach; ?>
                     </select>
@@ -1311,9 +1341,13 @@ foreach ($students as $stud) {
                         style="width: 100%; margin-top: 5px;">
                         <option value="">-- Select Supervisor --</option>
                         <?php foreach ($supervisors as $supervisor): ?>
-                            <option value="<?php echo $supervisor['u_id']; ?>">
+                            <?php
+                            $supId = $supervisor['u_id'];
+                            $count = isset($supervisorCounts[$supId]) ? $supervisorCounts[$supId] : 0;
+                            ?>
+                            <option value="<?php echo $supId; ?>">
                                 <?php echo htmlspecialchars($supervisor['name'] ?: $supervisor['u_name']); ?> (Faculty
-                                Supervisor)
+                                Supervisor) [<?php echo $count; ?> Assigned]
                             </option>
                         <?php endforeach; ?>
                     </select>
@@ -1344,7 +1378,7 @@ foreach ($students as $stud) {
                 style="padding: 40px; font-family: 'Times New Roman', Times, serif; color: #000; background: #fff; max-width: 800px; margin: 0 auto; line-height: 1.6;">
                 <div style="display: flex; align-items: center; margin-bottom: 20px;">
                     <div style="flex-shrink: 0; width: 140px; text-align: left;">
-                        <img src="assets/img/uoh%20logo%202.svg" alt="UoH Logo"
+                        <img src="assets/img/uoh_logo.png" alt="UoH Logo"
                             style="width: 80px; height: 80px; object-fit: contain;">
                     </div>
                     <div style="flex-grow: 1; text-align: center; margin-left: -50px;">
@@ -1415,8 +1449,8 @@ foreach ($students as $stud) {
 
             <div style="margin-top: 20px; text-align: right; display: flex; gap: 10px; justify-content: flex-end;">
                 <button type="button" class="btn-cancel" onclick="closeModal('letterViewModal')">Close</button>
-                <button type="button" class="btn-submit" style="margin-top: 0;" onclick="window.location.href='download_letter.php?rollno=' + document.getElementById('let_student_rollno').innerText">
-                    <i class="fa-solid fa-download"></i> Print / Download PDF
+                <button type="button" class="btn-submit" style="margin-top: 0;" onclick="window.location.href='downloads/download_letter.php?rollno=' + document.getElementById('let_student_rollno').innerText">
+                    <i class="fa-solid fa-download"></i> Download PDF
                 </button>
             </div>
         </div>

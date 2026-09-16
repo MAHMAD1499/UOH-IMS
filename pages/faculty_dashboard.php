@@ -1,13 +1,35 @@
 <?php
+/**
+ * Faculty Supervisor Dashboard View (role = FSP)
+ * 
+ * Renders the Faculty Supervisor's interface. This file is included by
+ * index.php (never accessed directly) and provides:
+ * 
+ * Features:
+ *   - Dashboard overview with assigned student statistics
+ *   - Faculty Supervisor profile management (view/edit personal details)
+ *   - Assigned students listing with academic and placement details
+ *   - Weekly reports review — view, provide feedback, and mark status
+ *   - Marks evaluation — grade students on their internship performance
+ *   - Student detail modals for comprehensive progress tracking
+ *   - Password change functionality
+ * 
+ * Expected globals (set by index.php):
+ *   $conn, $_SESSION['user_id'], $_SESSION['user_type'], $_SESSION['username'],
+ *   $flashMessage, $flashType, $accountDetails
+ * 
+ * @file    faculty_dashboard.php
+ * @project Internship Management System (IMS) — University of Haripur
+ */
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-require_once __DIR__ . '/includes/db.php';
+require_once __DIR__ . '/../config/db.php';
 
 // Ensure user is logged in as Faculty Supervisor (FSP)
 if (!isset($_SESSION['user_type']) || $_SESSION['user_type'] !== 'FSP') {
-    header('Location: login.php');
+    header('Location: ../auth/login.php');
     exit;
 }
 

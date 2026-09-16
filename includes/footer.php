@@ -1,11 +1,39 @@
-</div> <!-- End of content-area -->
+<!--
+  Footer Partial — Layout Shell (Closing Tags) + Client-Side Navigation Logic
+
+  This file:
+    1. Closes the .content-area and .main-wrapper containers opened by header.php.
+    2. Renders the page footer with copyright text.
+    3. Contains all JavaScript functions that power the single-page tab navigation:
+         • toggleSidebarDropdown() — expands/collapses sidebar dropdown menus
+         • switchTab()             — activates a tab and saves state to localStorage
+         • switchToProfileTab()    — shortcut to jump to the profile tab for any role
+         • DOMContentLoaded        — restores the last active tab on page load
+         • Sidebar toggle          — handles mobile and desktop sidebar show/hide
+         • downloadPDF()           — client-side PDF generation via html2pdf.js
+
+  @file    includes/footer.php
+  @project Internship Management System (IMS) — University of Haripur
+-->
+
+</div> <!-- End of .content-area (opened in header.php) -->
+
+<!-- ── Page Footer ─────────────────────────────────────────────────────── -->
 <footer
-    style="background: linear-gradient(90deg, var(--color2), var(--color3)); color: rgba(255,255,255,0.9); padding: 12px 24px; text-align: center; font-size: 13px; font-weight: 500; flex-shrink: 0; box-shadow: 0 -2px 10px rgba(0,0,0,0.05); letter-spacing: 0.3px;">
+    style="background: linear-gradient(90deg, var(--color3), var(--color2)); color: rgba(255,255,255,0.9); padding: 12px 24px; text-align: center; font-size: 13px; font-weight: 500; flex-shrink: 0; box-shadow: 0 -2px 10px rgba(0,0,0,0.05); letter-spacing: 0.3px;">
     Copyright &copy; 2023 The University of Haripur. All rights reserved.
 </footer>
-</div> <!-- End of main-wrapper -->
+</div> <!-- End of .main-wrapper (opened in header.php) -->
 
+<!-- ══════════════════════════════════════════════════════════════════════ -->
+<!--  CLIENT-SIDE NAVIGATION & UI LOGIC                                  -->
+<!-- ══════════════════════════════════════════════════════════════════════ -->
 <script>
+    /**
+     * Toggle a sidebar dropdown menu open/closed.
+     * Flips the chevron icon direction accordingly.
+     * @param {string} dropdownId — The DOM id of the <ul class="nav-dropdown"> to toggle.
+     */
     function toggleSidebarDropdown(dropdownId) {
         const dropdown = document.getElementById(dropdownId);
         if (!dropdown) return;
@@ -25,6 +53,13 @@
         }
     }
 
+    /**
+     * Switch the visible dashboard tab and update the sidebar active states.
+     * Persists the active tab ID and nav index into localStorage so the state
+     * survives page reloads.
+     * @param {string}      tabId   — The DOM id of the tab-content to activate.
+     * @param {HTMLElement}  element — The sidebar nav-item / nav-subitem that was clicked.
+     */
     function switchTab(tabId, element) {
         const tabs = document.querySelectorAll('.tab-content');
         tabs.forEach(tab => tab.classList.remove('active'));
@@ -67,6 +102,11 @@
         }
     }
 
+    /**
+     * Quick-navigate to the profile tab for whichever role is currently active.
+     * Detects the role by checking which profile tab element exists in the DOM.
+     * Also opens the corresponding profile dropdown and highlights the correct sub-item.
+     */
     function switchToProfileTab() {
         const tabs = document.querySelectorAll('.tab-content');
         tabs.forEach(tab => tab.classList.remove('active'));
@@ -127,7 +167,11 @@
         }
     }
 
-    // Restore active tab and nav items on load
+    /**
+     * DOMContentLoaded — Restore the previously active tab and nav item.
+     * Reads 'activeTab' and 'activeNavIndex' from localStorage and re-applies
+     * the active classes so the user returns to the same view after a reload.
+     */
     document.addEventListener("DOMContentLoaded", function () {
         const savedTab = localStorage.getItem('activeTab');
         const savedNavIndex = localStorage.getItem('activeNavIndex');
@@ -175,6 +219,7 @@
         }
     });
 
+    /* ── Sidebar Collapse / Mobile Toggle ──────────────────────────────── */
     const sidebarToggle = document.getElementById('sidebarToggle');
     const sidebar = document.querySelector('.sidebar');
     
@@ -203,7 +248,12 @@
         });
     }
 
-    // PDF Download function using html2pdf
+    /**
+     * Generate and download a PDF from a DOM element using the html2pdf.js library.
+     * Temporarily strips box-shadow for cleaner rendering.
+     * @param {string} elementSelector — CSS selector for the element to convert to PDF.
+     * @param {string} filename        — The suggested download filename.
+     */
     function downloadPDF(elementSelector, filename = 'Internship_Letter.pdf') {
         const element = document.querySelector(elementSelector);
         if (!element) return;

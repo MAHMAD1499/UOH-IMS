@@ -5,11 +5,11 @@ if (session_status() === PHP_SESSION_NONE) {
 }
 
 if (!isset($_SESSION['user_id'])) {
-    header('Location: login.php');
+    header('Location: auth/login.php');
     exit;
 }
 
-require __DIR__ . '/includes/db.php';
+require __DIR__ . '/config/db.php';
 
 $role = $_SESSION['user_type'] ?? 'STD';
 $rollno = (string) ($_SESSION['username'] ?? '');
@@ -78,9 +78,9 @@ function handleProfileImageUpload(array $file): ?string {
     $allowed = ['jpg', 'jpeg', 'png', 'gif'];
     if (!in_array($ext, $allowed)) return null;
     $filename = uniqid('profile_', true) . '.' . $ext;
-    $dest = __DIR__ . '/uploads/profile_pictures/' . $filename;
+    $dest = __DIR__ . '/storage/profile_pictures/' . $filename;
     if (move_uploaded_file($file['tmp_name'], $dest)) {
-        return 'uploads/profile_pictures/' . $filename;
+        return 'storage/profile_pictures/' . $filename;
     }
     return null;
 }
@@ -152,7 +152,7 @@ if (isset($_POST['change_password'])) {
                     session_start();
                     $_SESSION['flash_message'] = 'Password updated successfully. Please login again with your new password.';
                     $_SESSION['flash_type'] = 'success';
-                    header('Location: login.php');
+                    header('Location: auth/login.php');
                     exit;
                 } else {
                     redirectWithFlash('Database error while updating password.', 'error');
@@ -828,11 +828,11 @@ if ($role === 'STD') {
 
 <?php
 if ($role === 'STD') {
-    include 'student_dashboard.php';
+    include 'pages/student_dashboard.php';
 } elseif ($role === 'FP') {
-    include 'focal_dashboard.php';
+    include 'pages/focal_dashboard.php';
 } elseif ($role === 'FSP') {
-    include 'faculty_dashboard.php';
+    include 'pages/faculty_dashboard.php';
 }
 ?>
 

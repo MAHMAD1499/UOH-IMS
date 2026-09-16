@@ -1,3 +1,31 @@
+/**
+ * Print Report Stylesheet
+ * 
+ * Provides A4-optimised, print-friendly styles for the Annexure-2 and
+ * Annexure-3 internship report pages (report_download.php).
+ * 
+ * Layout:
+ *   .report-page            — A4-sized page container with white background
+ *   .report-page-bordered   — Variant with a visible border for printing
+ *   .pdf-header             — University letterhead (department, contact info)
+ *   .annex-title            — Annexure number heading
+ *   .main-title             — Report form title
+ *   .details-grid           — Two-column label-value pairs for student info
+ *   .form-section           — Bordered content area for report narratives
+ *   .pdf-table              — Activity log table with structured rows
+ *   .signatures             — Signature block with lined spaces
+ *   .page-footer            — Policy reference and page number
+ *   .print-bar              — On-screen toolbar with Print and Back buttons
+ *                             (hidden in @media print)
+ * 
+ * Print behaviour:
+ *   @media print removes the toolbar and adjusts margins for clean A4 output.
+ * 
+ * @file    assets/css/print_report.css
+ * @project Internship Management System (IMS) — University of Haripur
+ */
+
+/* ── Base Reset ─────────────────────────────────────────────────────────── */
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body {
             font-family: 'Times New Roman', Times, serif;

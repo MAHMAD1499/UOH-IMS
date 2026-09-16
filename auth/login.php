@@ -4,15 +4,28 @@
  * 
  * Handles user authentication, reCAPTCHA verification, and role-based routing 
  * for Students, Focal Persons, and Faculty Supervisors.
+ * 
+ * Supported user types:
+ *   - STD (Student)           — username format: e.g. S23-1234
+ *   - FP  (Focal Person)      — username format: FP-0001
+ *   - FSP (Faculty Supervisor) — username format: FSP-0001
+ * 
+ * On successful login the user is redirected to index.php which routes
+ * them to the appropriate role-specific dashboard. If a student's password
+ * still matches their roll number (default password), a forced password-change
+ * flag is set in the session.
+ * 
+ * @file    login.php
+ * @project Internship Management System (IMS) — University of Haripur
  */
 session_start();
 
-require __DIR__ . '/includes/db.php';
+require __DIR__ . '/../config/db.php';
 
 $loginError = '';
 
 if (isset($_SESSION['user_id'])) {
-    header('Location: index.php');
+    header('Location: ../index.php');
     exit;
 }
 
@@ -93,7 +106,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             }
                         }
 
-                        header('Location: index.php');
+                        header('Location: ../index.php');
                         exit;
                     }
                 }
@@ -131,7 +144,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <!-- Login Card Container -->
         <div class="login-card">
             <div class="login-card-header">
-                <img src="assets/img/uoh logo.svg" alt="UOH Logo" class="login-logo">
+                <img src="assets/img/internship_management_system.svg" alt="UOH Logo" class="login-logo">
             </div>
             <div class="login-card-body">
                 <form action="" method="POST" onsubmit="return validateLoginForm();">

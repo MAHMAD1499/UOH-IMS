@@ -1,12 +1,35 @@
 <?php
+/**
+ * Internship Letter PDF Generator
+ * 
+ * Generates an official A4 internship recommendation letter as a downloadable PDF.
+ * Uses the mPDF library to convert an HTML template (with university letterhead,
+ * student details, and focal person signature) into a PDF document.
+ * 
+ * Access control:
+ *   - Students (STD) can only download their own letter after Focal Person approval.
+ *   - Focal Persons (FP) and Faculty Supervisors (FSP) can download any student's
+ *     letter by providing ?rollno=<roll_number> in the query string.
+ * 
+ * A "DRAFT" watermark is applied when the letter has NOT yet been approved.
+ * 
+ * Dependencies:
+ *   - includes/db.php       — Database connection
+ *   - vendor/autoload.php   — Composer autoloader (loads mPDF)
+ * 
+ * @file    download_letter.php
+ * @project Internship Management System (IMS) — University of Haripur
+ */
 session_start();
 
+/* ── Authentication Guard ─────────────────────────────────────────────── */
 if (!isset($_SESSION['user_id'])) {
-    header('Location: login.php');
+    header('Location: ../auth/login.php');
     exit;
 }
 
-require __DIR__ . '/includes/db.php';
+/* ── Dependencies ─────────────────────────────────────────────────────── */
+require __DIR__ . '/../config/db.php';
 require_once __DIR__ . '/vendor/autoload.php';
 
 $role = $_SESSION['user_type'] ?? 'STD';
@@ -22,6 +45,7 @@ if ($role === 'STD') {
     }
 }
 
+/* ── Fetch Student Profile (name, father name, etc.) ─────────────────── */
 $profile = [
     'name' => '',
     'fname' => '',
@@ -38,6 +62,7 @@ if ($profileStmt) {
     mysqli_stmt_close($profileStmt);
 }
 
+/* ── Fetch Student Semester/Academic Details ──────────────────────────── */
 $semesterDetail = [
     'session' => '',
     'department' => '',
@@ -83,8 +108,8 @@ if ($fpStmt) {
     mysqli_stmt_close($fpStmt);
 }
 
-// --- Validations ---
-// 1. Completeness Check
+/* ── Validations ──────────────────────────────────────────────────────── */
+/* 1. Completeness Check — student name and program must be filled in */
 if (empty(trim($profile['name'] ?? '')) || empty(trim($semesterDetail['program'] ?? ''))) {
     die('<div style="font-family: sans-serif; padding: 20px; color: red; border: 1px solid red; background: #fff1f1; border-radius: 5px; max-width: 500px; margin: 50px auto; line-height: 1.5;"><strong>Error:</strong> Your profile or academic details are incomplete. Please update your full name and program details in the dashboard before downloading the letter. <br><br><a href="javascript:history.back()" style="color: blue; text-decoration: none;">&larr; Go Back</a></div>');
 }
@@ -96,6 +121,7 @@ if ($role === 'STD' && !$isApproved) {
 }
 // -------------------
 
+/* ── Prepare display values for the letter template ───────────────────── */
 $progFull = htmlspecialchars($semesterDetail['program'] ?: 'Bachelor of Science in Artificial Intelligence');
 $progShort = str_replace(['Bachelor of Science in ', 'Bachelor of Science '], ['BS ', 'BS '], $progFull);
 $sessionParts = explode(' ', $semesterDetail['session'] ?? 'Summer / Fall / Spring');
@@ -110,9 +136,10 @@ $focalName = htmlspecialchars($studentFocalPerson['full_name']);
 $focalEmail = htmlspecialchars($studentFocalPerson['email']);
 
 // Get absolute path to logo
-$logoPath = __DIR__ . '/assets/img/uoh logo 3.png';
-$logoSrc = file_exists($logoPath) ? $logoPath : 'assets/img/uoh%20logo%203.png';
+$logoPath = __DIR__ . '/assets/img/uoh_logo.png';
+$logoSrc = file_exists($logoPath) ? $logoPath : 'assets/img/uoh_logo.png';
 
+/* ── Build the HTML template for the PDF letter ──────────────────────── */
 $html = <<<HTML
 <div style="font-family: 'Times New Roman', Times, serif; color: #000; line-height: 1.6; padding: 20px;">
     
@@ -180,6 +207,7 @@ $html = <<<HTML
 </div>
 HTML;
 
+/* ── Generate the PDF using mPDF and send it as a download ───────────── */
 try {
     $mpdf = new \Mpdf\Mpdf([
         'margin_left' => 15,
