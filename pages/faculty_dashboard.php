@@ -561,72 +561,114 @@ foreach ($assignedStudents as $student) {
             <hr class="profile-divider">
             <div class="sidebar-info-text"><?php echo htmlspecialchars($fspUsername); ?></div>
 
-            <hr class="profile-divider">
-            <div class="cred-label">Official Email</div>
-            <div class="cred-val">
-                <?php echo htmlspecialchars($supervisor['email'] ?: 'supervisor@uoh.edu.pk'); ?>
-            </div>
+
         </div>
 
         <!-- RIGHT COLUMN: Information Card / Form -->
         <div class="student-profile-main">
             <div class="info-card-header">Profile Information</div>
             <div class="info-card-body">
-                <form action="" method="POST" enctype="multipart/form-data">
-                    <div class="info-row">
-                        <label class="info-label" for="profile_image">Profile Picture</label>
-                        <div class="info-value">
-                            <input type="file" id="profile_image" name="profile_image" accept="image/*" class="info-input-field" style="background-color: #ffffff;">
-                        </div>
+                <div class="info-row">
+                    <label class="info-label">Full Name & Title</label>
+                    <div class="info-value">
+                        <input type="text" value="<?php echo htmlspecialchars($supervisor['full_name'] ?? ''); ?>" readonly class="info-input-field">
                     </div>
+                </div>
 
-                    <div class="info-row">
-                        <label class="info-label" for="full_name">Full Name & Title</label>
-                        <div class="info-value">
-                            <input type="text" id="full_name" name="full_name" value="<?php echo htmlspecialchars($supervisor['full_name'] ?? ''); ?>" class="info-input-field" style="background-color: #ffffff;">
-                        </div>
+                <div class="info-row">
+                    <label class="info-label">Designation</label>
+                    <div class="info-value">
+                        <input type="text" value="<?php echo htmlspecialchars($supervisor['designation'] ?? ''); ?>" readonly class="info-input-field">
                     </div>
+                </div>
 
-                    <div class="info-row">
-                        <label class="info-label" for="designation">Designation</label>
-                        <div class="info-value">
-                            <input type="text" id="designation" name="designation" value="<?php echo htmlspecialchars($supervisor['designation'] ?? ''); ?>" class="info-input-field" style="background-color: #ffffff;">
-                        </div>
+                <div class="info-row">
+                    <label class="info-label">Department/Division</label>
+                    <div class="info-value">
+                        <input type="text" value="Department of IT / CS" readonly class="info-input-field">
                     </div>
+                </div>
 
-                    <div class="info-row">
-                        <label class="info-label">Department/Division</label>
-                        <div class="info-value">
-                            <input type="text" value="Department of IT / CS" readonly class="info-input-field">
-                        </div>
+                <div class="info-row">
+                    <label class="info-label">Email Address</label>
+                    <div class="info-value">
+                        <input type="text" value="<?php echo htmlspecialchars($supervisor['email'] ?? ''); ?>" readonly class="info-input-field">
                     </div>
+                </div>
 
-                    <div class="info-row">
-                        <label class="info-label" for="email">Email Address</label>
-                        <div class="info-value">
-                            <input type="email" id="email" name="email" value="<?php echo htmlspecialchars($supervisor['email'] ?? ''); ?>" class="info-input-field" style="background-color: #ffffff;">
-                        </div>
+                <div class="info-row">
+                    <label class="info-label">Phone Number</label>
+                    <div class="info-value">
+                        <input type="text" value="<?php echo htmlspecialchars($supervisor['phone'] ?? ''); ?>" readonly class="info-input-field">
                     </div>
+                </div>
+                
+                <div class="info-row">
+                    <label class="info-label">Office Location</label>
+                    <div class="info-value">
+                        <input type="text" value="Office # 202, Academic Block" readonly class="info-input-field">
+                    </div>
+                </div>
 
-                    <div class="info-row">
-                        <label class="info-label" for="phone">Phone Number</label>
-                        <div class="info-value">
-                            <input type="text" id="phone" name="phone" value="<?php echo htmlspecialchars($supervisor['phone'] ?? ''); ?>" class="info-input-field" style="background-color: #ffffff;">
-                        </div>
-                    </div>
-                    
-                    <div class="info-row">
-                        <label class="info-label">Office Location</label>
-                        <div class="info-value">
-                            <input type="text" value="Office # 202, Academic Block" readonly class="info-input-field">
-                        </div>
-                    </div>
-
-                    <div style="text-align: right; margin-top: 20px;">
-                        <button type="submit" name="save_fsp_profile" class="btn-save-info" style="background: linear-gradient(135deg, #2e6652 0%, #26294d 100%);">Save Changes</button>
-                    </div>
-                </form>
+                <div style="text-align: right; margin-top: 20px;">
+                    <button type="button" onclick="openProfileEditModal()" class="btn-save-info" style="background: linear-gradient(135deg, #2e6652 0%, #26294d 100%);">Edit Profile</button>
+                </div>
             </div>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Profile Modal -->
+<div id="profileEditModal" class="modal-overlay" style="display:none;">
+    <div class="modal-container" style="max-width: 600px;">
+        <div class="modal-header" style="background: linear-gradient(135deg, #2e6652 0%, #26294d 100%);">
+            <h3><i class="fa-solid fa-user-pen"></i> Edit Profile Information</h3>
+            <span class="modal-close" onclick="closeProfileEditModal()">&times;</span>
+        </div>
+        <div class="modal-body" style="max-height: 75vh; overflow-y: auto; padding-right: 8px;">
+            <form action="" method="POST" enctype="multipart/form-data">
+                <input type="hidden" name="profile_image_base64" id="profile_image_base64">
+                
+                <div class="info-row">
+                    <label class="info-label" for="profile_image_input">Profile Picture</label>
+                    <div class="info-value">
+                        <input type="file" id="profile_image_input" accept="image/*" class="info-input-field" style="background-color: #ffffff;">
+                    </div>
+                </div>
+
+                <div class="info-row">
+                    <label class="info-label" for="full_name">Full Name & Title</label>
+                    <div class="info-value">
+                        <input type="text" id="full_name" name="full_name" value="<?php echo htmlspecialchars($supervisor['full_name'] ?? ''); ?>" class="info-input-field" style="background-color: #ffffff;">
+                    </div>
+                </div>
+
+                <div class="info-row">
+                    <label class="info-label" for="designation">Designation</label>
+                    <div class="info-value">
+                        <input type="text" id="designation" name="designation" value="<?php echo htmlspecialchars($supervisor['designation'] ?? ''); ?>" class="info-input-field" style="background-color: #ffffff;">
+                    </div>
+                </div>
+
+                <div class="info-row">
+                    <label class="info-label" for="email">Email Address</label>
+                    <div class="info-value">
+                        <input type="email" id="email" name="email" value="<?php echo htmlspecialchars($supervisor['email'] ?? ''); ?>" class="info-input-field" style="background-color: #ffffff;">
+                    </div>
+                </div>
+
+                <div class="info-row">
+                    <label class="info-label" for="phone">Phone Number</label>
+                    <div class="info-value">
+                        <input type="text" id="phone" name="phone" value="<?php echo htmlspecialchars($supervisor['phone'] ?? ''); ?>" class="info-input-field" style="background-color: #ffffff;">
+                    </div>
+                </div>
+
+                <div class="modal-actions" style="display:flex; justify-content:flex-end; gap:10px; margin-top:20px;">
+                    <button type="button" class="btn-cancel" onclick="closeProfileEditModal()">Cancel</button>
+                    <button type="submit" name="save_fsp_profile" class="btn-save-info">Save Changes</button>
+                </div>
+            </form>
         </div>
     </div>
 </div>

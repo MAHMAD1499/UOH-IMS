@@ -22,9 +22,42 @@
         <img src="assets/img/internship_management_system.svg" alt="UOH Logo" class="sidebar-logo">
     </div>
     <!-- Mini profile badge — clicking navigates to the user's profile tab -->
+    <?php
+    $sidebarName = $_SESSION['username'] ?? 'User';
+    $sidebarProfileImg = null;
+
+    if (isset($conn) && isset($_SESSION['user_id'])) {
+        $uid = (int) $_SESSION['user_id'];
+        $role = $_SESSION['user_type'] ?? 'STD';
+
+        $imgq = mysqli_query($conn, "SELECT profile_image FROM user WHERE u_id = $uid LIMIT 1");
+        if ($imgq && $imgr = mysqli_fetch_assoc($imgq)) {
+            if (!empty($imgr['profile_image'])) {
+                $sidebarProfileImg = $imgr['profile_image'];
+            }
+        }
+
+        if ($role === 'FP') {
+            $nq = mysqli_query($conn, "SELECT full_name FROM users WHERE user_id = $uid LIMIT 1");
+            if ($nq && $nr = mysqli_fetch_assoc($nq)) {
+                $sidebarName = $nr['full_name'] ?: $sidebarName;
+            }
+        } else {
+            $nq = mysqli_query($conn, "SELECT name FROM user_profile WHERE u_id = $uid LIMIT 1");
+            if ($nq && $nr = mysqli_fetch_assoc($nq)) {
+                $sidebarName = $nr['name'] ?: $sidebarName;
+            }
+        }
+    }
+    ?>
     <div class="user-profile-mini" style="cursor: pointer;" onclick="switchToProfileTab()">
-        <i class="fa-solid fa-user-circle fa-2x"></i>
-        <span><?php echo htmlspecialchars($_SESSION['username'] ?? 'User'); ?></span>
+        <?php if ($sidebarProfileImg): ?>
+            <img src="<?php echo htmlspecialchars($sidebarProfileImg); ?>" alt="Profile Picture"
+                style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;">
+        <?php else: ?>
+            <i class="fa-solid fa-user-circle fa-2x"></i>
+        <?php endif; ?>
+        <span><?php echo htmlspecialchars($sidebarName); ?></span>
     </div>
 
     <ul class="nav-menu">
@@ -35,11 +68,13 @@
         <!-- ═══════════════════════════════════════════════════════════ -->
         <?php if (!isset($_SESSION['user_type']) || $_SESSION['user_type'] === 'STD'): ?>
             <!-- Dashboard overview — default active tab -->
-            <li class="nav-item active" id="nav-item-student-dashboard" onclick="switchTab('student-welcome-dashboard', this)">
+            <li class="nav-item active" id="nav-item-student-dashboard"
+                onclick="switchTab('student-welcome-dashboard', this)">
                 <i class="fa-solid fa-gauge"></i> <span>Dashboard</span>
             </li>
             <!-- Profile dropdown with sub-items: View Profile & Change Password -->
-            <li class="nav-item nav-item-dropdown-toggle" id="nav-item-student-profile-toggle" onclick="toggleSidebarDropdown('profile-dropdown')">
+            <li class="nav-item nav-item-dropdown-toggle" id="nav-item-student-profile-toggle"
+                onclick="toggleSidebarDropdown('profile-dropdown')">
                 <div>
                     <i class="fa-solid fa-id-card"></i> <span style="margin-left: 12px;">Profile</span>
                 </div>
@@ -49,12 +84,14 @@
                 <li class="nav-subitem" id="nav-subitem-view-profile" onclick="switchTab('student-dashboard', this)">
                     <i class="fa-solid fa-chevron-right"></i> <span>View Profile</span>
                 </li>
-                <li class="nav-subitem" id="nav-subitem-change-password" onclick="switchTab('student-change-password', this)">
+                <li class="nav-subitem" id="nav-subitem-change-password"
+                    onclick="switchTab('student-change-password', this)">
                     <i class="fa-solid fa-chevron-right"></i> <span>Change Password</span>
                 </li>
             </ul>
             <!-- Faculty Supervisor details -->
-            <li class="nav-item" id="nav-item-student-faculty-supervisor" onclick="switchTab('student-faculty-supervisor', this)">
+            <li class="nav-item" id="nav-item-student-faculty-supervisor"
+                onclick="switchTab('student-faculty-supervisor', this)">
                 <i class="fa-solid fa-user-graduate"></i> <span>Faculty Supervisor</span>
             </li>
             <!-- Site Supervisor & Organisation details -->
@@ -63,11 +100,11 @@
             </li>
             <!-- Internship recommendation letters -->
             <li class="nav-item" id="nav-item-student-letters" onclick="switchTab('student-letters', this)">
-                <i class="fa-solid fa-envelope-open-text"></i> <span>Internship Letters</span>
+                <i class="fa-solid fa-file-contract"></i> <span>Internship Letter</span>
             </li>
             <!-- Weekly / biweekly internship reports -->
             <li class="nav-item" id="nav-item-student-reports" onclick="switchTab('student-reports', this)">
-                <i class="fa-solid fa-file-lines"></i> <span>Internship Reports</span>
+                <i class="fa-solid fa-file-signature"></i> <span>Internship Reports</span>
             </li>
         <?php endif; ?>
 
@@ -76,11 +113,13 @@
         <!-- ═══════════════════════════════════════════════════════════ -->
         <?php if (isset($_SESSION['user_type']) && $_SESSION['user_type'] === 'FP'): ?>
             <!-- Focal Person dashboard overview -->
-            <li class="nav-item active" id="nav-item-focal-dashboard-welcome" onclick="switchTab('focal-welcome-dashboard', this)">
+            <li class="nav-item active" id="nav-item-focal-dashboard-welcome"
+                onclick="switchTab('focal-welcome-dashboard', this)">
                 <i class="fa-solid fa-gauge"></i> <span>Dashboard</span>
             </li>
             <!-- FP Profile dropdown -->
-            <li class="nav-item nav-item-dropdown-toggle" id="nav-item-focal-profile-toggle" onclick="toggleSidebarDropdown('focal-profile-dropdown')">
+            <li class="nav-item nav-item-dropdown-toggle" id="nav-item-focal-profile-toggle"
+                onclick="toggleSidebarDropdown('focal-profile-dropdown')">
                 <div>
                     <i class="fa-solid fa-id-card"></i> <span style="margin-left: 12px;">Profile</span>
                 </div>
@@ -90,26 +129,31 @@
                 <li class="nav-subitem" id="nav-item-focal-profile" onclick="switchTab('focal-profile', this)">
                     <i class="fa-solid fa-chevron-right"></i> <span>View Profile</span>
                 </li>
-                <li class="nav-subitem" id="nav-item-focal-change-password" onclick="switchTab('focal-change-password', this)">
+                <li class="nav-subitem" id="nav-item-focal-change-password"
+                    onclick="switchTab('focal-change-password', this)">
                     <i class="fa-solid fa-chevron-right"></i> <span>Change Password</span>
                 </li>
             </ul>
             <!-- Registered Students dropdown with filter options -->
-            <li class="nav-item nav-item-dropdown-toggle" id="nav-item-focal-students-toggle" onclick="toggleSidebarDropdown('focal-students-dropdown')">
+            <li class="nav-item nav-item-dropdown-toggle" id="nav-item-focal-students-toggle"
+                onclick="toggleSidebarDropdown('focal-students-dropdown')">
                 <div>
-                    <i class="fa-solid fa-list-check"></i> <span style="margin-left: 12px;">Registered Students</span>
+                    <i class="fa-solid fa-users-rectangle"></i> <span style="margin-left: 12px;">Registered Students</span>
                 </div>
                 <i class="fa-solid fa-chevron-down dropdown-chevron"></i>
             </li>
             <ul class="nav-dropdown" id="focal-students-dropdown">
                 <!-- All / Assigned / Unassigned sub-filters -->
-                <li class="nav-subitem active" id="nav-subitem-all-students" onclick="switchTab('focal-dashboard', this); if(typeof setAssignmentFilter === 'function') setAssignmentFilter('all');">
+                <li class="nav-subitem active" id="nav-subitem-all-students"
+                    onclick="switchTab('focal-dashboard', this); if(typeof setAssignmentFilter === 'function') setAssignmentFilter('all');">
                     <i class="fa-solid fa-chevron-right"></i> <span>All Students</span>
                 </li>
-                <li class="nav-subitem" id="nav-subitem-assigned-students" onclick="switchTab('focal-dashboard', this); if(typeof setAssignmentFilter === 'function') setAssignmentFilter('assigned');">
+                <li class="nav-subitem" id="nav-subitem-assigned-students"
+                    onclick="switchTab('focal-dashboard', this); if(typeof setAssignmentFilter === 'function') setAssignmentFilter('assigned');">
                     <i class="fa-solid fa-chevron-right"></i> <span>Assigned Students</span>
                 </li>
-                <li class="nav-subitem" id="nav-subitem-unassigned-students" onclick="switchTab('focal-dashboard', this); if(typeof setAssignmentFilter === 'function') setAssignmentFilter('unassigned');">
+                <li class="nav-subitem" id="nav-subitem-unassigned-students"
+                    onclick="switchTab('focal-dashboard', this); if(typeof setAssignmentFilter === 'function') setAssignmentFilter('unassigned');">
                     <i class="fa-solid fa-chevron-right"></i> <span>Unassigned Students</span>
                 </li>
             </ul>
@@ -124,11 +168,13 @@
         <!-- ═══════════════════════════════════════════════════════════ -->
         <?php if (isset($_SESSION['user_type']) && $_SESSION['user_type'] === 'FSP'): ?>
             <!-- Faculty Supervisor dashboard overview -->
-            <li class="nav-item active" id="nav-item-faculty-dashboard-welcome" onclick="switchTab('faculty-welcome-dashboard', this)">
+            <li class="nav-item active" id="nav-item-faculty-dashboard-welcome"
+                onclick="switchTab('faculty-welcome-dashboard', this)">
                 <i class="fa-solid fa-gauge"></i> <span>Dashboard</span>
             </li>
             <!-- FSP Profile dropdown -->
-            <li class="nav-item nav-item-dropdown-toggle" id="nav-item-faculty-profile-toggle" onclick="toggleSidebarDropdown('faculty-profile-dropdown')">
+            <li class="nav-item nav-item-dropdown-toggle" id="nav-item-faculty-profile-toggle"
+                onclick="toggleSidebarDropdown('faculty-profile-dropdown')">
                 <div>
                     <i class="fa-solid fa-id-card"></i> <span style="margin-left: 12px;">Profile</span>
                 </div>
@@ -138,7 +184,8 @@
                 <li class="nav-subitem" id="nav-item-faculty-profile" onclick="switchTab('faculty-profile', this)">
                     <i class="fa-solid fa-chevron-right"></i> <span>View Profile</span>
                 </li>
-                <li class="nav-subitem" id="nav-item-faculty-change-password" onclick="switchTab('faculty-change-password', this)">
+                <li class="nav-subitem" id="nav-item-faculty-change-password"
+                    onclick="switchTab('faculty-change-password', this)">
                     <i class="fa-solid fa-chevron-right"></i> <span>Change Password</span>
                 </li>
             </ul>

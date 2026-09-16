@@ -133,7 +133,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <title>Login - Internship Management System</title>
     <!-- FontAwesome for Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="assets/css/login.css">
+    <link rel="stylesheet" href="../assets/css/login.css">
     <!-- Google reCAPTCHA v2 API -->
     <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 </head>
@@ -144,7 +144,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <!-- Login Card Container -->
         <div class="login-card">
             <div class="login-card-header">
-                <img src="assets/img/internship_management_system.svg" alt="UOH Logo" class="login-logo">
+                <img src="../assets/img/internship_management_system.svg" alt="UOH Logo" class="login-logo">
             </div>
             <div class="login-card-body">
                 <form action="" method="POST" onsubmit="return validateLoginForm();">

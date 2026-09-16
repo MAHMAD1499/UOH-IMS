@@ -30,7 +30,7 @@ if (!isset($_SESSION['user_id'])) {
 
 /* ── Dependencies ─────────────────────────────────────────────────────── */
 require __DIR__ . '/../config/db.php';
-require_once __DIR__ . '/vendor/autoload.php';
+require_once __DIR__ . '/../vendor/autoload.php';
 
 $role = $_SESSION['user_type'] ?? 'STD';
 
@@ -136,8 +136,8 @@ $focalName = htmlspecialchars($studentFocalPerson['full_name']);
 $focalEmail = htmlspecialchars($studentFocalPerson['email']);
 
 // Get absolute path to logo
-$logoPath = __DIR__ . '/assets/img/uoh_logo.png';
-$logoSrc = file_exists($logoPath) ? $logoPath : 'assets/img/uoh_logo.png';
+$logoPath = __DIR__ . '/../assets/img/uoh_logo.png';
+$logoSrc = file_exists($logoPath) ? $logoPath : '../assets/img/uoh_logo.png';
 
 /* ── Build the HTML template for the PDF letter ──────────────────────── */
 $html = <<<HTML

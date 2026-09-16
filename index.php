@@ -85,6 +85,23 @@ function handleProfileImageUpload(array $file): ?string {
     return null;
 }
 
+function handleBase64ProfileImage(string $base64Data): ?string {
+    if (empty($base64Data)) return null;
+    $imgData = explode(',', $base64Data);
+    if (count($imgData) !== 2) return null;
+    
+    $decoded = base64_decode($imgData[1]);
+    if ($decoded === false) return null;
+    
+    $filename = uniqid('profile_', true) . '.png';
+    $dest = __DIR__ . '/storage/profile_pictures/' . $filename;
+    
+    if (file_put_contents($dest, $decoded)) {
+        return 'storage/profile_pictures/' . $filename;
+    }
+    return null;
+}
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($_POST['save_fp_profile']) || isset($_POST['save_fsp_profile'])) {
         $fullName = trim($_POST['full_name'] ?? '');
@@ -99,7 +116,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             mysqli_stmt_close($updStmt);
         }
         
-        $profileImagePath = handleProfileImageUpload($_FILES['profile_image'] ?? []);
+        $profileImagePath = handleBase64ProfileImage($_POST['profile_image_base64'] ?? '');
+        if ($profileImagePath === null) {
+            $profileImagePath = handleProfileImageUpload($_FILES['profile_image'] ?? []);
+        }
         if ($profileImagePath !== null) {
             $imgStmt = mysqli_prepare($conn, 'UPDATE user SET profile_image = ? WHERE u_id = ?');
             if ($imgStmt) {
@@ -191,7 +211,10 @@ if ($role === 'STD') {
                 redirectWithFlash('Roll number and Name are required.', 'error');
             }
 
-            $profileImagePath = handleProfileImageUpload($_FILES['profile_image'] ?? []);
+            $profileImagePath = handleBase64ProfileImage($_POST['profile_image_base64'] ?? '');
+            if ($profileImagePath === null) {
+                $profileImagePath = handleProfileImageUpload($_FILES['profile_image'] ?? []);
+            }
             if ($profileImagePath !== null) {
                 $imgStmt = mysqli_prepare($conn, 'UPDATE user SET profile_image = ? WHERE u_id = ?');
                 if ($imgStmt) {

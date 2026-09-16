@@ -123,7 +123,7 @@ $endDate   = $fullReport['internship_end_date']   ? date('M d, Y', strtotime($fu
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Internship Report – <?php echo htmlspecialchars($rollno); ?> | University of Haripur</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-    <link rel="stylesheet" href="assets/css/print_report.css">
+    <link rel="stylesheet" href="../assets/css/print_report.css">
 </head>
 <body>
 

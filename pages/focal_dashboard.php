@@ -532,7 +532,7 @@ foreach ($students as $stud) {
         <div class="action-box"
             onclick="switchTab('focal-dashboard', document.getElementById('nav-item-focal-dashboard'))">
             <div class="action-icon-wrapper">
-                <i class="fa-solid fa-list-check"></i>
+                <i class="fa-solid fa-users-rectangle"></i>
             </div>
             <h3>Registered Students List</h3>
             <p>View registered student profiles, filter by session, and assign faculty supervisors.</p>
@@ -667,72 +667,114 @@ foreach ($students as $stud) {
             <hr class="profile-divider">
             <div class="sidebar-info-text"><?php echo htmlspecialchars($_SESSION['username'] ?? 'FP-0001'); ?></div>
 
-            <hr class="profile-divider">
-            <div class="cred-label">Official Email</div>
-            <div class="cred-val">
-                <?php echo htmlspecialchars($focalPerson['email'] ?: 'focal@uoh.edu.pk'); ?>
-            </div>
+
         </div>
 
         <!-- RIGHT COLUMN: Information Card / Form -->
         <div class="student-profile-main">
             <div class="info-card-header">Profile Information</div>
             <div class="info-card-body">
-                <form action="" method="POST" enctype="multipart/form-data">
-                    <div class="info-row">
-                        <label class="info-label" for="profile_image">Profile Picture</label>
-                        <div class="info-value">
-                            <input type="file" id="profile_image" name="profile_image" accept="image/*" class="info-input-field" style="background-color: #ffffff;">
-                        </div>
+                <div class="info-row">
+                    <label class="info-label">Full Name & Title</label>
+                    <div class="info-value">
+                        <input type="text" value="<?php echo htmlspecialchars($focalPerson['full_name'] ?? ''); ?>" readonly class="info-input-field">
                     </div>
+                </div>
 
-                    <div class="info-row">
-                        <label class="info-label" for="full_name">Full Name & Title</label>
-                        <div class="info-value">
-                            <input type="text" id="full_name" name="full_name" value="<?php echo htmlspecialchars($focalPerson['full_name'] ?? ''); ?>" class="info-input-field" style="background-color: #ffffff;">
-                        </div>
+                <div class="info-row">
+                    <label class="info-label">Designation</label>
+                    <div class="info-value">
+                        <input type="text" value="<?php echo htmlspecialchars($focalPerson['designation'] ?? ''); ?>" readonly class="info-input-field">
                     </div>
+                </div>
 
-                    <div class="info-row">
-                        <label class="info-label" for="designation">Designation</label>
-                        <div class="info-value">
-                            <input type="text" id="designation" name="designation" value="<?php echo htmlspecialchars($focalPerson['designation'] ?? ''); ?>" class="info-input-field" style="background-color: #ffffff;">
-                        </div>
+                <div class="info-row">
+                    <label class="info-label">Department/Division</label>
+                    <div class="info-value">
+                        <input type="text" value="Department of IT / CS" readonly class="info-input-field">
                     </div>
+                </div>
 
-                    <div class="info-row">
-                        <label class="info-label">Department/Division</label>
-                        <div class="info-value">
-                            <input type="text" value="Department of IT / CS" readonly class="info-input-field">
-                        </div>
+                <div class="info-row">
+                    <label class="info-label">Email Address</label>
+                    <div class="info-value">
+                        <input type="text" value="<?php echo htmlspecialchars($focalPerson['email'] ?? ''); ?>" readonly class="info-input-field">
                     </div>
+                </div>
 
-                    <div class="info-row">
-                        <label class="info-label" for="email">Email Address</label>
-                        <div class="info-value">
-                            <input type="email" id="email" name="email" value="<?php echo htmlspecialchars($focalPerson['email'] ?? ''); ?>" class="info-input-field" style="background-color: #ffffff;">
-                        </div>
+                <div class="info-row">
+                    <label class="info-label">Phone Number</label>
+                    <div class="info-value">
+                        <input type="text" value="<?php echo htmlspecialchars($focalPerson['phone'] ?? ''); ?>" readonly class="info-input-field">
                     </div>
+                </div>
+                
+                <div class="info-row">
+                    <label class="info-label">Office Location</label>
+                    <div class="info-value">
+                        <input type="text" value="Office # 101, Academic Block" readonly class="info-input-field">
+                    </div>
+                </div>
 
-                    <div class="info-row">
-                        <label class="info-label" for="phone">Phone Number</label>
-                        <div class="info-value">
-                            <input type="text" id="phone" name="phone" value="<?php echo htmlspecialchars($focalPerson['phone'] ?? ''); ?>" class="info-input-field" style="background-color: #ffffff;">
-                        </div>
-                    </div>
-                    
-                    <div class="info-row">
-                        <label class="info-label">Office Location</label>
-                        <div class="info-value">
-                            <input type="text" value="Office # 101, Academic Block" readonly class="info-input-field">
-                        </div>
-                    </div>
-
-                    <div style="text-align: right; margin-top: 20px;">
-                        <button type="submit" name="save_fp_profile" class="btn-save-info" style="background: linear-gradient(135deg, #2e6652 0%, #26294d 100%);">Save Changes</button>
-                    </div>
-                </form>
+                <div style="text-align: right; margin-top: 20px;">
+                    <button type="button" onclick="openProfileEditModal()" class="btn-save-info" style="background: linear-gradient(135deg, #2e6652 0%, #26294d 100%);">Edit Profile</button>
+                </div>
             </div>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Profile Modal -->
+<div id="profileEditModal" class="modal-overlay" style="display:none;">
+    <div class="modal-container" style="max-width: 600px;">
+        <div class="modal-header" style="background: linear-gradient(135deg, #2e6652 0%, #26294d 100%);">
+            <h3><i class="fa-solid fa-user-pen"></i> Edit Profile Information</h3>
+            <span class="modal-close" onclick="closeProfileEditModal()">&times;</span>
+        </div>
+        <div class="modal-body" style="max-height: 75vh; overflow-y: auto; padding-right: 8px;">
+            <form action="" method="POST" enctype="multipart/form-data">
+                <input type="hidden" name="profile_image_base64" id="profile_image_base64">
+                
+                <div class="info-row">
+                    <label class="info-label" for="profile_image_input">Profile Picture</label>
+                    <div class="info-value">
+                        <input type="file" id="profile_image_input" accept="image/*" class="info-input-field" style="background-color: #ffffff;">
+                    </div>
+                </div>
+
+                <div class="info-row">
+                    <label class="info-label" for="full_name">Full Name & Title</label>
+                    <div class="info-value">
+                        <input type="text" id="full_name" name="full_name" value="<?php echo htmlspecialchars($focalPerson['full_name'] ?? ''); ?>" class="info-input-field" style="background-color: #ffffff;">
+                    </div>
+                </div>
+
+                <div class="info-row">
+                    <label class="info-label" for="designation">Designation</label>
+                    <div class="info-value">
+                        <input type="text" id="designation" name="designation" value="<?php echo htmlspecialchars($focalPerson['designation'] ?? ''); ?>" class="info-input-field" style="background-color: #ffffff;">
+                    </div>
+                </div>
+
+                <div class="info-row">
+                    <label class="info-label" for="email">Email Address</label>
+                    <div class="info-value">
+                        <input type="email" id="email" name="email" value="<?php echo htmlspecialchars($focalPerson['email'] ?? ''); ?>" class="info-input-field" style="background-color: #ffffff;">
+                    </div>
+                </div>
+
+                <div class="info-row">
+                    <label class="info-label" for="phone">Phone Number</label>
+                    <div class="info-value">
+                        <input type="text" id="phone" name="phone" value="<?php echo htmlspecialchars($focalPerson['phone'] ?? ''); ?>" class="info-input-field" style="background-color: #ffffff;">
+                    </div>
+                </div>
+
+                <div class="modal-actions" style="display:flex; justify-content:flex-end; gap:10px; margin-top:20px;">
+                    <button type="button" class="btn-cancel" onclick="closeProfileEditModal()">Cancel</button>
+                    <button type="submit" name="save_fp_profile" class="btn-save-info">Save Changes</button>
+                </div>
+            </form>
         </div>
     </div>
 </div>
@@ -832,7 +874,7 @@ foreach ($students as $stud) {
     <div class="card">
         <div class="card-header"
             style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
-            <span style="white-space: nowrap;"><i class="fa-solid fa-users"></i> Registered Students List</span>
+            <span style="white-space: nowrap;"><i class="fa-solid fa-users-rectangle"></i> Registered Students List</span>
             <div style="display: flex; align-items: center; flex-wrap: wrap; gap: 12px;">
                 <!-- Session Filter and Search -->
                 <div style="display: flex; align-items: center; flex-wrap: wrap; gap: 8px;">
@@ -991,7 +1033,7 @@ foreach ($students as $stud) {
 <div id="focal-letters" class="tab-content">
     <div class="card">
         <div class="card-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
-            <span><i class="fa-solid fa-envelope-open-text"></i> Student Internship Letters Report</span>
+            <span><i class="fa-solid fa-file-contract"></i> Student Internship Letters Report</span>
             <input type="text" id="letters-rollno-search" placeholder="Search by Roll No..." onkeyup="filterLettersByRollNo(this.value);" style="padding: 4px 8px; font-size: 13px; border-radius: 4px; border: 1px solid #cbd5e1; outline: none; width: 160px; color: #333;">
         </div>
         <div class="card-body" style="padding: 0; overflow-x: auto;">
