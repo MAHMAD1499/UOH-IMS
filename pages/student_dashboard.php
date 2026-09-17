@@ -141,15 +141,17 @@
 
         <div class="ticker-wrap">
             <div class="ticker-label"><i class="fa-solid fa-bullhorn"></i> Important Announcements</div>
-            <div class="ticker-move">
-                <?php foreach ($stdAnnouncements as $ann): ?>
-                    <div class="ticker-item">
-                        <span class="ticker-item-date">[<?php echo date('M d, Y', strtotime($ann['created_at'])); ?>]</span>
-                        <strong style="color: #60a5fa;"><?php echo htmlspecialchars($ann['title']); ?>:</strong>
-                        <span
-                            style="color: #f8fafc; margin-left: 4px;"><?php echo htmlspecialchars(mb_strimwidth($ann['content'], 0, 150, '...')); ?></span>
-                    </div>
-                <?php endforeach; ?>
+            <div class="ticker-text-wrap">
+                <div class="ticker-move">
+                    <?php foreach ($stdAnnouncements as $ann): ?>
+                        <div class="ticker-item">
+                            <span class="ticker-item-date">[<?php echo date('M d, Y', strtotime($ann['created_at'])); ?>]</span>
+                            <strong style="color: #60a5fa;"><?php echo htmlspecialchars($ann['title']); ?>:</strong>
+                            <span
+                                style="color: #f8fafc; margin-left: 4px;"><?php echo htmlspecialchars(mb_strimwidth($ann['content'], 0, 150, '...')); ?></span>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
             </div>
         </div>
     <?php endif; ?>
@@ -521,16 +523,7 @@
                 <span class="modal-close" onclick="closeProfileEditModal()">&times;</span>
             </div>
             <div class="modal-body" style="max-height: 75vh; overflow-y: auto; padding-right: 8px;">
-                <form action="" method="POST" enctype="multipart/form-data">
-                    <input type="hidden" name="profile_image_base64" id="profile_image_base64">
-
-                    <div class="info-row">
-                        <label class="info-label" for="profile_image_input">Profile Picture</label>
-                        <div class="info-value">
-                            <input type="file" id="profile_image_input" accept="image/*" class="info-input-field"
-                                style="background-color: #ffffff;">
-                        </div>
-                    </div>
+                <form action="" method="POST">
 
                     <div class="info-row">
                         <label class="info-label" for="name">Name</label>

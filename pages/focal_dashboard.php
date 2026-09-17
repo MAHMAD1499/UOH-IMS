@@ -120,7 +120,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             exit;
         }
 
-        if (!preg_match('/^[a-zA-Z]\d{2}-\d{4}$/', $rollno)) {
+        if (preg_match('/^[a-zA-Z](\d{2})-\d{4}$/', $rollno, $matches)) {
+            $rollYear = 2000 + (int)$matches[1];
+            $currentYearVal = (int)date('Y');
+            if ($rollYear > $currentYearVal) {
+                $_SESSION['flash_message'] = "Invalid Roll No. The enrollment year ($rollYear) cannot be in the future.";
+                $_SESSION['flash_type'] = 'error';
+                header('Location: index.php');
+                exit;
+            } elseif ($rollYear < 2026) {
+                $_SESSION['flash_message'] = "Invalid Roll No. This system was launched in 2026, so previous batches ($rollYear) are not supported.";
+                $_SESSION['flash_type'] = 'error';
+                header('Location: index.php');
+                exit;
+            }
+        } else {
             $_SESSION['flash_message'] = 'Invalid Roll No format. Expected format: e.g. S23-1234 or F26-0001';
             $_SESSION['flash_type'] = 'error';
             header('Location: index.php');
@@ -370,6 +384,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
+// Generate strict list of valid sessions for database filter
+$currentYearFilter = (int)date('Y');
+$currentMonthFilter = (int)date('n');
+$valid_sessions_arr = [];
+for ($y = $currentYearFilter; $y >= 2026; $y--) {
+    if ($y == $currentYearFilter && $currentMonthFilter < 7) {
+        $valid_sessions_arr[] = "'Spring $y'";
+    } else {
+        $valid_sessions_arr[] = "'Fall $y'";
+        $valid_sessions_arr[] = "'Spring $y'";
+    }
+}
+$valid_sessions_sql = implode(',', $valid_sessions_arr);
+
 $studentsQuery = "
     SELECT 
         u.u_id,
@@ -406,7 +434,10 @@ $studentsQuery = "
     LEFT JOIN user sup ON afs.u_id = sup.u_id
     LEFT JOIN user_profile sup_p ON sup.u_id = sup_p.u_id
     LEFT JOIN site_supervisor_details ssd ON u.u_name = ssd.rollno
-    WHERE u.u_type = 'STD' AND u.status = 1
+    WHERE u.u_type = 'STD' AND u.status = 1 
+      AND REPLACE(sd.session, '-', ' ') IN ($valid_sessions_sql)
+      AND (2000 + CAST(SUBSTRING(u.u_name, 2, 2) AS UNSIGNED)) >= 2026
+      AND (2000 + CAST(SUBSTRING(u.u_name, 2, 2) AS UNSIGNED)) <= $currentYearFilter
     ORDER BY sd.session DESC, u.u_name ASC
 ";
 $studentsResult = mysqli_query($conn, $studentsQuery);
@@ -558,7 +589,7 @@ foreach ($students as $stud) {
     </div>
 
     <!-- Announcements Layout -->
-    <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 24px; margin-top: 24px;">
+    <div class="announcements-grid-layout" style="margin-top: 24px;">
         <!-- Left Side: Active Announcements -->
         <div>
             <div class="card" style="margin: 0; height: 100%;">
@@ -732,15 +763,7 @@ foreach ($students as $stud) {
             <span class="modal-close" onclick="closeProfileEditModal()">&times;</span>
         </div>
         <div class="modal-body" style="max-height: 75vh; overflow-y: auto; padding-right: 8px;">
-            <form action="" method="POST" enctype="multipart/form-data">
-                <input type="hidden" name="profile_image_base64" id="profile_image_base64">
-                
-                <div class="info-row">
-                    <label class="info-label" for="profile_image_input">Profile Picture</label>
-                    <div class="info-value">
-                        <input type="file" id="profile_image_input" accept="image/*" class="info-input-field" style="background-color: #ffffff;">
-                    </div>
-                </div>
+            <form action="" method="POST">
 
                 <div class="info-row">
                     <label class="info-label" for="full_name">Full Name & Title</label>
@@ -889,11 +912,23 @@ foreach ($students as $stud) {
                         onblur="this.style.borderColor='#cbd5e1'; this.style.boxShadow='none';">
                         <option value="">All Sessions</option>
                         <?php
-                        $endYear = (int) date('Y') + 4;
-                        for ($y = $endYear; $y >= 2021; $y--) {
-                            $fallSelected = ($y == 2026) ? 'selected' : '';
-                            echo '<option value="Fall ' . $y . '" ' . $fallSelected . '>Fall ' . $y . '</option>';
-                            echo '<option value="Spring ' . $y . '">Spring ' . $y . '</option>';
+                        $currentYear = (int)date('Y');
+                        $currentMonth = (int)date('n');
+                        $currentSessionStr = ($currentMonth >= 7 ? 'Fall' : 'Spring') . ' ' . $currentYear;
+                        
+                        $sessions = [];
+                        for ($y = $currentYear; $y >= 2026; $y--) {
+                            if ($y == $currentYear && $currentMonth < 7) {
+                                $sessions[] = "Spring $y";
+                            } else {
+                                $sessions[] = "Fall $y";
+                                $sessions[] = "Spring $y";
+                            }
+                        }
+                        
+                        foreach ($sessions as $sess) {
+                            $selected = ($sess === $currentSessionStr) ? 'selected' : '';
+                            echo '<option value="' . $sess . '" ' . $selected . '>' . $sess . '</option>';
                         }
                         ?>
                     </select>
@@ -1287,10 +1322,21 @@ foreach ($students as $stud) {
                         <select id="student_session" name="session" required>
                             <option value="">-- Select Session --</option>
                             <?php
-                            $endYear = (int) date('Y') + 4;
-                            for ($y = $endYear; $y >= 2021; $y--) {
-                                echo '<option value="Fall ' . $y . '">Fall ' . $y . '</option>';
-                                echo '<option value="Spring ' . $y . '">Spring ' . $y . '</option>';
+                            $currentYear = (int)date('Y');
+                            $currentMonth = (int)date('n');
+                            
+                            $sessions = [];
+                            for ($y = $currentYear; $y >= 2026; $y--) {
+                                if ($y == $currentYear && $currentMonth < 7) {
+                                    $sessions[] = "Spring $y";
+                                } else {
+                                    $sessions[] = "Fall $y";
+                                    $sessions[] = "Spring $y";
+                                }
+                            }
+                            
+                            foreach ($sessions as $sess) {
+                                echo '<option value="' . $sess . '">' . $sess . '</option>';
                             }
                             ?>
                         </select>

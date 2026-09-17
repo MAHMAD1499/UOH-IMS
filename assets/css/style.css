@@ -81,7 +81,7 @@ body {
 }
 
 .sidebar .user-profile-mini span,
-.sidebar .nav-section-title,
+.sidebar .nav-section-title .full-title,
 .sidebar .nav-item span {
     opacity: 1;
     display: inline-block;
@@ -92,7 +92,7 @@ body {
 }
 
 .sidebar.collapsed .user-profile-mini span,
-.sidebar.collapsed .nav-section-title,
+.sidebar.collapsed .nav-section-title .full-title,
 .sidebar.collapsed .nav-item span {
     opacity: 0;
     max-width: 0;
@@ -110,6 +110,18 @@ body {
     height: 35px;
     object-fit: cover;
     object-position: 4.4% center;
+}
+
+.announcements-grid-layout {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 24px;
+}
+
+@media (max-width: 992px) {
+    .announcements-grid-layout {
+        grid-template-columns: 1fr;
+    }
 }
 
 .sidebar.collapsed .nav-item {
@@ -193,12 +205,36 @@ body {
     letter-spacing: 0.5px;
     white-space: normal !important;
     line-height: 1.4;
+    text-align: left;
 }
 
 .sidebar:not(.collapsed) .nav-section-title {
     max-width: none !important;
     overflow: visible !important;
     white-space: normal !important;
+}
+
+.sidebar .nav-section-title .short-title {
+    display: none;
+    font-weight: bold;
+    font-size: 14px;
+    text-align: center;
+    line-height: 1.2;
+}
+
+.sidebar .nav-section-title .short-title .letter-m {
+    font-size: 20px;
+    display: inline-block;
+    margin: 3px 0;
+}
+
+.sidebar.collapsed .nav-section-title {
+    padding: 15px 0;
+    text-align: center;
+}
+
+.sidebar.collapsed .nav-section-title .short-title {
+    display: inline-block;
 }
 
 /* Main Layout Styles */
@@ -1388,6 +1424,12 @@ body {
     box-shadow: 2px 0 5px rgba(0, 0, 0, 0.2);
 }
 
+.ticker-text-wrap {
+    flex-grow: 1;
+    overflow: hidden;
+    margin-left: 10px;
+}
+
 .ticker-move {
     display: inline-block;
     white-space: nowrap;
@@ -1397,6 +1439,26 @@ body {
 
 .ticker-wrap:hover .ticker-move {
     animation-play-state: paused;
+}
+
+@media (max-width: 768px) {
+    .ticker-wrap {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 10px 15px;
+    }
+
+    .ticker-label {
+        margin-left: 0;
+        margin-bottom: 8px;
+        font-size: 11px;
+        align-self: center;
+    }
+
+    .ticker-text-wrap {
+        margin-left: 0;
+        width: 100%;
+    }
 }
 
 .ticker-item {
@@ -1446,7 +1508,7 @@ body {
     max-width: 600px;
     max-height: 90vh;
     overflow-y: auto;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
     position: relative;
 }
 
@@ -1490,7 +1552,7 @@ body {
 }
 
 .modal-btn-save:hover {
-    box-shadow: 0 4px 10px rgba(46,102,82,0.3);
+    box-shadow: 0 4px 10px rgba(46, 102, 82, 0.3);
 }
 
 .cropper-container {

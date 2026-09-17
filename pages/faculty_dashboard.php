@@ -626,15 +626,7 @@ foreach ($assignedStudents as $student) {
             <span class="modal-close" onclick="closeProfileEditModal()">&times;</span>
         </div>
         <div class="modal-body" style="max-height: 75vh; overflow-y: auto; padding-right: 8px;">
-            <form action="" method="POST" enctype="multipart/form-data">
-                <input type="hidden" name="profile_image_base64" id="profile_image_base64">
-                
-                <div class="info-row">
-                    <label class="info-label" for="profile_image_input">Profile Picture</label>
-                    <div class="info-value">
-                        <input type="file" id="profile_image_input" accept="image/*" class="info-input-field" style="background-color: #ffffff;">
-                    </div>
-                </div>
+            <form action="" method="POST">
 
                 <div class="info-row">
                     <label class="info-label" for="full_name">Full Name & Title</label>

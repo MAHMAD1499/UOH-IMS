@@ -280,29 +280,7 @@
     }
 </script>
 <!-- html2pdf.js for generating PDFs directly -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-<!-- Cropper Modal (common) -->
-<div id="cropperModal" class="modal-overlay" style="display:none; z-index: 1050;">
-    <div class="modal-container" style="max-width: 600px;">
-        <div class="modal-header" style="background: linear-gradient(135deg, #2e6652 0%, #26294d 100%);">
-            <h3><i class="fa-solid fa-crop-simple"></i> Adjust Profile Picture</h3>
-            <span class="modal-close" onclick="closeCropperModal()">&times;</span>
-        </div>
-        <div class="modal-body" style="padding-bottom: 20px;">
-            <div class="cropper-container" style="max-height: 400px; width: 100%; overflow: hidden; margin-top: 10px;">
-                <img id="cropperImage" src="" style="max-width: 100%; display: block;">
-            </div>
-            <div class="modal-actions" style="display:flex; justify-content:flex-end; gap:10px; margin-top:20px;">
-                <button type="button" class="btn-cancel" onclick="closeCropperModal()">Cancel</button>
-                <button type="button" class="btn-save-info" onclick="confirmCrop()">Confirm Crop</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Cropper.js library -->
-<script src="assets/js/cropper.min.js"></script>
-<script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script><script>
     /* Profile Edit Modal Logic */
     function openProfileEditModal() {
         const modal = document.getElementById('profileEditModal');
@@ -312,67 +290,6 @@
     function closeProfileEditModal() {
         const modal = document.getElementById('profileEditModal');
         if (modal) modal.style.display = 'none';
-    }
-
-    /* Cropper Logic */
-    let cropper = null;
-    const profileImageInput = document.getElementById('profile_image_input');
-    
-    // We bind event listener to document in case the input is rendered later or dynamically
-    document.addEventListener('change', function(e) {
-        if (e.target && e.target.id === 'profile_image_input') {
-            const files = e.target.files;
-            if (files && files.length > 0) {
-                const reader = new FileReader();
-                reader.onload = function (event) {
-                    const image = document.getElementById('cropperImage');
-                    image.src = event.target.result;
-                    document.getElementById('cropperModal').style.display = 'flex';
-                    
-                    if (cropper) {
-                        cropper.destroy();
-                    }
-                    cropper = new Cropper(image, {
-                        aspectRatio: 1,
-                        viewMode: 1,
-                        background: false
-                    });
-                };
-                reader.readAsDataURL(files[0]);
-            }
-        }
-    });
-
-    function closeCropperModal() {
-        document.getElementById('cropperModal').style.display = 'none';
-        if (cropper) cropper.destroy();
-        cropper = null;
-        const input = document.getElementById('profile_image_input');
-        if (input) input.value = ''; // Reset input
-    }
-
-    function confirmCrop() {
-        if (!cropper) return;
-        
-        // Get the cropped canvas
-        const canvas = cropper.getCroppedCanvas({
-            width: 400,
-            height: 400
-        });
-        
-        if (canvas) {
-            // Get base64 data url
-            const base64Data = canvas.toDataURL('image/png');
-            // Set it to hidden input
-            const hiddenInput = document.getElementById('profile_image_base64');
-            if (hiddenInput) {
-                hiddenInput.value = base64Data;
-            }
-            // Close modal
-            document.getElementById('cropperModal').style.display = 'none';
-            if (cropper) cropper.destroy();
-            cropper = null;
-        }
     }
 </script>
 

@@ -61,7 +61,10 @@
     </div>
 
     <ul class="nav-menu">
-        <li class="nav-section-title">Internship Management System</li>
+        <li class="nav-section-title">
+            <span class="full-title">Internship Management System</span>
+            <span class="short-title">I<br><span class="letter-m">M</span><br>S</span>
+        </li>
 
         <!-- ═══════════════════════════════════════════════════════════ -->
         <!--  STUDENT NAVIGATION (role = STD or not set)               -->
