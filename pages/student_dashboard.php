@@ -29,17 +29,22 @@
  */
 ?>
 <?php if (isset($_SESSION['must_change_password']) && $_SESSION['must_change_password'] === true): ?>
-    <div style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(15, 23, 42, 0.85); z-index: 99999; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(8px);">
-        <div style="background: #ffffff; padding: 40px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); width: 100%; max-width: 480px;">
-            <h2 style="color: #1e293b; font-size: 24px; margin-bottom: 12px; font-weight: 700; display: flex; align-items: center; gap: 10px;">
+    <div
+        style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(15, 23, 42, 0.85); z-index: 99999; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(8px);">
+        <div
+            style="background: #ffffff; padding: 40px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); width: 100%; max-width: 480px;">
+            <h2
+                style="color: #1e293b; font-size: 24px; margin-bottom: 12px; font-weight: 700; display: flex; align-items: center; gap: 10px;">
                 <i class="fa-solid fa-shield-halved" style="color: #2e6652;"></i> Security Requirement
             </h2>
             <p style="font-size: 14px; color: #475569; margin-bottom: 24px; line-height: 1.6;">
-                Welcome to the student portal! For your security, you must change your default password before proceeding. You will be logged out and asked to sign in again after updating.
+                Welcome to the student portal! For your security, you must change your default password before proceeding.
+                You will be logged out and asked to sign in again after updating.
             </p>
-            
+
             <?php if (!empty($flashMessage)): ?>
-                <div style="padding: 12px; margin-bottom: 20px; border-radius: 6px; background: #fef2f2; color: #991b1b; border: 1px solid #fecaca; font-size: 13.5px;">
+                <div
+                    style="padding: 12px; margin-bottom: 20px; border-radius: 6px; background: #fef2f2; color: #991b1b; border: 1px solid #fecaca; font-size: 13.5px;">
                     <?php echo htmlspecialchars($flashMessage); ?>
                 </div>
                 <?php unset($flashMessage); ?>
@@ -47,24 +52,36 @@
 
             <form action="" method="POST" id="force-change-password-form">
                 <div style="margin-bottom: 16px;">
-                    <label style="display:block; font-weight: 600; margin-bottom: 6px; color: #334155; font-size: 13.5px;">Old Password (Roll No)</label>
-                    <input type="password" name="old_password" required placeholder="Enter current password" style="width: 100%; padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 6px; outline: none; font-size: 14px; box-sizing: border-box;">
+                    <label
+                        style="display:block; font-weight: 600; margin-bottom: 6px; color: #334155; font-size: 13.5px;">Old
+                        Password (Roll No)</label>
+                    <input type="password" name="old_password" required placeholder="Enter current password"
+                        style="width: 100%; padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 6px; outline: none; font-size: 14px; box-sizing: border-box;">
                 </div>
-                
+
                 <div style="margin-bottom: 16px;">
-                    <label style="display:block; font-weight: 600; margin-bottom: 6px; color: #334155; font-size: 13.5px;">New Password</label>
-                    <input type="password" name="new_password" id="force_new_password" required placeholder="Enter new password" style="width: 100%; padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 6px; outline: none; font-size: 14px; box-sizing: border-box;">
+                    <label
+                        style="display:block; font-weight: 600; margin-bottom: 6px; color: #334155; font-size: 13.5px;">New
+                        Password</label>
+                    <input type="password" name="new_password" id="force_new_password" required
+                        placeholder="Enter new password"
+                        style="width: 100%; padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 6px; outline: none; font-size: 14px; box-sizing: border-box;">
                     <div style="font-size: 12px; color: #64748b; margin-top: 6px;">
                         Must contain at least 6 characters, 1 uppercase letter, and 1 number.
                     </div>
                 </div>
-                
+
                 <div style="margin-bottom: 28px;">
-                    <label style="display:block; font-weight: 600; margin-bottom: 6px; color: #334155; font-size: 13.5px;">Confirm New Password</label>
-                    <input type="password" name="confirm_password" id="force_confirm_password" required placeholder="Re-enter new password" style="width: 100%; padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 6px; outline: none; font-size: 14px; box-sizing: border-box;">
+                    <label
+                        style="display:block; font-weight: 600; margin-bottom: 6px; color: #334155; font-size: 13.5px;">Confirm
+                        New Password</label>
+                    <input type="password" name="confirm_password" id="force_confirm_password" required
+                        placeholder="Re-enter new password"
+                        style="width: 100%; padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 6px; outline: none; font-size: 14px; box-sizing: border-box;">
                 </div>
-                
-                <button type="submit" name="change_password" style="width: 100%; background: linear-gradient(135deg, #2e6652 0%, #26294d 100%); color: #fff; padding: 12px; border: none; border-radius: 6px; font-size: 15px; font-weight: 600; cursor: pointer; transition: all 0.2s ease;">
+
+                <button type="submit" name="change_password"
+                    style="width: 100%; background: linear-gradient(135deg, #2e6652 0%, #26294d 100%); color: #fff; padding: 12px; border: none; border-radius: 6px; font-size: 15px; font-weight: 600; cursor: pointer; transition: all 0.2s ease;">
                     <i class="fa-solid fa-key" style="margin-right: 6px;"></i> Update Password
                 </button>
             </form>
@@ -361,7 +378,8 @@
         <div class="student-profile-sidebar">
             <div class="profile-pic-frame">
                 <?php if (!empty($accountDetails['profile_image'])): ?>
-                    <img src="<?php echo htmlspecialchars($accountDetails['profile_image']); ?>" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">
+                    <img src="<?php echo htmlspecialchars($accountDetails['profile_image']); ?>"
+                        style="width:100%; height:100%; border-radius:50%; object-fit:cover;">
                 <?php else: ?>
                     <i class="fa-solid fa-user"></i>
                 <?php endif; ?>
@@ -391,85 +409,99 @@
                 <div class="info-row">
                     <label class="info-label">Name</label>
                     <div class="info-value">
-                        <input type="text" value="<?php echo htmlspecialchars($profile['name'] ?? ''); ?>" readonly class="info-input-field">
+                        <input type="text" value="<?php echo htmlspecialchars($profile['name'] ?? ''); ?>" readonly
+                            class="info-input-field">
                     </div>
                 </div>
                 <div class="info-row">
                     <label class="info-label">Father Name</label>
                     <div class="info-value">
-                        <input type="text" value="<?php echo htmlspecialchars($profile['fname'] ?? ''); ?>" readonly class="info-input-field">
+                        <input type="text" value="<?php echo htmlspecialchars($profile['fname'] ?? ''); ?>" readonly
+                            class="info-input-field">
                     </div>
                 </div>
                 <div class="info-row">
                     <label class="info-label">CNIC</label>
                     <div class="info-value">
-                        <input type="text" value="<?php echo htmlspecialchars($profile['cnic'] ?? ''); ?>" readonly class="info-input-field">
+                        <input type="text" value="<?php echo htmlspecialchars($profile['cnic'] ?? ''); ?>" readonly
+                            class="info-input-field">
                     </div>
                 </div>
                 <div class="info-row">
                     <label class="info-label">Session</label>
                     <div class="info-value">
-                        <input type="text" value="<?php echo htmlspecialchars($semesterDetail['session'] ?? ''); ?>" readonly class="info-input-field">
+                        <input type="text" value="<?php echo htmlspecialchars($semesterDetail['session'] ?? ''); ?>"
+                            readonly class="info-input-field">
                     </div>
                 </div>
                 <div class="info-row">
                     <label class="info-label">Department</label>
                     <div class="info-value">
-                        <input type="text" value="<?php echo htmlspecialchars($semesterDetail['department'] ?? ''); ?>" readonly class="info-input-field">
+                        <input type="text" value="<?php echo htmlspecialchars($semesterDetail['department'] ?? ''); ?>"
+                            readonly class="info-input-field">
                     </div>
                 </div>
                 <div class="info-row">
                     <label class="info-label">Program</label>
                     <div class="info-value">
-                        <input type="text" value="<?php echo htmlspecialchars($semesterDetail['program'] ?? ''); ?>" readonly class="info-input-field">
+                        <input type="text" value="<?php echo htmlspecialchars($semesterDetail['program'] ?? ''); ?>"
+                            readonly class="info-input-field">
                     </div>
                 </div>
                 <div class="info-row">
                     <label class="info-label">Current Semester</label>
                     <div class="info-value">
-                        <input type="text" value="<?php echo htmlspecialchars($semesterDetail['semester'] ?? ''); ?>" readonly class="info-input-field">
+                        <input type="text" value="<?php echo htmlspecialchars($semesterDetail['semester'] ?? ''); ?>"
+                            readonly class="info-input-field">
                     </div>
                 </div>
                 <div class="info-row">
                     <label class="info-label">Batch</label>
                     <div class="info-value">
-                        <input type="text" value="<?php echo htmlspecialchars($semesterDetail['batch'] ?? ''); ?>" readonly class="info-input-field">
+                        <input type="text" value="<?php echo htmlspecialchars($semesterDetail['batch'] ?? ''); ?>"
+                            readonly class="info-input-field">
                     </div>
                 </div>
                 <div class="info-row">
                     <label class="info-label">Section</label>
                     <div class="info-value">
-                        <input type="text" value="<?php echo htmlspecialchars($semesterDetail['section'] ?? ''); ?>" readonly class="info-input-field">
+                        <input type="text" value="<?php echo htmlspecialchars($semesterDetail['section'] ?? ''); ?>"
+                            readonly class="info-input-field">
                     </div>
                 </div>
                 <div class="info-row">
                     <label class="info-label">Date of Birth</label>
                     <div class="info-value">
-                        <input type="text" value="<?php echo htmlspecialchars($profile['dob'] ?? ''); ?>" readonly class="info-input-field">
+                        <input type="text" value="<?php echo htmlspecialchars($profile['dob'] ?? ''); ?>" readonly
+                            class="info-input-field">
                     </div>
                 </div>
                 <div class="info-row">
                     <label class="info-label">Cell No</label>
                     <div class="info-value">
-                        <input type="text" value="<?php echo htmlspecialchars($profile['cell_no'] ?? ''); ?>" readonly class="info-input-field">
+                        <input type="text" value="<?php echo htmlspecialchars($profile['cell_no'] ?? ''); ?>" readonly
+                            class="info-input-field">
                     </div>
                 </div>
                 <div class="info-row">
                     <label class="info-label">Email Address</label>
                     <div class="info-value">
-                        <input type="text" value="<?php echo htmlspecialchars($profile['email'] ?? ''); ?>" readonly class="info-input-field">
+                        <input type="text" value="<?php echo htmlspecialchars($profile['email'] ?? ''); ?>" readonly
+                            class="info-input-field">
                     </div>
                 </div>
                 <div class="info-row">
                     <label class="info-label">City</label>
                     <div class="info-value">
-                        <input type="text" value="<?php echo htmlspecialchars($profile['city'] ?? ''); ?>" readonly class="info-input-field">
+                        <input type="text" value="<?php echo htmlspecialchars($profile['city'] ?? ''); ?>" readonly
+                            class="info-input-field">
                     </div>
                 </div>
                 <div class="info-row" style="align-items: flex-start;">
                     <label class="info-label" style="margin-top: 8px;">Address</label>
                     <div class="info-value">
-                        <textarea rows="2" class="info-input-field" readonly style="resize: vertical;"><?php echo htmlspecialchars($profile['address'] ?? ''); ?></textarea>
+                        <textarea rows="2" class="info-input-field" readonly
+                            style="resize: vertical;"><?php echo htmlspecialchars($profile['address'] ?? ''); ?></textarea>
                     </div>
                 </div>
 
@@ -481,130 +513,159 @@
         </div>
     </div>
 
-<!-- Edit Profile Modal -->
-<div id="profileEditModal" class="modal-overlay" style="display:none;">
-    <div class="modal-container" style="max-width: 600px;">
-        <div class="modal-header" style="background: linear-gradient(135deg, #2e6652 0%, #26294d 100%);">
-            <h3><i class="fa-solid fa-user-pen"></i> Edit Profile Information</h3>
-            <span class="modal-close" onclick="closeProfileEditModal()">&times;</span>
-        </div>
-        <div class="modal-body" style="max-height: 75vh; overflow-y: auto; padding-right: 8px;">
-            <form action="" method="POST" enctype="multipart/form-data">
-                <input type="hidden" name="profile_image_base64" id="profile_image_base64">
-                
-                <div class="info-row">
-                    <label class="info-label" for="profile_image_input">Profile Picture</label>
-                    <div class="info-value">
-                        <input type="file" id="profile_image_input" accept="image/*" class="info-input-field" style="background-color: #ffffff;">
-                    </div>
-                </div>
+    <!-- Edit Profile Modal -->
+    <div id="profileEditModal" class="modal-overlay" style="display:none;">
+        <div class="modal-container" style="max-width: 600px;">
+            <div class="modal-header" style="background: linear-gradient(135deg, #2e6652 0%, #26294d 100%);">
+                <h3><i class="fa-solid fa-user-pen"></i> Edit Profile Information</h3>
+                <span class="modal-close" onclick="closeProfileEditModal()">&times;</span>
+            </div>
+            <div class="modal-body" style="max-height: 75vh; overflow-y: auto; padding-right: 8px;">
+                <form action="" method="POST" enctype="multipart/form-data">
+                    <input type="hidden" name="profile_image_base64" id="profile_image_base64">
 
-                <div class="info-row">
-                    <label class="info-label" for="name">Name</label>
-                    <div class="info-value">
-                        <input type="text" id="name" name="name" value="<?php echo htmlspecialchars($profile['name'] ?? ''); ?>" required class="info-input-field" style="background-color: #ffffff;">
+                    <div class="info-row">
+                        <label class="info-label" for="profile_image_input">Profile Picture</label>
+                        <div class="info-value">
+                            <input type="file" id="profile_image_input" accept="image/*" class="info-input-field"
+                                style="background-color: #ffffff;">
+                        </div>
                     </div>
-                </div>
 
-                <div class="info-row">
-                    <label class="info-label" for="fname">Father Name</label>
-                    <div class="info-value">
-                        <input type="text" id="fname" name="fname" value="<?php echo htmlspecialchars($profile['fname'] ?? ''); ?>" required class="info-input-field" style="background-color: #ffffff;">
+                    <div class="info-row">
+                        <label class="info-label" for="name">Name</label>
+                        <div class="info-value">
+                            <input type="text" id="name" name="name"
+                                value="<?php echo htmlspecialchars($profile['name'] ?? ''); ?>" required
+                                class="info-input-field" style="background-color: #ffffff;">
+                        </div>
                     </div>
-                </div>
 
-                <div class="info-row">
-                    <label class="info-label" for="cnic">CNIC</label>
-                    <div class="info-value">
-                        <input type="text" id="cnic" name="cnic" value="<?php echo htmlspecialchars($profile['cnic'] ?? ''); ?>" required class="info-input-field" style="background-color: #ffffff;">
+                    <div class="info-row">
+                        <label class="info-label" for="fname">Father Name</label>
+                        <div class="info-value">
+                            <input type="text" id="fname" name="fname"
+                                value="<?php echo htmlspecialchars($profile['fname'] ?? ''); ?>" required
+                                class="info-input-field" style="background-color: #ffffff;">
+                        </div>
                     </div>
-                </div>
 
-                <div class="info-row">
-                    <label class="info-label" for="session">Session</label>
-                    <div class="info-value">
-                        <input type="text" id="session" name="session" value="<?php echo htmlspecialchars($semesterDetail['session'] ?? ''); ?>" required class="info-input-field" style="background-color: #ffffff;">
+                    <div class="info-row">
+                        <label class="info-label" for="cnic">CNIC</label>
+                        <div class="info-value">
+                            <input type="text" id="cnic" name="cnic"
+                                value="<?php echo htmlspecialchars($profile['cnic'] ?? ''); ?>" required
+                                class="info-input-field" style="background-color: #ffffff;">
+                        </div>
                     </div>
-                </div>
 
-                <div class="info-row">
-                    <label class="info-label" for="department">Department</label>
-                    <div class="info-value">
-                        <input type="text" id="department" name="department" value="<?php echo htmlspecialchars($semesterDetail['department'] ?? ''); ?>" required class="info-input-field" style="background-color: #ffffff;">
+                    <div class="info-row">
+                        <label class="info-label" for="session">Session</label>
+                        <div class="info-value">
+                            <input type="text" id="session" name="session"
+                                value="<?php echo htmlspecialchars($semesterDetail['session'] ?? ''); ?>" required
+                                class="info-input-field" style="background-color: #ffffff;">
+                        </div>
                     </div>
-                </div>
 
-                <div class="info-row">
-                    <label class="info-label" for="program">Program</label>
-                    <div class="info-value">
-                        <input type="text" id="program" name="program" value="<?php echo htmlspecialchars($semesterDetail['program'] ?? ''); ?>" required class="info-input-field" style="background-color: #ffffff;">
+                    <div class="info-row">
+                        <label class="info-label" for="department">Department</label>
+                        <div class="info-value">
+                            <input type="text" id="department" name="department"
+                                value="<?php echo htmlspecialchars($semesterDetail['department'] ?? ''); ?>" required
+                                class="info-input-field" style="background-color: #ffffff;">
+                        </div>
                     </div>
-                </div>
 
-                <div class="info-row">
-                    <label class="info-label" for="semester">Current Semester</label>
-                    <div class="info-value">
-                        <input type="text" id="semester" name="semester" value="<?php echo htmlspecialchars($semesterDetail['semester'] ?? ''); ?>" required class="info-input-field" style="background-color: #ffffff;">
+                    <div class="info-row">
+                        <label class="info-label" for="program">Program</label>
+                        <div class="info-value">
+                            <input type="text" id="program" name="program"
+                                value="<?php echo htmlspecialchars($semesterDetail['program'] ?? ''); ?>" required
+                                class="info-input-field" style="background-color: #ffffff;">
+                        </div>
                     </div>
-                </div>
 
-                <div class="info-row">
-                    <label class="info-label" for="batch">Batch</label>
-                    <div class="info-value">
-                        <input type="text" id="batch" name="batch" value="<?php echo htmlspecialchars($semesterDetail['batch'] ?? ''); ?>" class="info-input-field" style="background-color: #ffffff;">
+                    <div class="info-row">
+                        <label class="info-label" for="semester">Current Semester</label>
+                        <div class="info-value">
+                            <input type="text" id="semester" name="semester"
+                                value="<?php echo htmlspecialchars($semesterDetail['semester'] ?? ''); ?>" required
+                                class="info-input-field" style="background-color: #ffffff;">
+                        </div>
                     </div>
-                </div>
 
-                <div class="info-row">
-                    <label class="info-label" for="section">Section</label>
-                    <div class="info-value">
-                        <input type="text" id="section" name="section" value="<?php echo htmlspecialchars($semesterDetail['section'] ?? ''); ?>" class="info-input-field" style="background-color: #ffffff;">
+                    <div class="info-row">
+                        <label class="info-label" for="batch">Batch</label>
+                        <div class="info-value">
+                            <input type="text" id="batch" name="batch"
+                                value="<?php echo htmlspecialchars($semesterDetail['batch'] ?? ''); ?>"
+                                class="info-input-field" style="background-color: #ffffff;">
+                        </div>
                     </div>
-                </div>
 
-                <div class="info-row">
-                    <label class="info-label" for="dob">Date of Birth</label>
-                    <div class="info-value">
-                        <input type="date" id="dob" name="dob" value="<?php echo htmlspecialchars($profile['dob'] ?? ''); ?>" class="info-input-field" style="background-color: #ffffff;">
+                    <div class="info-row">
+                        <label class="info-label" for="section">Section</label>
+                        <div class="info-value">
+                            <input type="text" id="section" name="section"
+                                value="<?php echo htmlspecialchars($semesterDetail['section'] ?? ''); ?>"
+                                class="info-input-field" style="background-color: #ffffff;">
+                        </div>
                     </div>
-                </div>
 
-                <div class="info-row">
-                    <label class="info-label" for="cellno">Cell No</label>
-                    <div class="info-value">
-                        <input type="text" id="cellno" name="cellno" value="<?php echo htmlspecialchars($profile['cell_no'] ?? ''); ?>" required class="info-input-field" style="background-color: #ffffff;">
+                    <div class="info-row">
+                        <label class="info-label" for="dob">Date of Birth</label>
+                        <div class="info-value">
+                            <input type="date" id="dob" name="dob"
+                                value="<?php echo htmlspecialchars($profile['dob'] ?? ''); ?>" class="info-input-field"
+                                style="background-color: #ffffff;">
+                        </div>
                     </div>
-                </div>
 
-                <div class="info-row">
-                    <label class="info-label" for="email">Email Address</label>
-                    <div class="info-value">
-                        <input type="email" id="email" name="email" value="<?php echo htmlspecialchars($profile['email'] ?? ''); ?>" required class="info-input-field" style="background-color: #ffffff;">
+                    <div class="info-row">
+                        <label class="info-label" for="cellno">Cell No</label>
+                        <div class="info-value">
+                            <input type="text" id="cellno" name="cellno"
+                                value="<?php echo htmlspecialchars($profile['cell_no'] ?? ''); ?>" required
+                                class="info-input-field" style="background-color: #ffffff;">
+                        </div>
                     </div>
-                </div>
 
-                <div class="info-row">
-                    <label class="info-label" for="city">City</label>
-                    <div class="info-value">
-                        <input type="text" id="city" name="city" value="<?php echo htmlspecialchars($profile['city'] ?? ''); ?>" class="info-input-field" style="background-color: #ffffff;">
+                    <div class="info-row">
+                        <label class="info-label" for="email">Email Address</label>
+                        <div class="info-value">
+                            <input type="email" id="email" name="email"
+                                value="<?php echo htmlspecialchars($profile['email'] ?? ''); ?>" required
+                                class="info-input-field" style="background-color: #ffffff;">
+                        </div>
                     </div>
-                </div>
 
-                <div class="info-row" style="align-items: flex-start;">
-                    <label class="info-label" for="address" style="margin-top: 8px;">Address</label>
-                    <div class="info-value">
-                        <textarea id="address" name="address" rows="2" class="info-input-field" style="resize: vertical; background-color: #ffffff;"><?php echo htmlspecialchars($profile['address'] ?? ''); ?></textarea>
+                    <div class="info-row">
+                        <label class="info-label" for="city">City</label>
+                        <div class="info-value">
+                            <input type="text" id="city" name="city"
+                                value="<?php echo htmlspecialchars($profile['city'] ?? ''); ?>" class="info-input-field"
+                                style="background-color: #ffffff;">
+                        </div>
                     </div>
-                </div>
 
-                <div class="modal-actions" style="display:flex; justify-content:flex-end; gap:10px; margin-top:20px;">
-                    <button type="button" class="btn-cancel" onclick="closeProfileEditModal()">Cancel</button>
-                    <button type="submit" name="save_student_dashboard" class="btn-save-info">Save Changes</button>
-                </div>
-            </form>
+                    <div class="info-row" style="align-items: flex-start;">
+                        <label class="info-label" for="address" style="margin-top: 8px;">Address</label>
+                        <div class="info-value">
+                            <textarea id="address" name="address" rows="2" class="info-input-field"
+                                style="resize: vertical; background-color: #ffffff;"><?php echo htmlspecialchars($profile['address'] ?? ''); ?></textarea>
+                        </div>
+                    </div>
+
+                    <div class="modal-actions"
+                        style="display:flex; justify-content:flex-end; gap:10px; margin-top:20px;">
+                        <button type="button" class="btn-cancel" onclick="closeProfileEditModal()">Cancel</button>
+                        <button type="submit" name="save_student_dashboard" class="btn-save-info">Save Changes</button>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
-</div>
 
     <script>
         function togglePasswordVisibility() {
@@ -741,7 +802,7 @@
 </div>
 
 <!-- ========================================== -->
-<!-- TAB 3: INTERNSHIP LETTERS                  -->
+<!-- TAB 3: INTERNSHIP LETTER                   -->
 <!-- ========================================== -->
 <div id="student-letters" class="tab-content">
     <?php $isLetterApproved = (int) ($semesterDetail['letter_approved'] ?? 0) === 1; ?>
@@ -988,7 +1049,8 @@
             <div class="profile-pic-frame"
                 style="border-color: #2e6652; background: linear-gradient(135deg, #2e6652 0%, #26294d 100%);">
                 <?php if (!empty($accountDetails['profile_image'])): ?>
-                    <img src="<?php echo htmlspecialchars($accountDetails['profile_image']); ?>" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">
+                    <img src="<?php echo htmlspecialchars($accountDetails['profile_image']); ?>"
+                        style="width:100%; height:100%; border-radius:50%; object-fit:cover;">
                 <?php else: ?>
                     <i class="fa-solid fa-user"></i>
                 <?php endif; ?>
@@ -1407,7 +1469,8 @@
 
             <div style="margin-top: 20px; text-align: right; display: flex; gap: 10px; justify-content: flex-end;">
                 <button type="button" class="btn-cancel" onclick="closeModal('letterModal')">Close</button>
-                <button type="button" class="btn-submit" style="margin-top: 0;" onclick="window.location.href='downloads/download_letter.php'">
+                <button type="button" class="btn-submit" style="margin-top: 0;"
+                    onclick="window.location.href='downloads/download_letter.php'">
                     <i class="fa-solid fa-download"></i> Download PDF
                 </button>
             </div>
